@@ -1,0 +1,93 @@
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 92.5vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.verticalSection {
+  flex: 1;
+  overflow-y: scroll;
+  padding: 20px;
+  border-top: 2px solid black;
+  border-left: 2px solid black;
+  border-right: 2px solid black;
+  border-bottom: 1px solid black;
+  border-radius: 4px;
+  width: 100vw;
+
+  /* Hide scrollbar in IE, Edge, and Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.verticalSection::-webkit-scrollbar {
+  display: none;
+}
+
+.horizontalSection {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 100%;
+  overflow-x: scroll;
+  height: 20vh;
+  width: 100vw;
+  padding: 20px;
+  border-top: 1px solid black;
+  border-left: 2px solid black;
+  border-right: 2px solid black;
+  border-bottom: 2px solid black;
+  border-radius: 4px;
+
+  /* Hide scrollbar in IE, Edge, and Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */  
+}
+
+.trackWrapper {
+  display: flex;
+  overflow-x: scroll;
+  height: 20vh;
+  width: 100vw;
+  padding: 4px;
+  border-top: 1px solid black;
+  border-left: 2px solid black;
+  border-right: 2px solid black;
+  border-bottom: 2px solid black;
+  border-radius: 4px;
+
+  /* Hide scrollbar in IE, Edge, and Firefox */
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */  
+}
+
+.horizontalSection::-webkit-scrollbar {
+  display: none;
+}
+
+.verticalItem {
+  margin-bottom: 10px;
+  padding: 200px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+}
+
+.itemHorizontal {
+  flex: none;
+  margin-right: 1px;
+  width: 150px;
+  height: 72px;
+  padding: 10px;
+  border: 2px solid #c3bdbd;
+  border-radius: 5px;
+}
+
+.playhead {
+  position: absolute;
+  height: calc(20vh - 8px);
+  left: 10%;
+  width: 2px;
+  background-color: black;
+}
