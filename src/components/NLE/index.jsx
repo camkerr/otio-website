@@ -1,29 +1,29 @@
 'use client'
 
 import React, { useRef, useEffect } from 'react';
+import Playhead from './Playhead';
+import Draggable from 'react-draggable'; // The default
 import styles from '../../styles/editor.css';
+import Timecode from 'react-timecode';
 
 
-// const clipGenerator = ({}) => {
-//   return (
-
-//   )
-// }
-
-const ClipTypes = [
+const ContentSections = [
   {
     name: 'Title',
-    color: 'grey',
+    backgroundColor: '#1662BF',
+    borderColor: 'hsl(0, 50%, 90%)',
     track: 0
   },
   {
     name: 'Paragraph',
-    color: 'blue',
+    backgroundColor: '#3f0db2',
+    borderColor: 'hsl(0, 50%, 90%)',
     track: 1
   },
   {
     name: 'Graphic',
-    color: 'yellow',
+    backgroundColor: '#00422b',
+    borderColor: 'hsl(0, 50%, 90%)',
     track: 2
   }
 ]
@@ -62,7 +62,7 @@ const EditorIndex = () => {
   return (
     // In order for this to work, the size of the components in the timeline needs to be calculated based on their 
     // rendered sized within the DOM, otherwise the scroll scaling will be all wrong. 
-    <div className='container'>
+    <div className='uiContainer'>
       <div ref={verticalSectionRef} className='verticalSection'>
         {/* Your vertically scrolling content here */}
         {[...Array(50).keys()].map(i => (
@@ -70,12 +70,29 @@ const EditorIndex = () => {
         ))}
       </div>
       <div ref={horizontalSectionRef} className='trackWrapper'>
-        <div className='playhead' />
+        {/* <div className='playhead'> */}
+          <Draggable
+            axis='x'
+            defaultPosition={{x: 10, y: 10}}
+          >
+            <Playhead />
+          </Draggable>
+        {/* </div> */}
         {/* Your horizontally scrolling content here */}
         {[...Array(50).keys()].map(i => {
-          const clipSettings = ClipTypes[randomIntFromInterval(0, 2)]
+          const clipSettings = ContentSections[randomIntFromInterval(0, 2)]
           return (
-            <div key={i} className='itemHorizontal' style={{ backgroundColor: clipSettings.color, marginTop: `${clipSettings.track * 72}px` }}>{clipSettings.name} {i + 1}</div>
+            <div
+              key={i}
+              className='itemHorizontal'
+              style={{
+                borderColor: clipSettings.borderColor,
+                backgroundColor: clipSettings.backgroundColor,
+                marginTop: `${clipSettings.track * 48}px`,
+                color: clipSettings.borderColor
+              }}>
+              {clipSettings.name} {i + 1}
+            </div>
           )
         })}
       </div>
