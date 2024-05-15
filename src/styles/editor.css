@@ -32,7 +32,7 @@
   grid-template-rows: auto 1fr auto;
   grid-template-columns: 100%;
   overflow-x: scroll;
-  height: 20vh;
+  height: 20dvh;
   width: 100vw;
   padding: 20px;
   border-top: 1px solid black;
@@ -49,7 +49,7 @@
 .trackWrapper {
   display: flex;
   overflow-x: scroll;
-  height: 20vh;
+  height: 20dvh;
   width: 100vw;
   padding: 4px;
   border-top: 1px solid black;
@@ -86,7 +86,7 @@
 
 .playhead {
   position: absolute;
-  height: calc(20vh - 8px);
+  height: calc(20dvh - 8px);
   left: 10%;
   width: 2px;
   background-color: black;
