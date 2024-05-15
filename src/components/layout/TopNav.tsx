@@ -70,7 +70,7 @@ export function TopNav() {
         src={"/images/OpenTimelineIO@3xDark.png"}
         alt="OTIO Logo"
         width={250}
-        objectFit={'contain'}
+        objectFit="contain"
         height={24}
       />
       <NavigationMenu>
