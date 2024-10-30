@@ -239,7 +239,7 @@ export function VideoComparisonPlayer({ video1Src, video2Src }: VideoComparisonP
       </div>
       <div className="mt-4">
         <label htmlFor="blendModeSelector" className="text-sm font-medium">Blending Mode</label>
-        <Select id="blendModeSelector" value={blendMode} onValueChange={setBlendMode}>
+        <Select value={blendMode} onValueChange={setBlendMode}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Select blend mode" />
           </SelectTrigger>

@@ -33,7 +33,7 @@ async function getCsvData() {
   return parsedData;
 }
 
-const CellRenderer = ({ value }) => {
+const CellRenderer = ({ value }: { value: string }) => {
   switch (value) {
     case "Y":
       return (
@@ -57,7 +57,7 @@ const CellRenderer = ({ value }) => {
 const TableData = ({ data }: any) => {
   return (
     <>
-      {data.map((row) => (
+      {data.map((row: any) => (
         <TableRow key={row.Feature}>
           <TableCell className="font-medium" width="700px">
             {row.Feature}
