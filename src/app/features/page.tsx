@@ -30,11 +30,7 @@ async function getCsvData() {
     skipEmptyLines: true,
   }).data;
 
-  return {
-    props: {
-      data: parsedData,
-    },
-  };
+  return parsedData;
 }
 
 const CellRenderer = ({ value }) => {
@@ -77,7 +73,7 @@ const TableData = ({ data }: any) => {
 };
 
 export default async function FeaturesIndex() {
-  const featureMatrix = (await getCsvData()).props.data;
+  const featureMatrix = await getCsvData();
 
   return (
     <div
@@ -92,13 +88,8 @@ export default async function FeaturesIndex() {
         className="w-[800px]"
         style={{ width: "fit-content", alignSelf: "center" }}
       >
-        {/* <CardHeader>
-          <CardTitle>How does OpenTimelineIO stack up against other interchange formats?</CardTitle>
-          <CardDescription>Feature Comparison</CardDescription>
-        </CardHeader> */}
         <CardContent>
           <Table>
-            {/* <TableCaption>Interchange Format Comparison Matrix</TableCaption> */}
             <TableHeader>
               <TableHead className="w-[100px]">Feature</TableHead>
               <TableHead className="w-[100px]">OpenTimelineIO</TableHead>
