@@ -21,7 +21,7 @@ import {
 
 import { Check, X } from "lucide-react";
 
-export async function getCsvData() {
+async function getCsvData() {
   const filePath = path.join(process.cwd(), "content", "features", "feature-matrix.csv");
   const csvData = fs.readFileSync(filePath, "utf-8");
 
@@ -76,7 +76,7 @@ const TableData = ({ data }: any) => {
   );
 };
 
-export default async function Index() {
+export default async function FeaturesIndex() {
   const featureMatrix = (await getCsvData()).props.data;
 
   return (
