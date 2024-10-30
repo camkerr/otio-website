@@ -1,28 +1,22 @@
+import "../../styles/editor.css";
+
 interface TrackItem {
-  type: string;
-  track: number;
-  name: string;
   content: string;
   image?: string;
+  name: string;
+  track: number;
+  type: string;
 }
 
 const Timeline = (clips: TrackItem[]) => {
   return (
     <>
-      <div>
-        Track labels
-      </div>
+      <div>Track labels</div>
       <div>
         Main horizontal scroll area
-        <div>
-          Track 1
-        </div>
-        <div>
-          Track 2
-        </div>
-        <div>
-          Track 3
-        </div>
+        <div>Track 1</div>
+        <div>Track 2</div>
+        <div>Track 3</div>
       </div>
     </>
   );

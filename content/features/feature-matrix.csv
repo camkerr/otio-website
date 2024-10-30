@@ -1,0 +1,38 @@
+Feature,OpenTimelineIO,ALE,EDL,AAF,FCP 7 XML
+User metadata Fields,Y,Y,P,,P
+Arbitrary structured metadata on any object,Y,N,N,,N
+Long source (reel/tape) names,Y,Y,N,,Y
+Unicode,Y,Y,?,,Y
+Mixed Frame Rates,Y,Y,P,,Y
+Bins,Y,Y,N,,Y
+Clips,Y,Y,Y,,Y
+URL-based sources,Y,N,N,,Y
+Image sequence sources,Y,N,N,,N
+Generator Sources,Black/Bars Only,N,Black/Bars Only,,Y
+Standard Library of Generators,Black/Bars Only,N,Black/Bars Only,,N
+Timelines,Y,N,Y,,Y
+Multi-track timelines,Y,N,N,,Y
+Linked Clips,#343,N,N,Y,Y
+Enable/Disable Clips,Y,N,N,Y,Y
+Nested Timelines,N,N,N,,Y
+Markers/Locators,Y,Y,Y,,Y
+Ranged Markers/Locators,Y,N,N,,Y
+"Timeline Settings (Render Resolution, Frame/Sample Rate, Colorspace)",#1683,N,N,,Y
+CDL Values,Y,Y,Y,,N
+Input Colorspace to use for referenced media,"#857, #858",N,N,,?
+Working Colorspace,"#857, #858",N,N,,?
+Output Colorspace,"#857, #858",N,N,,?
+LUT Application,"#857, #858",N,N,,N
+Effects,Y,N,N,,Y
+Standard Library of Effects,N,N,N,,N
+Time-varying/key-framed parameters,#331,N,N,,Y
+Transitions,Y,N,Y,,Y
+Standard Library of Transition Types,N,N,Y,,N
+Linear re-speed (n% Playback rate),Y,N,Y,,Y
+ArbitraryTime Warp/Remapping,N,N,N,,Y
+"Spatial Transforms (Translate, Rotate, Scale)",N,N,N,,Y
+Resolution-independent Spatial Transforms,N,N,N,,N
+Audio Channel Mapping,#145,N,Y,,Y
+Visual Track/View selection,#145,N,N,,N
+Timed Text (Captions/Subs),#62,N,N,,N
+Embedded Media,Y,N,N,Y,N

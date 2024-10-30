@@ -2,13 +2,13 @@
 .uiContainer {
   display: flex;
   flex-direction: column;
-  height: 92.5vh;
+  height: calc(100vh - 65px);
   padding: 8px;
   width: 100vw;
   overflow: hidden;
 }
 
-.verticalSection {
+.previewWindow {
   flex: 1;
   overflow-y: scroll;
   padding: 20px;
@@ -17,6 +17,7 @@
   border-right: 2px solid black;
   border-bottom: 1px solid black;
   border-radius: 4px;
+  height: calc(100vh - 20dvh);
   width: calc(100vw - 16px);
 
   /* Hide scrollbar in IE, Edge, and Firefox */
@@ -28,8 +29,8 @@
   display: none;
 }
 
-.horizontalSection {
-  display: grid;
+/* .horizontalSection {
+  /* display: grid;
   grid-template-rows: auto 1fr auto;
   grid-template-columns: 100%;
   overflow-x: scroll;
@@ -40,17 +41,17 @@
   border-left: 2px solid black;
   border-right: 2px solid black;
   border-bottom: 2px solid black;
-  border-radius: 6px;
+  border-radius: 6px; */
 
   /* Hide scrollbar in IE, Edge, and Firefox */
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */  
-}
+  /* -ms-overflow-style: none;  /* IE and Edge */
+  /* scrollbar-width: none;  Firefox   */
+/* } */
 
-.trackWrapper {
+.timelineWrapper {
   display: flex;
   overflow-x: scroll;
-  height: 14dvh;
+  height: 16dvh;
   width: calc(100vw - 16px);
   padding: 4px;
   border-top: 1px solid;
@@ -63,6 +64,23 @@
   /* Hide scrollbar in IE, Edge, and Firefox */
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */  
+}
+
+.transportControls {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  height: 4dvh;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.playbackControlsButtonWrapper {
+  display: flex;
+  gap: 8px;
+}
+.playbackControlButton {
+  padding: 8px;
+  width: fit-content;
 }
 
 .horizontalSection::-webkit-scrollbar {
