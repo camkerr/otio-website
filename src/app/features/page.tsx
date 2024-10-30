@@ -130,10 +130,10 @@ export default async function FeaturesIndex() {
             <Table>
               <TableHeader>
                 <TableHead className="w-[100px]">Feature</TableHead>
-                <TableHead className="w-[100px]">OpenTimelineIO</TableHead>
-                <TableHead className="w-[100px]">ALE</TableHead>
-                <TableHead className="w-[100px]">AAF</TableHead>
-                <TableHead className="w-[100px]">FCP7XML</TableHead>
+                <TableHead className="w-[200px] text-center">OpenTimelineIO</TableHead>
+                <TableHead className="w-[100px] text-center">ALE</TableHead>
+                <TableHead className="w-[100px] text-center">AAF</TableHead>
+                <TableHead className="w-[100px] text-center">FCP7XML</TableHead>
               </TableHeader>
               <TableBody>
                 <TableData data={featureMatrix} />
