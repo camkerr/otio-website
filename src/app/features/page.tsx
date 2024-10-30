@@ -42,19 +42,40 @@ const CellRenderer = ({ value }: { value: string }) => {
   switch (value) {
     case "Y":
       return (
-        <TableCell style={{ textAlign: "center" }}>
-          <Check />
+        <TableCell className="text-center align-middle">
+          <Check className="mx-auto" />
         </TableCell>
       );
       break;
     case "N":
       return (
-        <TableCell style={{ textAlign: "center" }}>
-          <X />
+        <TableCell className="text-center align-middle">
+          <X className="mx-auto" />
+        </TableCell>
+      );
+    case value.match(/#\d+/) ? value : null:
+      return (
+        <TableCell className="text-center align-middle">
+          {value.split(",").map((token, index) => {
+            const prNumber = token.trim().replace("#", "");
+            return (
+              <>
+                <a 
+                  href={`https://github.com/AcademySoftwareFoundation/OpenTimelineIO/pulls/${prNumber}`}
+                  className="text-blue-500 hover:text-blue-700"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {token.trim()}
+                </a>
+                {index < value.split(",").length - 1 && ", "}
+              </>
+            );
+          })}
         </TableCell>
       );
     default:
-      return <TableCell style={{ textAlign: "center" }}>{value}</TableCell>;
+      return <TableCell className="text-center align-middle">{value}</TableCell>;
       break;
   }
 };
@@ -90,9 +111,9 @@ export default async function FeaturesIndex() {
     >
       <div
         className="w-[1000px]"
-        style={{ margin: "auto" }}
+        style={{ margin: "auto", width: "fit-content" }}
       >
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 pt-12 pb-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-4">Timeline Format Support</h1>
             <p className="text-md text-muted-foreground">
@@ -104,8 +125,8 @@ export default async function FeaturesIndex() {
         <div className="py-4">
           <EditInGithub repoPath="/content/features/feature-matrix.csv" />
         </div>
-        <Card style={{ width: "fit-content", alignSelf: "center" }}>
-          <CardContent>
+        <Card style={{ width: "w-[1000px]", alignSelf: "center" }} >
+          <CardContent className="p-0">
             <Table>
               <TableHeader>
                 <TableHead className="w-[100px]">Feature</TableHead>

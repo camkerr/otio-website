@@ -71,7 +71,7 @@ export function TopNav() {
         <Link href="/">
           <Image
             src={"/images/OpenTimelineIO@3xLight.png"}
-            className="absolute scale-0 transition-all dark:scale-100"
+            className="absolute scale-0 dark:scale-100"
             alt="OTIO Logo"
             width={250}
             objectFit="contain"
@@ -80,7 +80,7 @@ export function TopNav() {
           <Image
             src={"/images/OpenTimelineIO@3xDark.png"}
             alt="OTIO Logo"
-            className="scale-100 transition-all dark:scale-0"
+            className="scale-100 dark:scale-0"
             width={250}
             objectFit="contain"
             height={18}

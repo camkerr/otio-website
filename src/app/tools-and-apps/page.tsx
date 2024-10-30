@@ -156,7 +156,7 @@ export default function ToolsAndAppsPage() {
       {/* Make header sticky */}
       {/* <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"> */}
       <div className="sticky top-0">
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 pt-12 pb-8">
           <div className="text-center">
             <h1 className="text-4xl font-bold mb-4">Apps and Integrations</h1>
             <p className="text-xl text-muted-foreground">
