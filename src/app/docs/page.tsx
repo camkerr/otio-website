@@ -1,9 +1,9 @@
-import MarkdownTutorial from "@/components/Tutorial";
+import { MarkdownTutorial } from "@/components/Tutorial";
 import { promises as fs } from "fs";
 import path from "path";
 
 async function getMarkdownContent() {
-  const filePath = path.join(process.cwd(), "content", "raven-demo.md");
+  const filePath = path.join(process.cwd(), "content", "tutorials", "raven-demo.md");
   const markdown = await fs.readFile(filePath, "utf8");
   return markdown;
 }

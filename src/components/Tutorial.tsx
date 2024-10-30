@@ -9,7 +9,7 @@ export interface MarkdownTutorialProps {
   layout?: "sidebar" | "full";
 }
 
-export default function MarkdownTutorial({
+export function MarkdownTutorial({
   markdown,
   layout = "sidebar",
 }: MarkdownTutorialProps) {
@@ -33,10 +33,14 @@ export default function MarkdownTutorial({
           li: ({ node, ...props }) => <li className="mb-2" {...props} />,
           code: ({ node, className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || "");
-            return !inline && match ? (
+            return match ? (
               <Card className="my-4">
-                {/* <SyntaxHighlighter style={vscDarkPlus} language={match[1]} PreTag="div" {...props}> */}
-                <SyntaxHighlighter language={match[1]} PreTag="div" {...props}>
+                <SyntaxHighlighter
+                  style={vscDarkPlus}
+                  language={match[1]} 
+                  PreTag="div"
+                  customStyle={{margin: 0}}
+                >
                   {String(children).replace(/\n$/, "")}
                 </SyntaxHighlighter>
               </Card>

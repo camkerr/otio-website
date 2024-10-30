@@ -78,9 +78,10 @@ const EditorIndex = () => {
   const verticalSectionRef = useRef(null);
   const horizontalSectionRef = useRef(null);
   const [scrollPercentage, setScrollPercentage] = useState(0);
-  const timelineDuration = 2 * 60; // 2 minutes in seconds
+  const timelineDuration = 4 * 60; // 2 minutes in seconds
   const timelineDurationFrames = timelineDuration * 24;
   const percentagePerSecond = 1 / timelineDuration;
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const getTimecodeFromScroll = useCallback((percentage) => {
     try {
@@ -108,14 +109,49 @@ const EditorIndex = () => {
     }
   }, [timelineDurationFrames])
 
-  const handleScroll = useCallback(() => {
+  useEffect(() => {
+    let animationId;
+    
+    if (isPlaying) {
+      const animate = () => {
+        setScrollPercentage(prev => {
+          const newPercentage = prev + percentagePerSecond / 60; // 60fps approximation
+          if (newPercentage >= 1) {
+            setIsPlaying(false);
+            return 1;
+          }
+          return newPercentage;
+        });
+        animationId = requestAnimationFrame(animate);
+      };
+      
+      animationId = requestAnimationFrame(animate);
+    }
+
+    return () => {
+      if (animationId) {
+        cancelAnimationFrame(animationId);
+      }
+    };
+  }, [isPlaying, percentagePerSecond]);
+
+  // Add effect to update scroll positions whenever scrollPercentage changes
+  useEffect(() => {
     const verticalSection = verticalSectionRef.current;
     const horizontalSection = horizontalSectionRef.current;
 
     if (verticalSection && horizontalSection) {
+      verticalSection.scrollTop = scrollPercentage * (verticalSection.scrollHeight - verticalSection.clientHeight);
+      horizontalSection.scrollLeft = scrollPercentage * (horizontalSection.scrollWidth - horizontalSection.clientWidth);
+    }
+  }, [scrollPercentage]);
+
+  // Keep the handleScroll for manual scrolling, but only update the percentage
+  const handleScroll = useCallback(() => {
+    const verticalSection = verticalSectionRef.current;
+    if (verticalSection) {
       const newScrollPercentage = verticalSection.scrollTop / (verticalSection.scrollHeight - verticalSection.clientHeight);
       setScrollPercentage(newScrollPercentage);
-      horizontalSection.scrollLeft = newScrollPercentage * (horizontalSection.scrollWidth - horizontalSection.clientWidth);
     }
   }, []);
 
@@ -140,13 +176,19 @@ const EditorIndex = () => {
           <BodyContent />
         </div>
         <div className='transportControls'>
-          {/* <div>{(scrollPercentage * 100).toFixed(2)}%</div> */}
           <div>
             {getTimecodeFromScroll(scrollPercentage)}
           </div>
           <div className='playbackControlsButtonWrapper'>
             <Button className='playbackControlButton' variant='outline' size='icon'>Rewind</Button>
-            <Button className='playbackControlButton' variant='outline' size='icon'>Play/Pause</Button>
+            <Button 
+              className='playbackControlButton' 
+              variant='outline' 
+              size='icon'
+              onClick={() => setIsPlaying(prev => !prev)}
+            >
+              {isPlaying ? 'Pause' : 'Play'}
+            </Button>
             <Button className='playbackControlButton' variant='outline' size='icon'>Fast Forward</Button>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>

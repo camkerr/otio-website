@@ -71,7 +71,16 @@ export function TopNav() {
         <Link href="/">
           <Image
             src={"/images/OpenTimelineIO@3xLight.png"}
+            className="absolute scale-0 transition-all dark:scale-100"
             alt="OTIO Logo"
+            width={250}
+            objectFit="contain"
+            height={18}
+          />
+          <Image
+            src={"/images/OpenTimelineIO@3xDark.png"}
+            alt="OTIO Logo"
+            className="scale-100 transition-all dark:scale-0"
             width={250}
             objectFit="contain"
             height={18}
@@ -92,7 +101,7 @@ export function TopNav() {
       >
         <NavigationMenu>
           <NavigationMenuList>
-            <NavigationMenuItem>
+            {/* <NavigationMenuItem>
               <NavigationMenuTrigger>Changelog</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
@@ -127,8 +136,8 @@ export function TopNav() {
                   </ListItem>
                 </ul>
               </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
+            </NavigationMenuItem> */}
+            {/* <NavigationMenuItem>
               <NavigationMenuTrigger>Apps and Tools</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
@@ -143,6 +152,20 @@ export function TopNav() {
                   ))}
                 </ul>
               </NavigationMenuContent>
+            </NavigationMenuItem> */}
+            <NavigationMenuItem>
+              <Link href="/features" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Features
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <Link href="/tools-and-apps" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                  Apps and Tools
+                </NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
               <Link href="/docs" legacyBehavior passHref>
@@ -154,7 +177,7 @@ export function TopNav() {
           </NavigationMenuList>
         </NavigationMenu>
         <Link href="https://github.com/AcademySoftwareFoundation/OpenTimelineIO">
-          <Button variant="outline" size="icon" style={{ marginLeft: "12px" }}>
+          <Button variant="outline" size="icon" style={{ marginLeft: "16px" }}>
             <Image
               objectPosition="contain"
               width={16}
@@ -173,7 +196,7 @@ export function TopNav() {
             />
           </Button>
         </Link>
-        <ModeToggle style={{ marginLeft: "12px" }} />
+        <ModeToggle style={{ marginLeft: "16px", minWidth: "40px" }} />
       </div>
     </div>
   );

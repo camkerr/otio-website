@@ -11,16 +11,17 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { title: "Introduction", path: "/docs" },
+  // { title: "Introduction", path: "/docs" },
   {
-    title: "Getting Started",
-    path: "/docs/getting-started",
-    children: [
-      { title: "Installation", path: "/docs/getting-started/installation" },
-      { title: "Configuration", path: "/docs/getting-started/configuration" },
-    ],
+    title: "Tutorial",
+    path: "/docs",
+    // children: [
+    //   { title: "Installation", path: "/docs/getting-started/installation" },
+    //   { title: "Configuration", path: "/docs/getting-started/configuration" },
+    // ],
   },
-  { title: "API Reference", path: "/docs/api" },
+  { title: "Python API", path: "/docs/python" },
+  { title: "OTIO Schema Reference", path: "/docs/reference/schema" },
   { title: "Examples", path: "/docs/examples" },
 ];
 
@@ -38,8 +39,10 @@ const NavItem = ({
     <li>
       <Link
         href={item.path}
-        className={`block py-2 px-4 ${
-          isActive ? "bg-gray-200 font-bold" : "hover:bg-gray-100"
+        className={`block py-2 px-4 transition-colors ${
+          isActive 
+            ? "bg-accent text-accent-foreground font-bold" 
+            : "hover:bg-accent/50"
         }`}
         onClick={() => item.children && setIsOpen(!isOpen)}
       >
@@ -60,7 +63,7 @@ export const LeftNav = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="bg-white border-r border-gray-200 h-full overflow-y-auto">
+    <nav className="bg-background border-r border-border h-full overflow-y-auto">
       <ul className="py-4">
         {navItems.map((item) => (
           <NavItem key={item.path} item={item} currentPath={pathname} />
