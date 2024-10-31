@@ -9,7 +9,15 @@ import { randInt } from 'three/src/math/MathUtils.js';
 import { Button } from '@/components/ui/button';
 import { KeyboardShortcutDisplay } from '@/components/NLE/KeyboardShortcutDisplay';
 import { ScrollContext } from '@/components/NLE/ScrollContext';
-
+import { TimelineTicks } from '@/components/NLE/TimelineTicks';
+import {
+  Play,
+  Pause,
+  FastForward,
+  Rewind,
+  SkipForward,
+  SkipBack,
+} from 'lucide-react';
 
 const ContentSections = [
   {
@@ -42,7 +50,7 @@ function randomIntFromInterval(min, max) { // min and max included
 const BodyContent = React.memo(() => {
   return (
     <>
-      {[...Array(50).keys()].map(i => (
+      {[...Array(15).keys()].map(i => (
         <div key={i} className='verticalItem'>Text section {i + 1}</div>
       ))}
     </>
@@ -52,8 +60,9 @@ BodyContent.displayName = 'BodyContent';
 
 const TimelineContent = React.memo(() => {
   return (
+    // <div className='timelineContent'>
     <>
-      {[...Array(50).keys()].map(i => {
+      {[...Array(15).keys()].map(i => {
         const clipSettings = ContentSections[randomIntFromInterval(0, 2)]
         return (
           <div
@@ -72,6 +81,7 @@ const TimelineContent = React.memo(() => {
         )
       })}
     </>
+    // </div>
   )
 });
 TimelineContent.displayName = 'TimelineContent';
@@ -89,6 +99,7 @@ const EditorIndex = () => {
   const [rewindSpeedLevel, setRewindSpeedLevel] = useState(0);
   const [currentKeyCode, setCurrentKeyCode] = useState('');
   const [currentShiftKey, setCurrentShiftKey] = useState(false);
+  const playheadRef = useRef(null);
 
   const timelineDuration = 4 * 60;
   const timelineDurationFrames = timelineDuration * 24;
@@ -97,6 +108,7 @@ const EditorIndex = () => {
   const verticalSectionRef = useRef(null);
   const playButtonRef = useRef(null);
   const timelineWrapperRef = useRef(null);
+  const timelineContentRef = useRef(null);
 
 
   useEffect(() => {
@@ -312,7 +324,7 @@ const EditorIndex = () => {
       // Update shortcut display state
       setCurrentKeyCode(e.code);
       setCurrentShiftKey(e.shiftKey);
-      
+
       // Reset after a short delay
       setTimeout(() => {
         setCurrentKeyCode('');
@@ -446,9 +458,9 @@ const EditorIndex = () => {
     <ScrollContext.Provider value={scrollPercentage}>
       <div className='uiContainer'>
         <div ref={verticalSectionRef} className='previewWindow'>
-          <KeyboardShortcutDisplay 
-            keyCode={currentKeyCode} 
-            shiftKey={currentShiftKey} 
+          <KeyboardShortcutDisplay
+            keyCode={currentKeyCode}
+            shiftKey={currentShiftKey}
             isPlaying={isPlaying}
             ffwSpeedLevel={ffwSpeedLevel}
             rewindSpeedLevel={rewindSpeedLevel}
@@ -465,7 +477,6 @@ const EditorIndex = () => {
             <Button
               className='playbackControlButton'
               variant='outline'
-              tabIndex={-1}
               size='icon'
               onClick={() => {
                 setIsPlaying(false);
@@ -479,17 +490,18 @@ const EditorIndex = () => {
                 }
               }}
               style={{
+                outline: 0,
                 backgroundColor: rewindState ? 'rgba(59, 130, 246, 0.2)' : 'transparent'
               }}
             >
-              {rewindState ? `Rewind ${Math.pow(2, rewindSpeedLevel)}x` : 'Rewind'}
+              {/* {rewindState ? `Rewind ${Math.pow(2, rewindSpeedLevel)}x` : 'Rewind'} */}
+              <Rewind />
             </Button>
             <Button
               ref={playButtonRef}
               className='playbackControlButton'
               variant='outline'
               size='icon'
-              tabIndex={-1}
               onClick={() => {
                 if (ffwState || rewindState) {
                   setIsPlaying(false);
@@ -500,16 +512,17 @@ const EditorIndex = () => {
                 }
               }}
               style={{
+                outline: 0,
                 backgroundColor: isPlaying ? 'rgba(59, 130, 246, 0.2)' : 'transparent'
               }}
             >
-              {isPlaying ? 'Pause' : 'Play'}
+              {/* {isPlaying ? 'Pause' : 'Play'} */}
+              {isPlaying ? <Pause /> : <Play />}
             </Button>
             <Button
               className='playbackControlButton'
               variant='outline'
               size='icon'
-              tabIndex={-1}
               onClick={() => {
                 setIsPlaying(false);
                 setRewindState(false);
@@ -522,10 +535,12 @@ const EditorIndex = () => {
                 }
               }}
               style={{
+                outline: 0,
                 backgroundColor: ffwState ? 'rgba(59, 130, 246, 0.2)' : 'transparent'
               }}
             >
-              {ffwState ? `Fast Forward ${Math.pow(2, ffwSpeedLevel)}x` : 'Fast Forward'}
+              {/* {ffwState ? `Fast Forward ${Math.pow(2, ffwSpeedLevel)}x` : 'Fast Forward'} */}
+              <FastForward />
             </Button>
           </div>
           <div className="font-mono text-sm text-right">
@@ -538,7 +553,9 @@ const EditorIndex = () => {
             ref={timelineWrapperRef}
             className='timelineWrapper'
           >
+            <TimelineTicks containerRef={timelineWrapperRef} />
             <Draggable
+              nodeRef={playheadRef}
               axis="x"
               position={{ x: playheadPosition, y: 0 }}
               onDrag={handlePlayheadDrag}
@@ -571,6 +588,7 @@ const EditorIndex = () => {
               }}
             >
               <div
+                ref={playheadRef}
                 className='playheadContainer'
                 style={{
                   position: 'absolute',
@@ -584,7 +602,7 @@ const EditorIndex = () => {
                 <Playhead />
               </div>
             </Draggable>
-            <TimelineContent />
+            <TimelineContent ref={timelineContentRef} />
           </div>
         </div>
       </div>

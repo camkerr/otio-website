@@ -73,7 +73,7 @@ export const KeyboardShortcutDisplay = ({
       switch (keyCode) {
         case 'Space':
         case 'KeyK':
-          icon = isPlaying ? <Pause {...iconProps} /> : <Play {...iconProps} />;
+          icon = !isPlaying ? <Pause {...iconProps} /> : <Play {...iconProps} />;
           break;
         case 'KeyL':
           icon = (
@@ -110,7 +110,7 @@ export const KeyboardShortcutDisplay = ({
         // Hide after animation
         setTimeout(() => {
           setIsVisible(false);
-        }, 500);
+        }, 750);
       }
     }, [keyCode, shiftKey, isPlaying, ffwSpeedLevel, rewindSpeedLevel, ffwState, rewindState]);
   

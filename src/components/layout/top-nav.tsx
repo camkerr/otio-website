@@ -64,6 +64,7 @@ export function TopNav() {
         display: "grid",
         gridTemplateColumns: "33% auto 33%",
         justifyContent: "space-between",
+        alignItems: "center",
         padding: "12px",
       }}
     >
@@ -176,27 +177,29 @@ export function TopNav() {
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
-        <Link href="https://github.com/AcademySoftwareFoundation/OpenTimelineIO">
-          <Button variant="outline" size="icon" style={{ marginLeft: "16px" }}>
-            <Image
-              objectPosition="contain"
-              width={16}
-              height={16}
-              className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-              src="/icons/github/github-mark.png"
-              alt="OTIO Logo"
-            />
-            <Image
-              objectPosition="contain"
-              width={16}
-              height={16}
-              className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-              src="/icons/github/github-mark-white.png"
-              alt="OTIO Logo"
-            />
-          </Button>
-        </Link>
-        <ModeToggle style={{ marginLeft: "16px", minWidth: "40px" }} />
+        <div style={{ marginLeft: "12px" }}>
+          <Link href="https://github.com/AcademySoftwareFoundation/OpenTimelineIO">
+            <Button variant="outline" size="icon">
+              <Image
+                objectPosition="contain"
+                width={16}
+                height={16}
+                className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+                src="/icons/github/github-mark.png"
+                alt="OTIO Logo"
+              />
+              <Image
+                objectPosition="contain"
+                width={16}
+                height={16}
+                className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+                src="/icons/github/github-mark-white.png"
+                alt="OTIO Logo"
+              />
+            </Button>
+          </Link>
+        </div>
+        <ModeToggle style={{ marginLeft: "12px", minWidth: "40px" }} />
       </div>
     </div>
   );

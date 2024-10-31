@@ -11,6 +11,7 @@ const Playhead = () => {
         position: "relative",
         left: `clamp(0%, ${scrollPercentage * 100}%, 100%)`,
         marginLeft: "-14px",
+        marginTop: "-2px",
         top: 0,
         bottom: 0,
         width: "2px",

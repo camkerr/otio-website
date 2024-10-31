@@ -13,7 +13,7 @@
   padding: 20px;
   border: 2px solid hsl(var(--border));
   border-bottom-width: 1px;
-  border-radius: var(--radius);
+  border-radius: var(--radius) var(--radius) 0 0;
   height: calc(100vh - 26dvh - 24px);
   width: calc(100vw - 32px);
   background-color: hsl(var(--background));
@@ -23,7 +23,7 @@
 
 .timelineWrapperContainer {
   display: flex;
-  overflow-x: visible;
+  overflow-x: scroll;
   width: calc(100vw - 32px);
 }
 
@@ -37,10 +37,19 @@
   padding: 0 8px 0 0;
   border: 2px solid hsl(var(--border));
   border-top-width: 1px;
-  border-radius: var(--radius);
+  border-radius: 0 0 var(--radius) var(--radius);
   background-color: hsl(var(--background));
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+.timelineContent {
+  overflow-x: scroll;
+  height: 16dvh;
+  width: calc(100vw - 16px);
+  display: flex;
+  margin-top: 16px;
+  flex-direction: row;
 }
 
 .transportControls {
@@ -52,9 +61,22 @@
   padding: 0px 16px;
   border: 2px solid hsl(var(--border));
   border-top-width: 1px;
-  border-radius: var(--radius);
   margin: 0px 0;
   background-color: hsl(var(--background));
+}
+
+.playbackControlsButtonWrapper {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.playbackControlButton {
+  padding: 0;
+  margin: 0;
+  transition: background-color 0.15s ease;
+  min-width: 36px;
+  height: 36px;
 }
 
 .itemHorizontal {
@@ -71,32 +93,19 @@
 
 .verticalItem {
   margin-bottom: 24px;
-  padding: 200px;
+  padding: 250px;
   background-color: hsl(var(--muted));
   border: 1px solid hsl(var(--border));
   border-radius: var(--radius);
 }
 
+.horizontalSection::-webkit-scrollbar {
+  display: none;
+}
+
 .playheadContainer {
   cursor: ew-resize;
   pointer-events: auto;
-}
-
-.playbackControlsButtonWrapper {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-}
-
-.playbackControlButton {
-  padding: 0 8px;
-  /* width: fit-content; */
-  transition: background-color 0.15s ease;
-  min-width: 140px;
-}
-
-.horizontalSection::-webkit-scrollbar {
-  display: none;
 }
 
 .playhead {
