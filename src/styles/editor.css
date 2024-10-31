@@ -1,9 +1,8 @@
-
 .uiContainer {
   display: flex;
   flex-direction: column;
   height: calc(100vh - 65px);
-  padding: 8px;
+  padding: 16px;
   width: 100vw;
   overflow: hidden;
 }
@@ -12,58 +11,36 @@
   flex: 1;
   overflow-y: scroll;
   padding: 20px;
-  border-top: 2px solid black;
-  border-left: 2px solid black;
-  border-right: 2px solid black;
-  border-bottom: 1px solid black;
-  border-radius: 4px;
-  height: calc(100vh - 20dvh);
-  width: calc(100vw - 16px);
-
-  /* Hide scrollbar in IE, Edge, and Firefox */
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
+  border: 2px solid hsl(var(--border));
+  border-bottom-width: 1px;
+  border-radius: var(--radius);
+  height: calc(100vh - 26dvh - 24px);
+  width: calc(100vw - 32px);
+  background-color: hsl(var(--background));
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-.verticalSection::-webkit-scrollbar {
-  display: none;
+.timelineWrapperContainer {
+  display: flex;
+  overflow-x: visible;
+  width: calc(100vw - 32px);
 }
-
-/* .horizontalSection {
-  /* display: grid;
-  grid-template-rows: auto 1fr auto;
-  grid-template-columns: 100%;
-  overflow-x: scroll;
-  height: 20dvh;
-  width: calc(100vw - 16px);
-  padding: 20px;
-  border-top: 1px solid black;
-  border-left: 2px solid black;
-  border-right: 2px solid black;
-  border-bottom: 2px solid black;
-  border-radius: 6px; */
-
-  /* Hide scrollbar in IE, Edge, and Firefox */
-  /* -ms-overflow-style: none;  /* IE and Edge */
-  /* scrollbar-width: none;  Firefox   */
-/* } */
 
 .timelineWrapper {
-  display: flex;
+  position: relative;
   overflow-x: scroll;
   height: 16dvh;
   width: calc(100vw - 16px);
-  padding: 4px;
-  border-top: 1px solid;
-  border-left: 2px solid;
-  border-right: 2px solid;
-  border-bottom: 2px solid;
-  border-radius: 6px;
-  /* user-select: none; */
-
-  /* Hide scrollbar in IE, Edge, and Firefox */
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */  
+  display: flex;
+  flex-direction: row;
+  padding: 0 8px 0 0;
+  border: 2px solid hsl(var(--border));
+  border-top-width: 1px;
+  border-radius: var(--radius);
+  background-color: hsl(var(--background));
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .transportControls {
@@ -72,39 +49,57 @@
   height: 4dvh;
   align-items: center;
   justify-content: space-between;
+  padding: 0px 16px;
+  border: 2px solid hsl(var(--border));
+  border-top-width: 1px;
+  border-radius: var(--radius);
+  margin: 0px 0;
+  background-color: hsl(var(--background));
+}
+
+.itemHorizontal {
+  user-select: none;
+  flex: none;
+  margin-right: 1px;
+  width: 150px;
+  height: 48px;
+  padding: 10px;
+  border: 2px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background-color: hsl(var(--muted));
+}
+
+.verticalItem {
+  margin-bottom: 24px;
+  padding: 200px;
+  background-color: hsl(var(--muted));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+}
+
+.playheadContainer {
+  cursor: ew-resize;
+  pointer-events: auto;
 }
 
 .playbackControlsButtonWrapper {
   display: flex;
-  gap: 8px;
+  justify-content: center;
+  gap: 16px;
 }
+
 .playbackControlButton {
-  padding: 8px;
-  width: fit-content;
+  padding: 0 8px;
+  /* width: fit-content; */
+  transition: background-color 0.15s ease;
+  min-width: 140px;
 }
 
 .horizontalSection::-webkit-scrollbar {
   display: none;
 }
 
-.verticalItem {
-  margin-bottom: 10px;
-  padding: 200px;
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-}
-
-.itemHorizontal {
-  flex: none;
-  margin-right: 1px;
-  width: 150px;
-  height: 48px;
-  padding: 10px;
-  border: 0.2px solid #c3bdbd;
-  border-radius: 6px;
-}
-
 .playhead {
-  position: absolute;
+  position: relative;
   left: 200px;
 }
