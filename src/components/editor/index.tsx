@@ -401,6 +401,8 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
 
   const sequences = [
     { id: "introduction", name: "OTIO_Introduction_v01.otio" },
+    { id: "for-editors", name: "OTIO_for_editors_v01.otio" },
+    { id: "for-developers", name: "OTIO_for_developers_v01.otio" },
   ];
 
   return (

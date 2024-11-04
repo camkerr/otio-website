@@ -62,10 +62,10 @@ export function TopNav() {
       className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b"
       style={{
         display: "grid",
-        gridTemplateColumns: "33% auto 33%",
+        gridTemplateColumns: "33% 33% 33%",
         justifyContent: "space-between",
         alignItems: "center",
-        padding: "12px",
+        padding: "16px",
       }}
     >
       <div style={{ display: "inline-flex", alignItems: "flex-start" }}>
@@ -88,14 +88,14 @@ export function TopNav() {
           />
         </Link>
       </div>
-      <DocSearch
-        appId="R2IYF7ETH7"
-        apiKey="599cec31baffa4868cae4e79f180729b"
-        indexName="docsearch"
-        placeholder="Search..."
-        on
-
-      />
+      <div style={{ display: "inline-flex", justifyContent: "center" }}>
+        <DocSearch
+          appId="R2IYF7ETH7"
+          apiKey="599cec31baffa4868cae4e79f180729b"
+          indexName="docsearch"
+          placeholder="Search..."
+        />
+      </div>
       <div
         style={{
           display: "inline-flex",

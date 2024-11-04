@@ -60,7 +60,7 @@ const CellRenderer = ({ value }: { value: string }) => {
             const prNumber = token.trim().replace("#", "");
             return (
               <>
-                <a 
+                <a
                   href={`https://github.com/AcademySoftwareFoundation/OpenTimelineIO/pull/${prNumber}`}
                   className="text-blue-500 hover:text-blue-700"
                   target="_blank"
@@ -75,7 +75,9 @@ const CellRenderer = ({ value }: { value: string }) => {
         </TableCell>
       );
     default:
-      return <TableCell className="text-center align-middle">{value}</TableCell>;
+      return (
+        <TableCell className="text-center align-middle">{value}</TableCell>
+      );
       break;
   }
 };
@@ -122,20 +124,32 @@ export default async function FeaturesIndex() {
             </p>
           </div>
         </div>
-        <div className="py-4">
-          <EditInGithub repoPath="/content/features/feature-matrix.csv" />
+        <div className="w-full flex justify-end flex-shrink-0">
+          <div className="text-sm text-muted-foreground py-4">
+            <EditInGithub repoPath="/content/features/feature-matrix.csv" />
+          </div>
         </div>
-        <Card style={{ width: "w-[1000px]", alignSelf: "center" }} >
+        <Card className="w-[1000px]">
           <CardContent className="p-0">
             <Table>
-              <TableHeader>
-                <TableHead className="w-[100px]">Feature</TableHead>
-                <TableHead className="w-[200px] text-center">OpenTimelineIO</TableHead>
-                <TableHead className="w-[100px] text-center">ALE</TableHead>
-                <TableHead className="w-[100px] text-center">AAF</TableHead>
-                <TableHead className="w-[200px] text-center">FCP7XML</TableHead>
+              <TableHeader className="sticky top-0 border-b">
+                <TableRow>
+                  <TableHead className="w-[700px] bg-card">Feature</TableHead>
+                  <TableHead className="w-[200px] text-center bg-card">
+                    OpenTimelineIO
+                  </TableHead>
+                  <TableHead className="w-[100px] text-center bg-card">
+                    AAF
+                  </TableHead>
+                  <TableHead className="w-[100px] text-center bg-card">
+                    ALE
+                  </TableHead>
+                  <TableHead className="w-[200px] text-center bg-card">
+                    EDL
+                  </TableHead>
+                </TableRow>
               </TableHeader>
-              <TableBody>
+              <TableBody className="overflow-y-auto">
                 <TableData data={featureMatrix} />
               </TableBody>
             </Table>

@@ -1,4 +1,4 @@
-import { useMarkdownContent } from "@/components/editor/hooks";
+// import { useMarkdownContent } from "@/components/editor/hooks";
 import { MarkdownTutorial } from "@/components/Tutorial";
 import { OTIO_REPO_FOR_DOCS } from "@/lib/constants";
 import { promises as fs } from "fs";
@@ -16,7 +16,8 @@ async function getMarkdownContent() {
 }
 
 export default async function DocTemplate() {
-  const { markdown, isLoading } = useMarkdownContent(OTIO_REPO_FOR_DOCS);
+  // const { markdown, isLoading } = useMarkdownContent(OTIO_REPO_FOR_DOCS);
+  const markdown = await getMarkdownContent();
 
   return (
     <>

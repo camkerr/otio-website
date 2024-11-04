@@ -24,11 +24,11 @@ export function SequenceSelector({
   onSequenceChange,
 }: SequenceSelectorProps) {
   return (
-    <div className="flex flex-row gap-2 items-baseline">
-      <span className="text-sm font-medium">Sequence:</span>
+    <div className="flex items-center justify-center">
       <Select
         value={activeSequenceId}
         onValueChange={onSequenceChange}
+        defaultValue={activeSequenceId}
       >
         <SelectTrigger className="w-[300px]">
           <SelectValue placeholder="Select a sequence" />
