@@ -1,0 +1,19 @@
+{
+  "type": "tool",
+  "name": "raven",
+  "description": "Raven is a desktop app for MacOS, Windows, Linux, and web for inspecting OTIO files",
+  "company": "OpenTimelineIO",
+  "logo": "./logo.jpg",
+  "categories": [
+    "Tool",
+    "Inspector",
+    "Timeline"
+  ],
+  "media": [
+    {
+      "type": "image",
+      "url": "./media-1.png",
+      "isHero": true
+    }
+  ]
+}

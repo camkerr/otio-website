@@ -43,7 +43,7 @@ export const TimelineTicks = ({ containerRef }: TimelineTicksProps) => {
 
   const renderTicks = () => {
     const ticks = [];
-    const numTicks = 100;
+    const numTicks = 300;
 
     for (let i = 0; i <= numTicks; i++) {
       const percentage = (i / numTicks) * 100;

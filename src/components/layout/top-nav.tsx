@@ -92,6 +92,9 @@ export function TopNav() {
         appId="R2IYF7ETH7"
         apiKey="599cec31baffa4868cae4e79f180729b"
         indexName="docsearch"
+        placeholder="Search..."
+        on
+
       />
       <div
         style={{

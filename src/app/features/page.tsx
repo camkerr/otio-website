@@ -61,7 +61,7 @@ const CellRenderer = ({ value }: { value: string }) => {
             return (
               <>
                 <a 
-                  href={`https://github.com/AcademySoftwareFoundation/OpenTimelineIO/pulls/${prNumber}`}
+                  href={`https://github.com/AcademySoftwareFoundation/OpenTimelineIO/pull/${prNumber}`}
                   className="text-blue-500 hover:text-blue-700"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -133,7 +133,7 @@ export default async function FeaturesIndex() {
                 <TableHead className="w-[200px] text-center">OpenTimelineIO</TableHead>
                 <TableHead className="w-[100px] text-center">ALE</TableHead>
                 <TableHead className="w-[100px] text-center">AAF</TableHead>
-                <TableHead className="w-[100px] text-center">FCP7XML</TableHead>
+                <TableHead className="w-[200px] text-center">FCP7XML</TableHead>
               </TableHeader>
               <TableBody>
                 <TableData data={featureMatrix} />

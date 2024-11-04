@@ -6,6 +6,14 @@ import {
   Rewind, 
   SkipForward, 
   SkipBack,
+  ArrowRight,
+  ArrowLeft,
+  ArrowRightToLine,
+  ArrowLeftToLine,
+  ArrowUp,
+  ArrowDown,
+  ChevronsUp,
+  ChevronsDown,
 } from 'lucide-react';
 
 export interface KeyboardShortcutDisplayProps {
@@ -94,10 +102,26 @@ export const KeyboardShortcutDisplay = ({
           );
           break;
         case 'KeyI':
-          if (shiftKey) icon = <SkipBack {...iconProps} />;
+          if (shiftKey) icon = <ArrowLeftToLine {...iconProps} />;
           break;
         case 'KeyO':
-          if (shiftKey) icon = <SkipForward {...iconProps} />;
+          if (shiftKey) icon = <ArrowRightToLine {...iconProps} />;
+          break;
+        case 'ArrowRight':
+          icon = shiftKey ? 
+            <ArrowRightToLine {...iconProps} /> : 
+            <ArrowRight {...iconProps} />;
+          break;
+        case 'ArrowLeft':
+          icon = shiftKey ? 
+            <ArrowLeftToLine {...iconProps} /> : 
+            <ArrowLeft {...iconProps} />;
+          break;
+        case 'ArrowUp':
+          icon = <ArrowLeftToLine {...iconProps} />;
+          break;
+        case 'ArrowDown':
+          icon = <ArrowRightToLine {...iconProps} />;
           break;
         default:
           return;
@@ -118,7 +142,7 @@ export const KeyboardShortcutDisplay = ({
   
     return (
       <div className={`
-        fixed top-1/2 left-1/2 
+        fixed left-1/2 
         -translate-x-1/2 -translate-y-1/2
         ${isVisible ? 'scale-110 opacity-100' : 'scale-100 opacity-0'}
         transition-all duration-200 ease-in-out
@@ -126,7 +150,9 @@ export const KeyboardShortcutDisplay = ({
         bg-black/50 p-4 rounded-lg
         flex items-center justify-center
         min-w-[120px]
-      `}>
+      `}
+      style={{top: 'calc(calc(calc(100% - 65px) - 10dvh)/2)'}}
+      >
         {shortcut}
       </div>
     );

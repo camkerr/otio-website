@@ -2,36 +2,18 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search, X } from "lucide-react";
-
-type MediaItem = {
-  type: "image" | "video";
-  url: string;
-  thumbnail?: string;
-};
-
-type Integration = {
-  id: string;
-  title: string;
-  description: string;
-  company: string;
-  logo: string;
-  categories: string[];
-  media: MediaItem[];
-};
+import { Integration, MediaItem } from "@/types/integrations";
 
 export default function ToolsAndAppsPage() {
-  const [selectedProject, setSelectedProject] = useState<Integration | null>(null);
+  const [selectedProject, setSelectedProject] = useState<Integration | null>(
+    null
+  );
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [mediaIndex, setMediaIndex] = useState(0);
@@ -39,10 +21,11 @@ export default function ToolsAndAppsPage() {
   const integrations: Integration[] = [
     {
       id: "1",
-      title: "Cezanne",
+      name: "Cezanne",
       description: "Media player and review tool",
       company: "Cezanne",
       logo: "/placeholder.svg?height=100&width=100",
+      type: "app",
       categories: ["Media", "Review"],
       media: [
         { type: "image", url: "/placeholder.svg?height=720&width=1280" },
@@ -51,10 +34,11 @@ export default function ToolsAndAppsPage() {
     },
     {
       id: "2",
-      title: "ftrack cineSync Play",
+      name: "ftrack cineSync Play",
       description: "Frame-accurate playback & review & tool",
       company: "ftrack",
       logo: "/placeholder.svg?height=100&width=100",
+      type: "app",
       categories: ["Media", "Review"],
       media: [
         { type: "image", url: "/placeholder.svg?height=720&width=1280" },
@@ -63,11 +47,12 @@ export default function ToolsAndAppsPage() {
     },
     {
       id: "3",
-      title: "Hiero",
+      name: "Hiero",
       description:
         "Multi-shot management, conform, editorial, review and distribution workflows tool",
       company: "Foundry",
       logo: "/placeholder.svg?height=100&width=100",
+      type: "app",
       categories: ["Management", "Review"],
       media: [
         { type: "image", url: "/placeholder.svg?height=720&width=1280" },
@@ -76,11 +61,12 @@ export default function ToolsAndAppsPage() {
     },
     {
       id: "4",
-      title: "mrViewer",
+      name: "mrViewer",
       description:
         "flipbook, video and audio player, with OTIO support demonstrated here",
       company: "mrViewer",
       logo: "/placeholder.svg?height=100&width=100",
+      type: "app",
       categories: ["Media", "Player"],
       media: [
         { type: "image", url: "/placeholder.svg?height=720&width=1280" },
@@ -89,10 +75,11 @@ export default function ToolsAndAppsPage() {
     },
     {
       id: "5",
-      title: "OpenRV",
+      name: "OpenRV",
       description: "A digital review tool for film, TV, and games",
       company: "OpenRV",
       logo: "/placeholder.svg?height=100&width=100",
+      type: "app",
       categories: ["Review", "Media"],
       media: [
         { type: "image", url: "/placeholder.svg?height=720&width=1280" },
@@ -101,11 +88,12 @@ export default function ToolsAndAppsPage() {
     },
     {
       id: "6",
-      title: "Hiero",
+      name: "Hiero",
       description:
         "Multi-shot management, conform, editorial, review and distribution workflows tool",
       company: "Foundry",
       logo: "/placeholder.svg?height=100&width=100",
+      type: "app",
       categories: ["Management", "Review"],
       media: [
         { type: "image", url: "/placeholder.svg?height=720&width=1280" },
@@ -114,11 +102,12 @@ export default function ToolsAndAppsPage() {
     },
     {
       id: "7",
-      title: "mrViewer",
+      name: "mrViewer",
       description:
         "flipbook, video and audio player, with OTIO support demonstrated here",
       company: "mrViewer",
       logo: "/placeholder.svg?height=100&width=100",
+      type: "app",
       categories: ["Media", "Player"],
       media: [
         { type: "image", url: "/placeholder.svg?height=720&width=1280" },
@@ -127,10 +116,11 @@ export default function ToolsAndAppsPage() {
     },
     {
       id: "8",
-      title: "OpenRV",
+      name: "OpenRV",
       description: "A digital review tool for film, TV, and games",
       company: "OpenRV",
       logo: "/placeholder.svg?height=100&width=100",
+      type: "app",
       categories: ["Review", "Media"],
       media: [
         { type: "image", url: "/placeholder.svg?height=720&width=1280" },
@@ -146,7 +136,7 @@ export default function ToolsAndAppsPage() {
       selectedCategories.length === 0 ||
       integration.categories.some((cat) => selectedCategories.includes(cat));
     const matchesSearch =
-      integration.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      integration.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       integration.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategories && matchesSearch;
   });
@@ -235,7 +225,7 @@ export default function ToolsAndAppsPage() {
                   <div className="aspect-video relative">
                     <Image
                       src={integration.media[0].url}
-                      alt={integration.title}
+                      alt={integration.name}
                       className="object-cover transition-transform group-hover:scale-105"
                       fill
                     />
@@ -253,7 +243,7 @@ export default function ToolsAndAppsPage() {
                     </div>
                     <div className="pt-4">
                       <h3 className="font-semibold text-lg mb-1">
-                        {integration.title}
+                        {integration.name}
                       </h3>
                       <div className="min-h-[2.5rem]">
                         <p className="text-sm text-muted-foreground line-clamp-2 pb-4">
@@ -283,7 +273,7 @@ export default function ToolsAndAppsPage() {
           {selectedProject && (
             <>
               <DialogHeader>
-                <DialogTitle>{selectedProject.title}</DialogTitle>
+                <Dialogname>{selectedProject.name}</Dialogname>
               </DialogHeader>
               <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
                 {selectedProject.media[mediaIndex].type === "video" ? (
@@ -295,7 +285,7 @@ export default function ToolsAndAppsPage() {
                 ) : (
                   <Image
                     src={selectedProject.media[mediaIndex].url}
-                    alt={`${selectedProject.title} preview`}
+                    alt={`${selectedProject.name} preview`}
                     className="object-cover"
                     fill
                   />
