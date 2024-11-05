@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Search, X } from "lucide-react";
 import { Integration, MediaItem } from "@/types/integrations";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 export default function ToolsAndAppsPage() {
   const [selectedProject, setSelectedProject] = useState<Integration | null>(
@@ -273,7 +274,7 @@ export default function ToolsAndAppsPage() {
           {selectedProject && (
             <>
               <DialogHeader>
-                <Dialogname>{selectedProject.name}</Dialogname>
+                <DialogTitle>{selectedProject.name}</DialogTitle>
               </DialogHeader>
               <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
                 {selectedProject.media[mediaIndex].type === "video" ? (
