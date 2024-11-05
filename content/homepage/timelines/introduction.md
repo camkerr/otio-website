@@ -1,9 +1,3 @@
-<!-- ---
-timeline_name: for_developers_v01.otio
-duration: 90
-framerate: 24
---- -->
-
 # OpenTimelineIO
 
 ## Bridging Editorial Workflows Across Platforms
