@@ -31,12 +31,12 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const timelineDurationFrames = timelineDuration * 24;
   const percentagePerSecond = 1 / timelineDuration;
 
-  const verticalSectionRef = useRef(null);
+  const verticalSectionRef = useRef<HTMLElement>(null);
   const playButtonRef = useRef<HTMLButtonElement>(null);
   const playheadRef = useRef(null);
-  const timelineContainerRef = useRef(null);
-  const timelineWrapperRef = useRef(null);
-  const timelineContentRef = useRef(null);
+  const timelineContainerRef = useRef<HTMLElement>(null);
+  const timelineWrapperRef = useRef<HTMLElement>(null);
+  const timelineContentRef = useRef<HTMLElement>(null);
 
   const getTimecodeFromScroll = useCallback(
     (percentage: number) => {
