@@ -31,12 +31,12 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const timelineDurationFrames = timelineDuration * 24;
   const percentagePerSecond = 1 / timelineDuration;
 
-  const verticalSectionRef = useRef<HTMLElement>(null);
+  const verticalSectionRef = useRef<HTMLDivElement>(null);
   const playButtonRef = useRef<HTMLButtonElement>(null);
-  const playheadRef = useRef(null);
-  const timelineContainerRef = useRef<HTMLElement>(null);
-  const timelineWrapperRef = useRef<HTMLElement>(null);
-  const timelineContentRef = useRef<HTMLElement>(null);
+  const playheadRef = useRef<HTMLDivElement>(null);
+  const timelineContainerRef = useRef<HTMLDivElement>(null);
+  const timelineWrapperRef = useRef<HTMLDivElement>(null);
+  const timelineContentRef = useRef<HTMLDivElement>(null);
 
   const getTimecodeFromScroll = useCallback(
     (percentage: number) => {
@@ -120,7 +120,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
 
   // Update the handleScroll callback to sync both directions
   const handleScroll = useCallback(
-    (e) => {
+    (e: any) => {
       if (isPlaying || ffwState || rewindState) {
         setIsPlaying(false);
         setFfwState(false);
@@ -240,7 +240,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
       if (e.code === "Space") {
         e.preventDefault();
         if (document.activeElement === playButtonRef.current) {
-          playButtonRef.current.blur();
+          playButtonRef.current?.blur();
         }
       }
 
@@ -521,7 +521,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
               ref={timelineWrapperRef}
               className="timelineWrapper"
             >
-              <TimelineTicks containerRef={timelineWrapperRef} />
+              {/* <TimelineTicks containerRef={timelineWrapperRef} /> */}
               <Draggable
                 nodeRef={playheadRef}
                 axis="x"

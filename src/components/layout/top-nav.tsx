@@ -184,7 +184,7 @@ export function TopNav() {
           <Link href="https://github.com/AcademySoftwareFoundation/OpenTimelineIO">
             <Button variant="outline" size="icon">
               <Image
-                objectPosition="contain"
+                objectFit="contain"
                 width={16}
                 height={16}
                 className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
@@ -192,7 +192,7 @@ export function TopNav() {
                 alt="OTIO Logo"
               />
               <Image
-                objectPosition="contain"
+                objectFit="contain"
                 width={16}
                 height={16}
                 className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"

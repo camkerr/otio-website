@@ -25,8 +25,9 @@ This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-opti
 
 
 ## Working with Markdown and MDX in Next.js
-- https://github.com/hashicorp/next-mdx-remote
-- https://glama.ai/blog/2024-10-21-rendering-markdown-in-react
+- [Loading markdown remotely](https://github.com/hashicorp/next-mdx-remote)
+- [The latest and greated approach to rendering markdown in react using rehype, remark, etc](https://glama.ai/blog/2024-10-21-rendering-markdown-in-react)
+- [How to calculate time required to read (sequence length)](https://github.com/mattjennings/remark-reading-time)
 
 
 
