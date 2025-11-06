@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+"use client";
+
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -37,9 +38,9 @@ export function MarkdownTutorial({
               <Card className="my-4">
                 <SyntaxHighlighter
                   style={vscDarkPlus}
-                  language={match[1]} 
+                  language={match[1]}
                   PreTag="div"
-                  customStyle={{margin: 0}}
+                  customStyle={{ margin: 0 }}
                 >
                   {String(children).replace(/\n$/, "")}
                 </SyntaxHighlighter>

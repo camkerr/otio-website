@@ -1,5 +1,5 @@
 // import { useMarkdownContent } from "@/components/editor/hooks";
-import { MarkdownTutorial } from "@/components/Tutorial";
+import { MarkdownTutorial } from "@/components/tutorial";
 import { OTIO_REPO_FOR_DOCS } from "@/lib/constants";
 import { promises as fs } from "fs";
 import path from "path";
