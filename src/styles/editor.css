@@ -57,7 +57,7 @@
 .playbackControlsButtonWrapper {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 8px;
 }
 
 .playbackControlButton {
@@ -89,13 +89,25 @@
 
 .timelineWrapperContainer {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   width: calc(100vw - 32px);
   height: auto;
   border: 2px solid hsl(var(--border));
   border-top-width: 0px;
   border-radius: 0 0 var(--radius) var(--radius);
   background-color: hsl(var(--background));
+  position: relative; /* So playhead can be positioned absolutely within */
+}
+
+.timelineTicksWrapper {
+  display: flex;
+  flex-direction: row;
+  position: relative;
+  z-index: 10; /* Lower than playhead */
+}
+
+.timelineTicksWrapper::-webkit-scrollbar {
+  display: none;
 }
 
 .track-headers-fixed {
@@ -161,7 +173,7 @@
 .playheadContainer {
   cursor: ew-resize;
   pointer-events: auto;
-  z-index: 100 !important;
+  z-index: 1000 !important; /* Ensure playhead is on top of everything including ticks */
   /* Wider click target */
   padding: 0 10px;
   margin-left: -10px;
@@ -170,7 +182,7 @@
 .playhead {
   position: relative;
   pointer-events: none;
-  z-index: 100;
+  z-index: 1000;
 }
 
 .timeline-tracks-area {

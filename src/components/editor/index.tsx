@@ -30,6 +30,9 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const [currentShiftKey, setCurrentShiftKey] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1); // 1 = 100%, 0.5 = 50%, 2 = 200%
   const [timelineHeight, setTimelineHeight] = useState(2000); // Default playhead height - will be adjusted dynamically
+  const [timelineWidth, setTimelineWidth] = useState(2000); // Timeline content width
+  const [timelineScrollLeft, setTimelineScrollLeft] = useState(0); // Track horizontal scroll position
+  const timelineTicksRef = useRef<HTMLDivElement>(null);
 
   // Parse markdown and generate clips
   const { clips, totalDuration, sections } = useMemo(() => {
@@ -193,14 +196,17 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   useEffect(() => {
     const updatePlayheadPosition = () => {
       if (timelineWrapperRef.current) {
-        const timelineWidth = timelineWrapperRef.current.scrollWidth;
+        const width = timelineWrapperRef.current.scrollWidth;
         // Position playhead within the timeline
-        const position = scrollPercentage * timelineWidth;
+        const position = scrollPercentage * width;
         setPlayheadPosition(position);
+        setTimelineWidth(width);
         
-        // Update playhead height based on timeline container height
-        const height = timelineWrapperRef.current.clientHeight;
-        setTimelineHeight(Math.max(height, 160)); // Minimum 160px (5 tracks × 32px)
+        // Calculate playhead height: ticks (32px) + tracks (5 × 32px = 160px) = 192px
+        const ticksHeight = 32;
+        const tracksHeight = 5 * 32; // 5 tracks, each 32px
+        const totalHeight = ticksHeight + tracksHeight;
+        setTimelineHeight(totalHeight);
       }
     };
 
@@ -215,7 +221,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
     return () => {
       resizeObserver.disconnect();
     };
-  }, [scrollPercentage]);
+  }, [scrollPercentage, zoomLevel]);
 
   const handlePlayheadDrag = useCallback((e: any, data: { x: number }) => {
     setIsPlaying(false);
@@ -575,121 +581,167 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
             </div>
           </div>
           <div ref={timelineContainerRef} className="timelineWrapperContainer">
-            {/* Fixed track headers column */}
-            <div className="track-headers-fixed">
-              <div className="track-header">
-                <div className="track-locked">
-                  <Lock size={16} />
-                </div>
-                <div className="track-label">{"<h1>"}</div>
-                <div className="track-name">Header 1</div>
-                <div className="track-controls">
-                  <button>
-                    <Monitor size={16} />
-                  </button>
-                  <button>
-                    <Eye size={16} />
-                  </button>
-                </div>
-              </div>
-              <div className="track-header">
-                <div className="track-locked">
-                  <Lock size={16} />
-                </div>
-                <div className="track-label">{"<h2>"}</div>
-                <div className="track-name">Header 2</div>
-                <div className="track-controls">
-                  <button>
-                    <Monitor size={16} />
-                  </button>
-                  <button>
-                    <Eye size={16} />
-                  </button>
-                </div>
-              </div>
-              <div className="track-header">
-                <div className="track-locked">
-                  <Lock size={16} />
-                </div>
-                <div className="track-label">{"<h3>"}</div>
-                <div className="track-name">Header 3</div>
-                <div className="track-controls">
-                  <button>
-                    <Monitor size={16} />
-                  </button>
-                  <button>
-                    <Eye size={16} />
-                  </button>
-                </div>
-              </div>
-              <div className="track-header">
-                <div className="track-locked">
-                  <Lock size={16} />
-                </div>
-                <div className="track-label">{"<img>"}</div>
-                <div className="track-name">Image</div>
-                <div className="track-controls">
-                  <button>
-                    <Monitor size={16} />
-                  </button>
-                  <button>
-                    <Eye size={16} />
-                  </button>
-                </div>
-              </div>
-              <div className="track-header">
-                <div className="track-locked">
-                  <Lock size={16} />
-                </div>
-                <div className="track-label">{"<p>"}</div>
-                <div className="track-name">Paragraph</div>
-                <div className="track-controls">
-                  <button>
-                    <Monitor size={16} />
-                  </button>
-                  <button>
-                    <Eye size={16} />
-                  </button>
-                </div>
-              </div>
-            </div>
-            
-            {/* Scrollable timeline area */}
-            <div
-              id="timelineWrapper"
-              ref={timelineWrapperRef}
-              className="timelineWrapper"
-            >
-              {/* <TimelineTicks containerRef={timelineWrapperRef} /> */}
-              <Draggable
-                nodeRef={playheadRef}
-                axis="x"
-                position={{ x: playheadPosition, y: 0 }}
-                onDrag={handlePlayheadDrag}
-                bounds={{
-                  left: 0,
-                  right: timelineWrapperRef.current
-                    ? timelineWrapperRef.current.scrollWidth - 2
-                    : 0,
+            {/* Ticks ruler row */}
+            <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+              {/* Spacer for track headers */}
+              <div style={{ width: '250px', minWidth: '250px', height: '32px', backgroundColor: 'hsl(var(--background))', borderBottom: '1px solid hsl(var(--border))' }} />
+              
+              {/* Timeline ticks ruler */}
+              <div
+                ref={timelineTicksRef}
+                className="timelineTicksWrapper"
+                style={{
+                  overflowX: 'scroll',
+                  overflowY: 'hidden',
+                  height: '32px',
+                  flex: 1,
+                  backgroundColor: 'hsl(var(--background))',
+                  scrollbarWidth: 'none',
+                  msOverflowStyle: 'none',
+                }}
+                onScroll={(e) => {
+                  // Sync ticks scroll with timeline
+                  if (timelineWrapperRef.current) {
+                    timelineWrapperRef.current.scrollLeft = e.currentTarget.scrollLeft;
+                  }
                 }}
               >
-                <div
-                  ref={playheadRef}
-                  className="playheadContainer"
-                  style={{
-                    position: "absolute",
-                    left: 0,
-                    top: 0,
-                    height: "100%",
-                    zIndex: 100,
-                    cursor: "ew-resize",
-                  }}
-                >
-                  <Playhead height={timelineHeight} />
-                </div>
-              </Draggable>
-              <Sequence clips={clips} totalDurationMs={totalDuration} zoomLevel={zoomLevel} />
+                <TimelineTicks 
+                  totalDurationMs={totalDuration} 
+                  zoomLevel={zoomLevel}
+                  timelineWidth={timelineWidth}
+                />
+              </div>
             </div>
+
+            {/* Track headers and timeline row */}
+            <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
+              {/* Fixed track headers column */}
+              <div className="track-headers-fixed">
+                <div className="track-header">
+                  <div className="track-locked">
+                    <Lock size={16} />
+                  </div>
+                  <div className="track-label">{"<h1>"}</div>
+                  <div className="track-name">Header 1</div>
+                  <div className="track-controls">
+                    <button>
+                      <Monitor size={16} />
+                    </button>
+                    <button>
+                      <Eye size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div className="track-header">
+                  <div className="track-locked">
+                    <Lock size={16} />
+                  </div>
+                  <div className="track-label">{"<h2>"}</div>
+                  <div className="track-name">Header 2</div>
+                  <div className="track-controls">
+                    <button>
+                      <Monitor size={16} />
+                    </button>
+                    <button>
+                      <Eye size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div className="track-header">
+                  <div className="track-locked">
+                    <Lock size={16} />
+                  </div>
+                  <div className="track-label">{"<h3>"}</div>
+                  <div className="track-name">Header 3</div>
+                  <div className="track-controls">
+                    <button>
+                      <Monitor size={16} />
+                    </button>
+                    <button>
+                      <Eye size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div className="track-header">
+                  <div className="track-locked">
+                    <Lock size={16} />
+                  </div>
+                  <div className="track-label">{"<img>"}</div>
+                  <div className="track-name">Image</div>
+                  <div className="track-controls">
+                    <button>
+                      <Monitor size={16} />
+                    </button>
+                    <button>
+                      <Eye size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div className="track-header">
+                  <div className="track-locked">
+                    <Lock size={16} />
+                  </div>
+                  <div className="track-label">{"<p>"}</div>
+                  <div className="track-name">Paragraph</div>
+                  <div className="track-controls">
+                    <button>
+                      <Monitor size={16} />
+                    </button>
+                    <button>
+                      <Eye size={16} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            
+              {/* Scrollable timeline area */}
+              <div
+                id="timelineWrapper"
+                ref={timelineWrapperRef}
+                className="timelineWrapper"
+                onScroll={(e) => {
+                  // Sync timeline scroll with ticks
+                  if (timelineTicksRef.current) {
+                    timelineTicksRef.current.scrollLeft = e.currentTarget.scrollLeft;
+                  }
+                  // Track scroll position for playhead
+                  setTimelineScrollLeft(e.currentTarget.scrollLeft);
+                }}
+              >
+                <Sequence clips={clips} totalDurationMs={totalDuration} zoomLevel={zoomLevel} />
+              </div>
+            </div>
+
+            {/* Playhead - positioned absolutely over the entire timeline */}
+            <Draggable
+              nodeRef={playheadRef}
+              axis="x"
+              position={{ x: playheadPosition, y: 0 }}
+              onDrag={handlePlayheadDrag}
+              bounds={{
+                left: 0,
+                right: timelineWrapperRef.current
+                  ? timelineWrapperRef.current.scrollWidth - 2
+                  : 0,
+              }}
+            >
+              <div
+                ref={playheadRef}
+                className="playheadContainer"
+                style={{
+                  position: "absolute",
+                  left: `${250 - timelineScrollLeft}px`, // Offset for track headers and account for scroll
+                  top: 0, // Start at the top of ticks
+                  height: "100%",
+                  zIndex: 1000,
+                  cursor: "ew-resize",
+                  pointerEvents: "auto",
+                }}
+              >
+                <Playhead height={timelineHeight} />
+              </div>
+            </Draggable>
           </div>
         </div>
       </ScrollContext.Provider>

@@ -23,10 +23,17 @@ const Playhead = ({ height = 2000 }: PlayheadProps) => {
         zIndex: 1000,
       }}
     >
-      <svg width="37" height={height} xmlns="http://www.w3.org/2000/svg" style={{ pointerEvents: 'none', filter: 'drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.4))' }}>
+      <svg width="37" height={height} xmlns="http://www.w3.org/2000/svg" style={{ pointerEvents: 'none', filter: 'drop-shadow(0px 0px 2px rgba(255, 255, 255, 0.25)) drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.4))' }}>
         <defs>
-          <filter id="playhead-shadow" x="-50%" y="-50%" width="200%" height="200%">
-            <feDropShadow dx="0" dy="2" stdDeviation="2" floodOpacity="0.4"/>
+          <filter id="playhead-glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+            <feOffset dx="0" dy="0" result="offsetblur"/>
+            <feFlood floodColor="rgba(255, 255, 255, 0.6)"/>
+            <feComposite in2="offsetblur" operator="in"/>
+            <feMerge>
+              <feMergeNode/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
           </filter>
         </defs>
         <g>
@@ -52,7 +59,7 @@ const Playhead = ({ height = 2000 }: PlayheadProps) => {
             x1="14.09186"
             y1="20"
             x2="14.09186"
-            y2={height - 20}
+            y2={height}
             stroke="#1473E6"
             strokeWidth="2"
           />
@@ -60,7 +67,7 @@ const Playhead = ({ height = 2000 }: PlayheadProps) => {
             x1="14.09186"
             y1="20"
             x2="14.09186"
-            y2={height - 20}
+            y2={height}
             stroke="rgba(0, 0, 0, 0.3)"
             strokeWidth="0.5"
             transform="translate(0.5, 0)"
