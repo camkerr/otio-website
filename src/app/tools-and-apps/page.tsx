@@ -147,11 +147,11 @@ export default function ToolsAndAppsPage() {
       {/* Make header sticky */}
       {/* <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"> */}
       <div className="sticky top-0">
-        <div className="container mx-auto px-4 pt-12 pb-8">
-          <div className="text-center">
+        <div className="container mx-auto px-4 pt-8 max-w-7xl">
+          <div className="text-left mb-8">
             <h1 className="text-4xl font-bold mb-4">Apps and Integrations</h1>
-            <p className="text-xl text-muted-foreground">
-              Find out if your favorite app alredy supports OTIO, and search for
+            <p className="text-md text-muted-foreground">
+              Find out if your favorite app already supports OTIO, and search for
               new tools!
             </p>
           </div>
@@ -159,7 +159,7 @@ export default function ToolsAndAppsPage() {
       </div>
 
       {/* Main layout with sticky sidebar */}
-      <div className="container mx-auto px-4">
+      <div className="container mx-auto px-4 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-[250px,1fr] gap-8">
           {/* Sticky sidebar */}
           <div className="sticky top-[156px] h-fit space-y-4">
@@ -246,7 +246,7 @@ export default function ToolsAndAppsPage() {
                       <h3 className="font-semibold text-lg mb-1">
                         {integration.name}
                       </h3>
-                      <div className="min-h-[2.5rem]">
+                      <div className="min-h-10">
                         <p className="text-sm text-muted-foreground line-clamp-2 pb-4">
                           {integration.description}
                         </p>
@@ -297,7 +297,7 @@ export default function ToolsAndAppsPage() {
                   <button
                     key={index}
                     onClick={() => setMediaIndex(index)}
-                    className={`relative w-20 h-20 rounded-lg overflow-hidden flex-shrink-0 ${
+                    className={`relative w-20 h-20 rounded-lg overflow-hidden shrink-0 ${
                       mediaIndex === index ? "ring-2 ring-primary" : ""
                     }`}
                   >

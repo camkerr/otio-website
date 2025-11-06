@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { DataGrid, DataGridContainer } from '@/components/ui/data-grid';
 import { DataGridTable } from '@/components/ui/data-grid-table';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
+import { GitHubPreview } from '@/components/ui/github-preview';
 import {
   ColumnDef,
   getCoreRowModel,
@@ -71,16 +72,27 @@ const CellRenderer = ({ value }: { value: string }) => {
             {value.split(',').map((token, index) => {
               const prNumber = token.trim().replace('#', '');
               return (
-                <a
+                <GitHubPreview
                   key={index}
-                  href={`https://github.com/AcademySoftwareFoundation/OpenTimelineIO/pull/${prNumber}`}
-                  className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  issueNumber={prNumber}
+                  repo="AcademySoftwareFoundation/OpenTimelineIO"
                 >
-                  {token.trim()}
-                  <ExternalLink className="h-3 w-3" />
-                </a>
+                  <a
+                    href={`https://github.com/AcademySoftwareFoundation/OpenTimelineIO/pull/${prNumber}`}
+                    className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm cursor-pointer"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => {
+                      // Allow popover to open, but still allow cmd/ctrl+click to open in new tab
+                      if (!e.metaKey && !e.ctrlKey) {
+                        e.preventDefault();
+                      }
+                    }}
+                  >
+                    {token.trim()}
+                    <ExternalLink className="h-3 w-3" />
+                  </a>
+                </GitHubPreview>
               );
             })}
           </div>

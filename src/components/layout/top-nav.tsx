@@ -86,9 +86,10 @@ export function TopNav() {
   ];
 
   return (
-    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-      {/* Desktop Navigation */}
-      <div className="hidden md:grid md:grid-cols-[33%_33%_33%] items-center p-4">
+    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-b">
+      <div className="max-w-7xl mx-auto">
+        {/* Desktop Navigation */}
+        <div className="hidden md:grid md:grid-cols-[33%_33%_33%] items-center p-4">
         <div className="flex items-center">
           <Link href="/">
             <Image
@@ -258,6 +259,7 @@ export function TopNav() {
           placeholder="Search..."
           theme={colorMode}
         />
+      </div>
       </div>
     </div>
   );
