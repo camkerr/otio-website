@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect, useState, useCallback } from "react";
+import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
 import Playhead from "./Playhead";
 import Draggable from "react-draggable"; // The default
 import Timecode from "smpte-timecode";
@@ -8,11 +8,13 @@ import { Button } from "@/components/ui/button";
 import { KeyboardShortcutDisplay } from "@/components/editor/KeyboardShortcutDisplay";
 import { ScrollContext } from "@/components/editor/ScrollContext";
 import { TimelineTicks } from "@/components/editor/TimelineTicks";
-import { Play, Pause, FastForward, Rewind } from "lucide-react";
+import { Play, Pause, FastForward, Rewind, Lock, Monitor, Eye, ZoomIn, ZoomOut } from "lucide-react";
 import { ContentRenderer } from "@/components/editor/ContentRenderer";
 import { Sequence } from "@/components/editor/Sequence";
 import "@/styles/editor.css";
 import { SequenceSelector } from "./SequenceSelector";
+import { parseMarkdownToClips } from "@/lib/markdown-parser";
+import { msToFrames, percentageToMs } from "@/lib/time-utils";
 
 const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const [scrollPercentage, setScrollPercentage] = useState(0);
@@ -26,10 +28,23 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const [rewindSpeedLevel, setRewindSpeedLevel] = useState(0);
   const [currentKeyCode, setCurrentKeyCode] = useState("");
   const [currentShiftKey, setCurrentShiftKey] = useState(false);
+  const [zoomLevel, setZoomLevel] = useState(1); // 1 = 100%, 0.5 = 50%, 2 = 200%
+  const [timelineHeight, setTimelineHeight] = useState(2000); // Default playhead height - will be adjusted dynamically
 
-  const timelineDuration = 1 * 60;
-  const timelineDurationFrames = timelineDuration * 24;
-  const percentagePerSecond = 1 / timelineDuration;
+  // Parse markdown and generate clips
+  const { clips, totalDuration, sections } = useMemo(() => {
+    try {
+      return parseMarkdownToClips(markdown);
+    } catch (error) {
+      console.error("Error parsing markdown:", error);
+      return { clips: [], totalDuration: 60000, sections: [] }; // Default 60s
+    }
+  }, [markdown]);
+
+  // Convert total duration from milliseconds to seconds for timeline calculations
+  const timelineDuration = totalDuration / 1000; // seconds
+  const timelineDurationFrames = msToFrames(totalDuration);
+  const percentagePerSecond = timelineDuration > 0 ? 1 / timelineDuration : 0;
 
   const verticalSectionRef = useRef<HTMLDivElement>(null);
   const playButtonRef = useRef<HTMLButtonElement>(null);
@@ -41,8 +56,9 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const getTimecodeFromScroll = useCallback(
     (percentage: number) => {
       try {
-        // Calculate current frame based on scroll percentage
-        const currentFrame = Math.floor(timelineDurationFrames * percentage);
+        // Convert percentage to milliseconds, then to frames
+        const currentMs = percentageToMs(percentage, totalDuration);
+        const currentFrame = msToFrames(currentMs);
 
         // Create timecode from frame count
         const tc = new Timecode(currentFrame, 24, false);
@@ -53,7 +69,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
         return "00:00:00;00";
       }
     },
-    [timelineDurationFrames]
+    [totalDuration]
   );
 
   const getTimelineDurationTimecode = useCallback(() => {
@@ -93,14 +109,13 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
     };
   }, [isPlaying, percentagePerSecond, screenRefreshRate]);
 
-  // Update the scroll sync effect to handle both scrolling containers
+  // Update the scroll sync effect to handle vertical scrolling only
   useEffect(() => {
     if (isScrolling) return; // Skip if user is manually scrolling
 
     const verticalSection = verticalSectionRef.current;
-    const horizontalSection = timelineWrapperRef.current;
 
-    if (verticalSection && horizontalSection) {
+    if (verticalSection) {
       // Round the scroll positions to prevent floating point errors
       const verticalScrollMax =
         verticalSection.scrollHeight - verticalSection.clientHeight;
@@ -109,16 +124,20 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
       );
       verticalSection.scrollTop = roundedVerticalScroll;
 
-      const horizontalScrollMax =
-        horizontalSection.scrollWidth - horizontalSection.clientWidth;
-      const roundedHorizontalScroll = Math.round(
-        scrollPercentage * horizontalScrollMax
-      );
-      horizontalSection.scrollLeft = roundedHorizontalScroll;
+      // Disabled: Automatic horizontal timeline scroll
+      // const horizontalSection = timelineWrapperRef.current;
+      // if (horizontalSection) {
+      //   const horizontalScrollMax =
+      //     horizontalSection.scrollWidth - horizontalSection.clientWidth;
+      //   const roundedHorizontalScroll = Math.round(
+      //     scrollPercentage * horizontalScrollMax
+      //   );
+      //   horizontalSection.scrollLeft = roundedHorizontalScroll;
+      // }
     }
   }, [scrollPercentage, isScrolling]);
 
-  // Update the handleScroll callback to sync both directions
+  // Update the handleScroll callback - vertical scrolling only
   const handleScroll = useCallback(
     (e: any) => {
       if (isPlaying || ffwState || rewindState) {
@@ -129,36 +148,22 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
       }
 
       const verticalSection = verticalSectionRef.current;
-      const horizontalSection = timelineWrapperRef.current;
 
-      if (verticalSection && horizontalSection) {
+      if (verticalSection && e.target === verticalSection) {
         setIsScrolling(true);
         let newScrollPercentage;
 
-        if (e.target === verticalSection) {
-          newScrollPercentage =
-            verticalSection.scrollTop /
-            (verticalSection.scrollHeight - verticalSection.clientHeight);
-        } else if (e.target === horizontalSection) {
-          newScrollPercentage =
-            horizontalSection.scrollLeft /
-            (horizontalSection.scrollWidth - horizontalSection.clientWidth);
-        }
+        newScrollPercentage =
+          verticalSection.scrollTop /
+          (verticalSection.scrollHeight - verticalSection.clientHeight);
 
         if (newScrollPercentage !== undefined) {
           // Clamp the scroll percentage between 0 and 1
           newScrollPercentage = Math.max(0, Math.min(1, newScrollPercentage));
           // Round to 4 decimal places to prevent floating point errors
           newScrollPercentage = Math.round(newScrollPercentage * 10000) / 10000;
-
-          // Only update if the change is significant enough
-          // const diff = Math.abs(newScrollPercentage - scrollPercentage);
-          // if (diff > 0.0001) {
-          //   setScrollPercentage(newScrollPercentage);
-          // }
         }
         setIsScrolling(false);
-        // setTimeout(() => setIsScrolling(false), 50);
       }
     },
     [isPlaying, ffwState, rewindState]
@@ -184,14 +189,18 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   //   };
   // }, [handleScroll]);
 
-  // Update the playhead position calculation
+  // Update the playhead position and height calculation
   useEffect(() => {
     const updatePlayheadPosition = () => {
       if (timelineWrapperRef.current) {
         const timelineWidth = timelineWrapperRef.current.scrollWidth;
-        // Use raw scrollPercentage for smoother playhead movement
+        // Position playhead within the timeline
         const position = scrollPercentage * timelineWidth;
         setPlayheadPosition(position);
+        
+        // Update playhead height based on timeline container height
+        const height = timelineWrapperRef.current.clientHeight;
+        setTimelineHeight(Math.max(height, 160)); // Minimum 160px (5 tracks × 32px)
       }
     };
 
@@ -206,7 +215,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
     return () => {
       resizeObserver.disconnect();
     };
-  }, [scrollPercentage]); // Remove isScrolling dependency
+  }, [scrollPercentage]);
 
   const handlePlayheadDrag = useCallback((e: any, data: { x: number }) => {
     setIsPlaying(false);
@@ -236,6 +245,19 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
         setCurrentKeyCode("");
         setCurrentShiftKey(false);
       }, 150);
+
+      // Handle zoom shortcuts (Cmd/Ctrl + = for zoom in, Cmd/Ctrl - for zoom out)
+      if ((e.metaKey || e.ctrlKey) && (e.code === "Equal" || e.code === "Minus")) {
+        e.preventDefault();
+        if (e.code === "Equal") {
+          // Zoom in
+          setZoomLevel((prev) => Math.min(4, prev + 0.25));
+        } else if (e.code === "Minus") {
+          // Zoom out
+          setZoomLevel((prev) => Math.max(0.25, prev - 0.25));
+        }
+        return;
+      }
 
       if (e.code === "Space") {
         e.preventDefault();
@@ -428,7 +450,12 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
               ffwState={ffwState}
               rewindState={rewindState}
             />
-            <ContentRenderer markdown={markdown} />
+            <ContentRenderer 
+              markdown={markdown} 
+              sections={sections}
+              currentTimeMs={percentageToMs(scrollPercentage, totalDuration)}
+              syncWithPlayhead={false}
+            />
             {/* <BodyContent /> */}
           </div>
           <div className="transportControls">
@@ -515,7 +542,119 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
               {getTimelineDurationTimecode()}
             </div>
           </div>
+          <div className="timelineControlsBar">
+            <div className="zoomControls">
+              <span className="text-xs text-muted-foreground mr-2">Zoom:</span>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => setZoomLevel((prev) => Math.max(0.25, prev - 0.25))}
+                disabled={zoomLevel <= 0.25}
+                title="Zoom Out (Cmd/Ctrl + -)"
+              >
+                <ZoomOut size={14} />
+              </Button>
+              <button
+                className="text-xs mx-2 min-w-12 text-center hover:underline cursor-pointer"
+                onClick={() => setZoomLevel(1)}
+                title="Reset Zoom (100%)"
+              >
+                {Math.round(zoomLevel * 100)}%
+              </button>
+              <Button
+                variant="outline"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => setZoomLevel((prev) => Math.min(4, prev + 0.25))}
+                disabled={zoomLevel >= 4}
+                title="Zoom In (Cmd/Ctrl + +)"
+              >
+                <ZoomIn size={14} />
+              </Button>
+            </div>
+          </div>
           <div ref={timelineContainerRef} className="timelineWrapperContainer">
+            {/* Fixed track headers column */}
+            <div className="track-headers-fixed">
+              <div className="track-header">
+                <div className="track-locked">
+                  <Lock size={16} />
+                </div>
+                <div className="track-label">{"<h1>"}</div>
+                <div className="track-name">Header 1</div>
+                <div className="track-controls">
+                  <button>
+                    <Monitor size={16} />
+                  </button>
+                  <button>
+                    <Eye size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="track-header">
+                <div className="track-locked">
+                  <Lock size={16} />
+                </div>
+                <div className="track-label">{"<h2>"}</div>
+                <div className="track-name">Header 2</div>
+                <div className="track-controls">
+                  <button>
+                    <Monitor size={16} />
+                  </button>
+                  <button>
+                    <Eye size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="track-header">
+                <div className="track-locked">
+                  <Lock size={16} />
+                </div>
+                <div className="track-label">{"<h3>"}</div>
+                <div className="track-name">Header 3</div>
+                <div className="track-controls">
+                  <button>
+                    <Monitor size={16} />
+                  </button>
+                  <button>
+                    <Eye size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="track-header">
+                <div className="track-locked">
+                  <Lock size={16} />
+                </div>
+                <div className="track-label">{"<img>"}</div>
+                <div className="track-name">Image</div>
+                <div className="track-controls">
+                  <button>
+                    <Monitor size={16} />
+                  </button>
+                  <button>
+                    <Eye size={16} />
+                  </button>
+                </div>
+              </div>
+              <div className="track-header">
+                <div className="track-locked">
+                  <Lock size={16} />
+                </div>
+                <div className="track-label">{"<p>"}</div>
+                <div className="track-name">Paragraph</div>
+                <div className="track-controls">
+                  <button>
+                    <Monitor size={16} />
+                  </button>
+                  <button>
+                    <Eye size={16} />
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            {/* Scrollable timeline area */}
             <div
               id="timelineWrapper"
               ref={timelineWrapperRef}
@@ -542,14 +681,14 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                     left: 0,
                     top: 0,
                     height: "100%",
-                    zIndex: 10,
+                    zIndex: 100,
                     cursor: "ew-resize",
                   }}
                 >
-                  <Playhead />
+                  <Playhead height={timelineHeight} />
                 </div>
               </Draggable>
-              <Sequence clips={[]} />
+              <Sequence clips={clips} totalDurationMs={totalDuration} zoomLevel={zoomLevel} />
             </div>
           </div>
         </div>

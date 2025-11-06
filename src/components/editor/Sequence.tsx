@@ -1,153 +1,113 @@
 import "@/styles/editor.css";
 import { Lock, Monitor, Eye, Mic, Volume2, Settings } from "lucide-react";
+import { TrackItem } from "@/lib/markdown-parser";
+import { msToPercentage } from "@/lib/time-utils";
+import { useRef, useEffect, useState } from "react";
 
-interface TrackItem {
-  id: number;
-  content: string;
-  image?: string;
-  name: string;
-  track: number;
-  type: string;
-  start: number;
-  end: number;
+// Track configuration: h1=0, h2=1, h3=2, img=3, p=4
+const TRACK_CONFIG = [
+  { label: "<h1>", name: "Header 1", type: "h1" as const },
+  { label: "<h2>", name: "Header 2", type: "h2" as const },
+  { label: "<h3>", name: "Header 3", type: "h3" as const },
+  { label: "<img>", name: "Image", type: "img" as const },
+  { label: "<p>", name: "Paragraph", type: "p" as const },
+];
+
+interface ClipRendererProps {
+  item: TrackItem;
+  totalDurationMs: number;
+  timelineWidth: number;
 }
 
-function clipGenerator(count: number): TrackItem[] {
-  const clips: TrackItem[] = [];
-  for (let i = 0; i < count; i++) {
-    clips.push({
-      id: i,
-      content: `Clip ${i}`,
-      name: `Clip ${i}`,
-      track: Math.floor(Math.random() * 3),
-      type: "text",
-      start: i * 100,
-      end: (i + 1) * 100,
-    });
-  }
-  return clips;
-}
+const ClipRenderer = ({ item, totalDurationMs, timelineWidth }: ClipRendererProps) => {
+  // Convert milliseconds to percentage, then to pixels
+  const startPercentage = msToPercentage(item.start, totalDurationMs);
+  const endPercentage = msToPercentage(item.end, totalDurationMs);
+  const left = startPercentage * timelineWidth;
+  const width = (endPercentage - startPercentage) * timelineWidth;
 
-const ClipRenderer = ({ item }: { item: TrackItem }) => {
+  // Different colors for different clip types
+  const getClipColor = () => {
+    switch (item.type) {
+      case "h1":
+        return "border-blue-500 bg-blue-50 dark:bg-blue-950";
+      case "h2":
+        return "border-transparent bg-green-50 dark:bg-green-950";
+      case "h3":
+        return "border-purple-500 bg-purple-50 dark:bg-purple-950";
+      case "img":
+        return "border-orange-500 bg-orange-50 dark:bg-orange-950";
+      case "p":
+        return "border-gray-500 bg-gray-50 dark:bg-gray-950";
+      default:
+        return "border-blue-500 bg-blue-50 dark:bg-blue-950";
+    }
+  };
+
   return (
     <div
-      style={{ 
-        left: item.start - 8, 
-        width: item.end - item.start,
-        marginLeft: '2px',
+      style={{
+        left: `${left}px`,
+        width: `${Math.max(20, width - 4)}px`, // Subtract margin for visual separation
+        minWidth: "20px",
       }}
-      className="clip border-6 border-blue-500"
+      className={`clip border-2 ${getClipColor()} rounded px-1 py-0.5 text-xs overflow-hidden mr-1`}
+      title={`${item.name} (${item.start}ms - ${item.end}ms)`}
     >
-      {item.content}
+      <div className="truncate">{item.name}</div>
     </div>
   );
 };
 
-export const Sequence = ({ clips }: { clips: TrackItem[] }) => {
+interface SequenceProps {
+  clips: TrackItem[];
+  totalDurationMs: number;
+  zoomLevel: number;
+}
+
+export const Sequence = ({ clips, totalDurationMs, zoomLevel }: SequenceProps) => {
+  const trackContentRef = useRef<HTMLDivElement>(null);
+  
+  // Calculate minimum timeline width based on duration and zoom level (200px per second base)
+  const baseWidth = Math.max(2000, (totalDurationMs / 1000) * 200);
+  const minTimelineWidth = baseWidth * zoomLevel;
+  const [timelineWidth, setTimelineWidth] = useState(minTimelineWidth);
+
+  // Use the minimum timeline width based on duration and zoom
+  useEffect(() => {
+    setTimelineWidth(minTimelineWidth);
+  }, [minTimelineWidth, clips, totalDurationMs, zoomLevel]);
+
+  // Group clips by track
+  const clipsByTrack: Record<number, TrackItem[]> = {};
+  for (const clip of clips) {
+    if (!clipsByTrack[clip.track]) {
+      clipsByTrack[clip.track] = [];
+    }
+    clipsByTrack[clip.track].push(clip);
+  }
+
   return (
-    <div className="timeline-container">
-      <div className="track-group">
-        <div className="track">
-          <div className="track-definition">
-            <div className="track-header">
-              <div className="track-locked">
-                <Lock size={16} />
-              </div>
-              <div className="track-label">{"<h1>"}</div>
-              <div className="track-name">Header 1</div>
-              <div className="track-controls">
-                <button>
-                  <Monitor size={16} />
-                </button>
-                <button>
-                  <Eye size={16} />
-                </button>
-              </div>
-            </div>
-          </div>
-          <div className="track-content">
-            {clipGenerator(20).map((item) => (
-              <ClipRenderer key={item.name} item={item} />
+    <div className="timeline-tracks-area" ref={trackContentRef}>
+      {TRACK_CONFIG.map((config, trackIndex) => {
+        const trackClips = clipsByTrack[trackIndex] || [];
+        return (
+          <div
+            key={`content-${trackIndex}`}
+            className="track-content"
+            style={{ minWidth: `${minTimelineWidth}px` }}
+          >
+            {trackClips.map((clip) => (
+              <ClipRenderer
+                key={clip.id}
+                item={clip}
+                totalDurationMs={totalDurationMs}
+                timelineWidth={timelineWidth}
+              />
             ))}
           </div>
-        </div>
-        <div className="track">
-          <div className="track-definition">
-            <div className="track-header">
-              <div className="track-locked">
-                <Lock size={16} />
-              </div>
-              <div className="track-label">{"<h2>"}</div>
-              <div className="track-name">Header 2</div>
-              <div className="track-controls">
-                <button>
-                  <Monitor size={16} />
-                </button>
-                <button>
-                  <Eye size={16} />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="track">
-          <div className="track-definition">
-            <div className="track-header">
-              <div className="track-locked">
-                <Lock size={16} />
-              </div>
-              <div className="track-label">{"<h3>"}</div>
-              <div className="track-name">Header 3</div>
-              <div className="track-controls">
-                <button>
-                  <Monitor size={16} />
-                </button>
-                <button>
-                  <Eye size={16} />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="track">
-          <div className="track-definition">
-            <div className="track-header">
-              <div className="track-locked">
-                <Lock size={16} />
-              </div>
-              <div className="track-label">{"<img>"}</div>
-              <div className="track-name">Image</div>
-              <div className="track-controls">
-                <button>
-                  <Monitor size={16} />
-                </button>
-                <button>
-                  <Eye size={16} />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="track">
-          <div className="track-definition">
-            <div className="track-header">
-              <div className="track-locked">
-                <Lock size={16} />
-              </div>
-              <div className="track-label">{"<p>"}</div>
-              <div className="track-name">Paragraph</div>
-              <div className="track-controls">
-                <button>
-                  <Monitor size={16} />
-                </button>
-                <button>
-                  <Eye size={16} />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+        );
+      })}
     </div>
   );
 };

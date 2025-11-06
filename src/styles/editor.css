@@ -69,26 +69,60 @@
   border: none !important;
 }
 
+.timelineControlsBar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 8px 16px;
+  border: 2px solid hsl(var(--border));
+  border-top-width: 1px;
+  border-bottom-width: 1px;
+  background-color: hsl(var(--background));
+  width: calc(100vw - 32px);
+}
+
+.zoomControls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .timelineWrapperContainer {
   display: flex;
-  overflow-x: scroll;
+  flex-direction: row;
   width: calc(100vw - 32px);
+  height: auto;
+  border: 2px solid hsl(var(--border));
+  border-top-width: 0px;
+  border-radius: 0 0 var(--radius) var(--radius);
+  background-color: hsl(var(--background));
+}
+
+.track-headers-fixed {
+  display: flex;
+  flex-direction: column;
+  width: 250px;
+  min-width: 250px;
+  background: #2d2d2d;
+  border-right: 2px solid hsl(var(--border));
+  overflow: hidden;
 }
 
 .timelineWrapper {
   position: relative;
   overflow-x: scroll;
-  height: 16dvh;
-  width: calc(100vw - 16px);
+  overflow-y: hidden;
+  height: auto;
+  flex: 1;
   display: flex;
   flex-direction: row;
   padding: 0 8px 0 0;
-  border: 2px solid hsl(var(--border));
-  border-top-width: 1px;
-  border-radius: 0 0 var(--radius) var(--radius);
   background-color: hsl(var(--background));
   -ms-overflow-style: none;
   scrollbar-width: none;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 
 .timelineContent {
@@ -127,57 +161,44 @@
 .playheadContainer {
   cursor: ew-resize;
   pointer-events: auto;
+  z-index: 100 !important;
+  /* Wider click target */
+  padding: 0 10px;
+  margin-left: -10px;
 }
 
 .playhead {
   position: relative;
-  left: 200px;
+  pointer-events: none;
+  z-index: 100;
 }
 
-.timeline-container {
+.timeline-tracks-area {
   width: 100%;
-  display: grid;
-  grid-template-rows: 3;
-  grid-template-columns: 1fr auto;
-  background: #1e1e1e;
-  color: #ffffff;
-}
-
-.track {
-  display: grid;
-  grid-template-columns: 250px 1fr;
-  border-bottom: 1px solid #333;
-  min-height: 36px;
-}
-
-.track-group {
   display: flex;
-  position: absolute;
-  left: 0;
   flex-direction: column;
+  color: #ffffff;
+  height: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 
 .track-header {
   display: flex;
   align-items: center;
-  padding: 6px 10px;
+  padding: 4px 8px;
   background: #2d2d2d;
-  gap: 8px;
-  /* position: absolute; */
-  left: 0;
+  gap: 6px;
+  height: 32px;
+  min-height: 32px;
+  border-bottom: 1px solid #333;
 }
 
 .track-locked {
   opacity: 0.7;
   cursor: pointer;
 }
-
-/* 
-.track-definition {
-  display: flex;
-  position: absolute;
-  left: 0;
-} */
 
 .track-label {
   background: #4a6cd4;
@@ -212,19 +233,24 @@
   position: relative;
   display: flex;
   flex-direction: row;
-  /* overflow: hidden; */
-  width: calc(100% - 48px);
-  border-left: 1px solid #333;
+  height: 32px;
+  min-height: 32px;
+  border-bottom: 1px solid #333;
   z-index: 20;
 }
 
 /* For the clips inside track-content */
 .clip {
+  position: absolute;
   height: calc(100% - 4px);
   padding: 0 10px;
   margin: 2px 0;
   color: #ffffff;
   background: #4a6cd4;
   border-radius: 2px;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  pointer-events: none;
 }
 
