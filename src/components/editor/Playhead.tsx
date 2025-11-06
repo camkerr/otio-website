@@ -1,25 +1,22 @@
 import React from "react";
-import { useScrollPercentage } from "./ScrollContext";
 
 interface PlayheadProps {
   height?: number;
 }
 
-const Playhead = ({ height = 2000 }: PlayheadProps) => {
-  const scrollPercentage = useScrollPercentage();
-
+// Memoized to prevent unnecessary re-renders
+// Removed useScrollPercentage hook - position is handled by parent container
+const Playhead = React.memo(({ height = 2000 }: PlayheadProps) => {
   return (
     <div
       className="playhead"
       style={{
         position: "relative",
-        left: `clamp(0%, ${scrollPercentage * 100}%, 100%)`,
         marginLeft: "-14px",
         marginTop: "-2px",
         top: 0,
         bottom: 0,
         width: "2px",
-        // backgroundColor: 'red',
         zIndex: 1000,
       }}
     >
@@ -76,6 +73,8 @@ const Playhead = ({ height = 2000 }: PlayheadProps) => {
       </svg>
     </div>
   );
-};
+});
+
+Playhead.displayName = "Playhead";
 
 export default Playhead;

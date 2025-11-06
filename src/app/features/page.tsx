@@ -1,25 +1,8 @@
 import path from "path";
 import fs from "fs";
 import Papa from "papaparse";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { EditInGithub } from "@/components/edit-in-github";
-import { Check, X } from "lucide-react";
+import FeatureMatrixDataGrid from "@/components/data-grid/feature-matrix";
 
 async function getCsvData() {
   const filePath = path.join(
@@ -35,126 +18,37 @@ async function getCsvData() {
     skipEmptyLines: true,
   }).data;
 
-  return parsedData;
+  // Add unique IDs to each row
+  const dataWithIds = (parsedData as any[]).map((row, index) => ({
+    ...row,
+    id: `feature-${index}`,
+  }));
+
+  return dataWithIds;
 }
-
-const CellRenderer = ({ value }: { value: string }) => {
-  switch (value) {
-    case "Y":
-      return (
-        <TableCell className="text-center align-middle">
-          <Check className="mx-auto" />
-        </TableCell>
-      );
-      break;
-    case "N":
-      return (
-        <TableCell className="text-center align-middle">
-          <X className="mx-auto" />
-        </TableCell>
-      );
-    case value.match(/#\d+/) ? value : null:
-      return (
-        <TableCell className="text-center align-middle">
-          {value.split(",").map((token, index) => {
-            const prNumber = token.trim().replace("#", "");
-            return (
-              <>
-                <a
-                  href={`https://github.com/AcademySoftwareFoundation/OpenTimelineIO/pull/${prNumber}`}
-                  className="text-blue-500 hover:text-blue-700"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {token.trim()}
-                </a>
-                {index < value.split(",").length - 1 && ", "}
-              </>
-            );
-          })}
-        </TableCell>
-      );
-    default:
-      return (
-        <TableCell className="text-center align-middle">{value}</TableCell>
-      );
-      break;
-  }
-};
-
-const TableData = ({ data }: any) => {
-  return (
-    <>
-      {data.map((row: any) => (
-        <TableRow key={row.Feature}>
-          <TableCell className="font-medium" width="700px">
-            {row.Feature}
-          </TableCell>
-          <CellRenderer value={row.OpenTimelineIO} />
-          <CellRenderer value={row.AAF} />
-          <CellRenderer value={row.ALE} />
-          <CellRenderer value={row.EDL} />
-        </TableRow>
-      ))}
-    </>
-  );
-};
 
 export default async function FeaturesIndex() {
   const featureMatrix = await getCsvData();
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        flexDirection: "column",
-      }}
-    >
-      <div
-        className="w-[1000px]"
-        style={{ margin: "auto", width: "fit-content" }}
-      >
-        <div className="container mx-auto px-4 pt-12 pb-8">
-          <div className="text-center">
+    <div className="flex flex-col h-full">
+      <div className="container mx-auto px-4 pt-8 max-w-7xl shrink-0">
+        <div className="flex justify-between items-start mb-8">
+          <div className="text-left">
             <h1 className="text-4xl font-bold mb-4">Timeline Format Support</h1>
-            <p className="text-md text-muted-foreground">
-              Different timeline formats have different features. This table
-              shows which features are supported by each format.
+            <p className="text-md text-muted-foreground max-w-4xl text-left">
+              Different timeline formats have different features. This table shows
+              which features are supported by each format.
             </p>
           </div>
-        </div>
-        <div className="w-full flex justify-end flex-shrink-0">
-          <div className="text-sm text-muted-foreground py-4">
+          <div className="text-sm text-muted-foreground">
             <EditInGithub repoPath="/content/features/feature-matrix.csv" />
           </div>
         </div>
-        <Card className="w-[1000px]">
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader className="sticky top-0 border-b">
-                <TableRow>
-                  <TableHead className="w-[700px] bg-card">Feature</TableHead>
-                  <TableHead className="w-[200px] text-center bg-card">
-                    OpenTimelineIO
-                  </TableHead>
-                  <TableHead className="w-[100px] text-center bg-card">
-                    AAF
-                  </TableHead>
-                  <TableHead className="w-[100px] text-center bg-card">
-                    ALE
-                  </TableHead>
-                  <TableHead className="w-[200px] text-center bg-card">
-                    EDL
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className="overflow-y-auto">
-                <TableData data={featureMatrix} />
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+      </div>
+
+      <div className="container mx-auto px-4 pb-8 max-w-7xl flex-1 min-h-0">
+        <FeatureMatrixDataGrid data={featureMatrix} />
       </div>
     </div>
   );

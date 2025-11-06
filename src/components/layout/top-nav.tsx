@@ -6,17 +6,23 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import {
   NavigationMenu,
-  NavigationMenuContent,
   NavigationMenuItem,
   NavigationMenuLink,
   NavigationMenuList,
-  NavigationMenuTrigger,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { DocSearch } from "@docsearch/react";
 import { ModeToggle } from "@/components/layout/dark-mode";
 import { Button } from "@/components/ui/button";
-import "@docsearch/css";
+import { useTheme } from "next-themes";
+import { Menu, Search } from "lucide-react";
 
 const components: { title: string; href: string; description: string }[] = [
   {
@@ -57,130 +63,76 @@ const components: { title: string; href: string; description: string }[] = [
 ];
 
 export function TopNav() {
+  const { theme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  // Avoid hydration mismatch by only rendering theme-dependent content after mount
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Determine the color mode for DocSearch
+  const colorMode = mounted
+    ? resolvedTheme === "dark"
+      ? "dark"
+      : "light"
+    : "light";
+
+  const navItems = [
+    { href: "/features", label: "Features" },
+    { href: "/tools-and-apps", label: "Apps and Tools" },
+    { href: "/docs", label: "Documentation" },
+  ];
+
   return (
-    <div
-      className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b"
-      style={{
-        display: "grid",
-        gridTemplateColumns: "33% 33% 33%",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "16px",
-      }}
-    >
-      <div style={{ display: "inline-flex", alignItems: "flex-start" }}>
-        <Link href="/">
-          <Image
-            src={"/images/OpenTimelineIO@3xLight.png"}
-            className="absolute scale-0 dark:scale-100"
-            alt="OTIO Logo"
-            width={250}
-            objectFit="contain"
-            height={18}
-          />
-          <Image
-            src={"/images/OpenTimelineIO@3xDark.png"}
-            alt="OTIO Logo"
-            className="scale-100 dark:scale-0"
-            width={250}
-            objectFit="contain"
-            height={18}
-          />
-        </Link>
-      </div>
-      <div style={{ display: "inline-flex", justifyContent: "center" }}>
-        <DocSearch
-          appId="R2IYF7ETH7"
-          apiKey="599cec31baffa4868cae4e79f180729b"
-          indexName="docsearch"
-          placeholder="Search..."
-        />
-      </div>
-      <div
-        style={{
-          display: "inline-flex",
-          justifyContent: "flex-end",
-          alignContent: "center",
-        }}
-      >
-        <NavigationMenu>
-          <NavigationMenuList>
-            {/* <NavigationMenuItem>
-              <NavigationMenuTrigger>Changelog</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                  <li className="row-span-3">
-                    <NavigationMenuLink asChild>
-                      <a
-                        className="flex h-full w-full select-none flex-col justify-start rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
-                        href="/"
-                      >
-                        <div className="mb-2 mt-4 text-lg font-medium">
-                          shadcn/ui
-                        </div>
-                        <p className="text-sm leading-tight text-muted-foreground">
-                          Beautifully designed components that you can copy and
-                          paste into your apps. Accessible. Customizable. Open
-                          Source.
-                        </p>
-                      </a>
-                    </NavigationMenuLink>
-                  </li>
-                  <ListItem href="/docs" title="Introduction">
-                    Re-usable components built using Radix UI and Tailwind CSS.
-                  </ListItem>
-                  <ListItem href="/docs/installation" title="Installation">
-                    How to install dependencies and structure your app.
-                  </ListItem>
-                  <ListItem
-                    href="/docs/primitives/typography"
-                    title="Typography"
-                  >
-                    Styles for headings, paragraphs, lists...etc
-                  </ListItem>
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem> */}
-            {/* <NavigationMenuItem>
-              <NavigationMenuTrigger>Apps and Tools</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                  {components.map((component) => (
-                    <ListItem
-                      key={component.title}
-                      title={component.title}
-                      href={component.href}
-                    >
-                      {component.description}
-                    </ListItem>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem> */}
-            <NavigationMenuItem>
-              <Link href="/features" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Features
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link href="/tools-and-apps" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Apps and Tools
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <Link href="/docs" legacyBehavior passHref>
-                <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                  Documentation
-                </NavigationMenuLink>
-              </Link>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-        <div style={{ marginLeft: "12px" }}>
+    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+      {/* Desktop Navigation */}
+      <div className="hidden md:grid md:grid-cols-[33%_33%_33%] items-center p-4">
+        <div className="flex items-center">
+          <Link href="/">
+            <Image
+              src={"/images/OpenTimelineIO@3xLight.png"}
+              className="absolute scale-0 dark:scale-100"
+              alt="OTIO Logo"
+              width={250}
+              objectFit="contain"
+              height={18}
+            />
+            <Image
+              src={"/images/OpenTimelineIO@3xDark.png"}
+              alt="OTIO Logo"
+              className="scale-100 dark:scale-0"
+              width={250}
+              objectFit="contain"
+              height={18}
+            />
+          </Link>
+        </div>
+        <div className="flex justify-center"></div>
+        <div className="flex justify-end items-center gap-3">
+          <NavigationMenu>
+            <NavigationMenuList>
+              {navItems.map((item) => (
+                <NavigationMenuItem key={item.href}>
+                  <NavigationMenuLink asChild>
+                    <Link href={item.href} className={navigationMenuTriggerStyle()}>
+                      {item.label}
+                    </Link>
+                  </NavigationMenuLink>
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
+          <div className="DocSearch-Button-Wrapper">
+            <DocSearch
+              appId="R2IYF7ETH7"
+              apiKey="599cec31baffa4868cae4e79f180729b"
+              indexName="docsearch"
+              placeholder="Search..."
+              theme={colorMode}
+            />
+          </div>
           <Link href="https://github.com/AcademySoftwareFoundation/OpenTimelineIO">
             <Button variant="outline" size="icon">
               <Image
@@ -189,7 +141,7 @@ export function TopNav() {
                 height={16}
                 className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
                 src="/icons/github/github-mark.png"
-                alt="OTIO Logo"
+                alt="GitHub"
               />
               <Image
                 objectFit="contain"
@@ -197,12 +149,115 @@ export function TopNav() {
                 height={16}
                 className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
                 src="/icons/github/github-mark-white.png"
-                alt="OTIO Logo"
+                alt="GitHub"
+              />
+            </Button>
+          </Link>
+          <ModeToggle style={{ minWidth: "40px" }} />
+        </div>
+      </div>
+
+      {/* Mobile Navigation */}
+      <div className="flex md:hidden items-center justify-between p-4 relative">
+        {/* Left: Hamburger Menu */}
+        <Sheet open={isOpen} onOpenChange={setIsOpen}>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="icon">
+              <Menu className="h-5 w-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left">
+            <SheetHeader>
+              <SheetTitle>Menu</SheetTitle>
+            </SheetHeader>
+            <nav className="flex flex-col gap-4 mt-8">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className="text-lg hover:text-primary transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
+                  {item.label}
+                </Link>
+              ))}
+              <div className="pt-4 border-t">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Theme:</span>
+                  <ModeToggle />
+                </div>
+              </div>
+            </nav>
+          </SheetContent>
+        </Sheet>
+
+        {/* Center: Logo */}
+        <div className="absolute left-1/2 -translate-x-1/2 z-100">
+          <Link href="/">
+            <Image
+              src={"/images/OpenTimelineIO@3xLight.png"}
+              className="absolute scale-0 dark:scale-100"
+              alt="OTIO Logo"
+              width={150}
+              height={11}
+              priority
+            />
+            <Image
+              src={"/images/OpenTimelineIO@3xDark.png"}
+              alt="OTIO Logo"
+              className="scale-100 dark:scale-0"
+              width={150}
+              height={11}
+              priority
+            />
+          </Link>
+        </div>
+
+        {/* Right: Search Icon + GitHub */}
+        <div className="flex items-center gap-2 relative z-20">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={() => {
+              // Trigger DocSearch programmatically
+              const button = document.querySelector('.DocSearch-Button') as HTMLButtonElement;
+              button?.click();
+            }}
+          >
+            <Search className="h-5 w-5" />
+          </Button>
+          <Link href="https://github.com/AcademySoftwareFoundation/OpenTimelineIO">
+            <Button variant="outline" size="icon">
+              <Image
+                objectFit="contain"
+                width={16}
+                height={16}
+                className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
+                src="/icons/github/github-mark.png"
+                alt="GitHub"
+              />
+              <Image
+                objectFit="contain"
+                width={16}
+                height={16}
+                className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
+                src="/icons/github/github-mark-white.png"
+                alt="GitHub"
               />
             </Button>
           </Link>
         </div>
-        <ModeToggle style={{ marginLeft: "12px", minWidth: "40px" }} />
+      </div>
+
+      {/* Hidden DocSearch for mobile trigger */}
+      <div className="hidden">
+        <DocSearch
+          appId="R2IYF7ETH7"
+          apiKey="599cec31baffa4868cae4e79f180729b"
+          indexName="docsearch"
+          placeholder="Search..."
+          theme={colorMode}
+        />
       </div>
     </div>
   );

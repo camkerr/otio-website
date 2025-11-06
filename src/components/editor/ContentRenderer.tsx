@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, memo } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -13,7 +13,8 @@ interface ContentRendererProps {
   syncWithPlayhead?: boolean;
 }
 
-export function ContentRenderer({
+// Memoize ContentRenderer to prevent unnecessary re-renders
+export const ContentRenderer = memo(function ContentRenderer({
   markdown,
   onAstUpdate,
   sections = [],
@@ -23,6 +24,9 @@ export function ContentRenderer({
   const [ast, setAst] = useState<any>(null);
 
   // Calculate opacity for each section based on playhead position
+  // Optimize: Only recalculate when currentTimeMs changes significantly (rounded to 10ms)
+  const roundedTimeMs = useMemo(() => Math.round(currentTimeMs / 10) * 10, [currentTimeMs]);
+  
   const sectionOpacities = useMemo(() => {
     if (!syncWithPlayhead || sections.length === 0) {
       return {};
@@ -36,19 +40,19 @@ export function ContentRenderer({
       const sectionStart = section.startTime;
       const sectionEnd = section.startTime + section.duration;
 
-      if (currentTimeMs < sectionStart - fadeDuration) {
+      if (roundedTimeMs < sectionStart - fadeDuration) {
         // Before section - fully transparent
         opacities[i] = 0;
-      } else if (currentTimeMs >= sectionStart - fadeDuration && currentTimeMs < sectionStart) {
+      } else if (roundedTimeMs >= sectionStart - fadeDuration && roundedTimeMs < sectionStart) {
         // Fading in
-        const fadeProgress = (currentTimeMs - (sectionStart - fadeDuration)) / fadeDuration;
+        const fadeProgress = (roundedTimeMs - (sectionStart - fadeDuration)) / fadeDuration;
         opacities[i] = fadeProgress;
-      } else if (currentTimeMs >= sectionStart && currentTimeMs <= sectionEnd) {
+      } else if (roundedTimeMs >= sectionStart && roundedTimeMs <= sectionEnd) {
         // Active section - fully visible
         opacities[i] = 1;
-      } else if (currentTimeMs > sectionEnd && currentTimeMs <= sectionEnd + fadeDuration) {
+      } else if (roundedTimeMs > sectionEnd && roundedTimeMs <= sectionEnd + fadeDuration) {
         // Fading out
-        const fadeProgress = 1 - (currentTimeMs - sectionEnd) / fadeDuration;
+        const fadeProgress = 1 - (roundedTimeMs - sectionEnd) / fadeDuration;
         opacities[i] = Math.max(0, fadeProgress);
       } else {
         // After section - fully transparent
@@ -57,7 +61,7 @@ export function ContentRenderer({
     }
 
     return opacities;
-  }, [sections, currentTimeMs, syncWithPlayhead]);
+  }, [sections, roundedTimeMs, syncWithPlayhead]);
 
   // Filter out HTML comment separators from markdown
   const filterCommentSeparators = (md: string) => {
@@ -208,4 +212,4 @@ export function ContentRenderer({
       </ReactMarkdown>
     </div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { MarkdownTutorial } from "@/components/Tutorial";
+import { MarkdownTutorial } from "@/components/tutorial";
 import { promises as fs } from "fs";
 import path from "path";
 

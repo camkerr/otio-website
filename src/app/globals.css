@@ -48,7 +48,7 @@
 
 @layer base {
   :root {
-    background-color: #fff;
+    /* background-color: #fff; */
 
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
@@ -132,4 +132,17 @@ body {
 
 .DocSearch {
   width: 250px;
+}
+
+/* Match DocSearch button styling to surrounding UI buttons */
+.DocSearch-Button-Wrapper .DocSearch-Button {
+  height: 38px !important;
+  border-radius: var(--radius-md) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  background-color: transparent !important;
+}
+
+.DocSearch-Button-Wrapper .DocSearch-Button:hover {
+  background-color: hsl(var(--accent)) !important;
+  color: hsl(var(--accent-foreground)) !important;
 }

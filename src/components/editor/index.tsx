@@ -32,6 +32,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const [timelineHeight, setTimelineHeight] = useState(2000); // Default playhead height - will be adjusted dynamically
   const [timelineWidth, setTimelineWidth] = useState(2000); // Timeline content width
   const [timelineScrollLeft, setTimelineScrollLeft] = useState(0); // Track horizontal scroll position
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(false); // Trigger auto-scroll after position updates
   const timelineTicksRef = useRef<HTMLDivElement>(null);
 
   // Parse markdown and generate clips
@@ -86,57 +87,28 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
     }
   }, [timelineDurationFrames]);
 
-  useEffect(() => {
-    let animationId: number;
-
-    if (isPlaying) {
-      const animate = () => {
-        setScrollPercentage((prev) => {
-          const newPercentage = prev + percentagePerSecond / screenRefreshRate; // 60fps approximation
-          if (newPercentage >= 1) {
-            setIsPlaying(false);
-            return 1;
-          }
-          return newPercentage;
-        });
-        animationId = requestAnimationFrame(animate);
-      };
-
-      animationId = requestAnimationFrame(animate);
-    }
-
-    return () => {
-      if (animationId) {
-        cancelAnimationFrame(animationId);
-      }
-    };
-  }, [isPlaying, percentagePerSecond, screenRefreshRate]);
+  // REMOVED: Duplicate animation loop - now handled by unified animation effect below
 
   // Update the scroll sync effect to handle vertical scrolling only
+  // Use RAF for smoother updates synchronized with browser paint
   useEffect(() => {
     if (isScrolling) return; // Skip if user is manually scrolling
 
     const verticalSection = verticalSectionRef.current;
 
     if (verticalSection) {
-      // Round the scroll positions to prevent floating point errors
-      const verticalScrollMax =
-        verticalSection.scrollHeight - verticalSection.clientHeight;
-      const roundedVerticalScroll = Math.round(
-        scrollPercentage * verticalScrollMax
-      );
-      verticalSection.scrollTop = roundedVerticalScroll;
-
-      // Disabled: Automatic horizontal timeline scroll
-      // const horizontalSection = timelineWrapperRef.current;
-      // if (horizontalSection) {
-      //   const horizontalScrollMax =
-      //     horizontalSection.scrollWidth - horizontalSection.clientWidth;
-      //   const roundedHorizontalScroll = Math.round(
-      //     scrollPercentage * horizontalScrollMax
-      //   );
-      //   horizontalSection.scrollLeft = roundedHorizontalScroll;
-      // }
+      // Use RAF to sync with browser paint cycle for smoother scrolling
+      requestAnimationFrame(() => {
+        if (!verticalSection) return;
+        
+        // Calculate target scroll position
+        const verticalScrollMax =
+          verticalSection.scrollHeight - verticalSection.clientHeight;
+        const targetScroll = scrollPercentage * verticalScrollMax;
+        
+        // Update scroll position - let browser handle sub-pixel rendering
+        verticalSection.scrollTop = targetScroll;
+      });
     }
   }, [scrollPercentage, isScrolling]);
 
@@ -193,27 +165,32 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   // }, [handleScroll]);
 
   // Update the playhead position and height calculation
+  // Separate concerns: ResizeObserver for size changes, effect for position updates
   useEffect(() => {
-    const updatePlayheadPosition = () => {
+    if (timelineWrapperRef.current) {
+      const width = timelineWrapperRef.current.scrollWidth;
+      const position = scrollPercentage * width;
+      setPlayheadPosition(position);
+      setTimelineWidth(width);
+    }
+  }, [scrollPercentage, zoomLevel]);
+
+  // ResizeObserver - only set up once, not on every scroll
+  useEffect(() => {
+    const updateTimelineDimensions = () => {
       if (timelineWrapperRef.current) {
         const width = timelineWrapperRef.current.scrollWidth;
-        // Position playhead within the timeline
-        const position = scrollPercentage * width;
-        setPlayheadPosition(position);
         setTimelineWidth(width);
         
         // Calculate playhead height: ticks (32px) + tracks (5 × 32px = 160px) = 192px
         const ticksHeight = 32;
-        const tracksHeight = 5 * 32; // 5 tracks, each 32px
+        const tracksHeight = 5 * 32;
         const totalHeight = ticksHeight + tracksHeight;
         setTimelineHeight(totalHeight);
       }
     };
 
-    // Don't skip updates when scrolling
-    updatePlayheadPosition();
-
-    const resizeObserver = new ResizeObserver(updatePlayheadPosition);
+    const resizeObserver = new ResizeObserver(updateTimelineDimensions);
     if (timelineWrapperRef.current) {
       resizeObserver.observe(timelineWrapperRef.current);
     }
@@ -221,7 +198,57 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
     return () => {
       resizeObserver.disconnect();
     };
-  }, [scrollPercentage, zoomLevel]);
+  }, [zoomLevel]); // Only re-create when zoom changes
+
+  // Handle seeking to a specific timeline position
+  const handleSeek = useCallback((percentage: number) => {
+    // Stop playback
+    setIsPlaying(false);
+    setFfwState(false);
+    setRewindState(false);
+    
+    if (!timelineWrapperRef.current) return;
+    
+    // Update playhead position
+    const timelineWidth = timelineWrapperRef.current.scrollWidth;
+    const newPosition = percentage * timelineWidth;
+    setPlayheadPosition(newPosition);
+    setScrollPercentage(percentage);
+  }, []);
+
+  // Helper function to ensure playhead is visible in viewport
+  const scrollPlayheadIntoView = useCallback(() => {
+    if (!timelineWrapperRef.current) return;
+    
+    const viewportWidth = timelineWrapperRef.current.clientWidth;
+    const currentScrollLeft = timelineWrapperRef.current.scrollLeft;
+    const playheadVisualPosition = playheadPosition - currentScrollLeft;
+    
+    // If playhead is behind the left edge or too close, scroll it into view
+    if (playheadVisualPosition < 100) {
+      const newScrollLeft = Math.max(0, playheadPosition - 100);
+      timelineWrapperRef.current.scrollLeft = newScrollLeft;
+      if (timelineTicksRef.current) {
+        timelineTicksRef.current.scrollLeft = newScrollLeft;
+      }
+    }
+    // If playhead is past the right edge, scroll it into view
+    else if (playheadVisualPosition > viewportWidth - 50) {
+      const newScrollLeft = playheadPosition - viewportWidth + 100;
+      timelineWrapperRef.current.scrollLeft = newScrollLeft;
+      if (timelineTicksRef.current) {
+        timelineTicksRef.current.scrollLeft = newScrollLeft;
+      }
+    }
+  }, [playheadPosition]);
+
+  // Auto-scroll effect when shouldAutoScroll flag is set
+  useEffect(() => {
+    if (shouldAutoScroll) {
+      scrollPlayheadIntoView();
+      setShouldAutoScroll(false);
+    }
+  }, [shouldAutoScroll, playheadPosition, scrollPlayheadIntoView]);
 
   const handlePlayheadDrag = useCallback((e: any, data: { x: number }) => {
     setIsPlaying(false);
@@ -237,12 +264,67 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
 
     setPlayheadPosition(clampedX);
     setScrollPercentage(newPercentage);
+
+    // Auto-scroll timeline if playhead is dragged near the left edge
+    const viewportWidth = timelineWrapperRef.current.clientWidth;
+    const currentScrollLeft = timelineWrapperRef.current.scrollLeft;
+    const playheadVisualPosition = clampedX - currentScrollLeft;
+    
+    // If playhead is too close to left edge (within 50px), scroll left
+    if (playheadVisualPosition < 50 && currentScrollLeft > 0) {
+      const newScrollLeft = Math.max(0, clampedX - 100); // Keep playhead 100px from edge
+      timelineWrapperRef.current.scrollLeft = newScrollLeft;
+      if (timelineTicksRef.current) {
+        timelineTicksRef.current.scrollLeft = newScrollLeft;
+      }
+    }
+    // If playhead is too close to right edge, scroll right
+    else if (playheadVisualPosition > viewportWidth - 50) {
+      const newScrollLeft = clampedX - viewportWidth + 100;
+      timelineWrapperRef.current.scrollLeft = newScrollLeft;
+      if (timelineTicksRef.current) {
+        timelineTicksRef.current.scrollLeft = newScrollLeft;
+      }
+    }
   }, []);
 
   // Update keyboard shortcuts
   useEffect(() => {
     const handleKeyDown = (e: any) => {
-      // Update shortcut display state
+      // Check if DocSearch modal is open - if so, don't process any shortcuts
+      const docSearchModal = document.querySelector('.DocSearch-Modal');
+      const isDocSearchOpen = docSearchModal !== null;
+      
+      // Also check if any input/textarea has focus (prevents shortcuts when typing)
+      const activeElement = document.activeElement;
+      const isInputFocused = activeElement && (
+        activeElement.tagName === 'INPUT' ||
+        activeElement.tagName === 'TEXTAREA' ||
+        activeElement.getAttribute('contenteditable') === 'true'
+      );
+
+      if (isDocSearchOpen || isInputFocused) {
+        return; // Don't process shortcuts when DocSearch is open or typing in an input
+      }
+
+      // Ignore shortcuts when Cmd/Ctrl is pressed (except zoom shortcuts)
+      // This allows DocSearch (Cmd+K) and other browser shortcuts to work
+      if (e.metaKey || e.ctrlKey) {
+        // Only handle zoom shortcuts
+        if (e.code === "Equal" || e.code === "Minus") {
+          e.preventDefault();
+          if (e.code === "Equal") {
+            // Zoom in
+            setZoomLevel((prev) => Math.min(4, prev + 0.25));
+          } else if (e.code === "Minus") {
+            // Zoom out
+            setZoomLevel((prev) => Math.max(0.25, prev - 0.25));
+          }
+        }
+        return; // Don't process any other shortcuts when Cmd/Ctrl is pressed
+      }
+
+      // Update shortcut display state (only for non-modifier key presses)
       setCurrentKeyCode(e.code);
       setCurrentShiftKey(e.shiftKey);
 
@@ -251,19 +333,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
         setCurrentKeyCode("");
         setCurrentShiftKey(false);
       }, 150);
-
-      // Handle zoom shortcuts (Cmd/Ctrl + = for zoom in, Cmd/Ctrl - for zoom out)
-      if ((e.metaKey || e.ctrlKey) && (e.code === "Equal" || e.code === "Minus")) {
-        e.preventDefault();
-        if (e.code === "Equal") {
-          // Zoom in
-          setZoomLevel((prev) => Math.min(4, prev + 0.25));
-        } else if (e.code === "Minus") {
-          // Zoom out
-          setZoomLevel((prev) => Math.max(0.25, prev - 0.25));
-        }
-        return;
-      }
 
       if (e.code === "Space") {
         e.preventDefault();
@@ -276,19 +345,27 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
         case "KeyK":
         case "Space":
           if (ffwState || rewindState) {
+            scrollPlayheadIntoView();
             setIsPlaying(true);
             setFfwState(false);
             setRewindState(false);
             setFfwSpeedLevel(0);
             setRewindSpeedLevel(0);
           } else {
-            setIsPlaying((prev) => !prev);
+            setIsPlaying((prev) => {
+              if (!prev) {
+                // About to start playing, ensure playhead is visible
+                scrollPlayheadIntoView();
+              }
+              return !prev;
+            });
           }
           if (playButtonRef.current) {
             playButtonRef.current.blur();
           }
           break;
         case "KeyL":
+          scrollPlayheadIntoView();
           setIsPlaying(false);
           setRewindState(false);
           setRewindSpeedLevel(0);
@@ -300,6 +377,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
           }
           break;
         case "KeyJ":
+          scrollPlayheadIntoView();
           setIsPlaying(false);
           setFfwState(false);
           setFfwSpeedLevel(0);
@@ -316,6 +394,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
             setFfwState(false);
             setRewindState(false);
             setScrollPercentage(0);
+            setShouldAutoScroll(true);
           }
           break;
         case "KeyO":
@@ -324,6 +403,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
             setFfwState(false);
             setRewindState(false);
             setScrollPercentage(1);
+            setShouldAutoScroll(true);
           }
           break;
         case "ArrowRight":
@@ -350,6 +430,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
           setFfwState(false);
           setRewindState(false);
           setScrollPercentage(0);
+          setShouldAutoScroll(true);
           break;
         case "ArrowDown":
           e.preventDefault();
@@ -357,17 +438,20 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
           setFfwState(false);
           setRewindState(false);
           setScrollPercentage(1);
+          setShouldAutoScroll(true);
           break;
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [ffwState, rewindState, timelineDurationFrames]);
+  }, [ffwState, rewindState, timelineDurationFrames, scrollPlayheadIntoView]);
 
-  // Update playback animation
+  // Update playback animation with proper delta time for smooth scrolling
   useEffect(() => {
     let animationId: number | null = null;
+    let lastTimestamp: number | null = null;
+    
     const getSpeedMultiplier = () => {
       if (ffwState) {
         return Math.pow(2, ffwSpeedLevel + 1); // 2x, 4x, 8x
@@ -378,17 +462,29 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
       return 1;
     };
 
-    const animate = () => {
+    const animate = (timestamp: number) => {
+      // Initialize lastTimestamp on first frame
+      if (lastTimestamp === null) {
+        lastTimestamp = timestamp;
+        animationId = requestAnimationFrame(animate);
+        return;
+      }
+
+      // Calculate delta time in seconds
+      const deltaTime = (timestamp - lastTimestamp) / 1000;
+      lastTimestamp = timestamp;
+
       setScrollPercentage((prev) => {
         let newPercentage = prev;
         const speedMultiplier = getSpeedMultiplier();
 
         if (isPlaying) {
-          newPercentage += percentagePerSecond / 60;
+          // Use actual delta time instead of hardcoded 1/60
+          newPercentage += percentagePerSecond * deltaTime;
         } else if (ffwState) {
-          newPercentage += (percentagePerSecond * speedMultiplier) / 60;
+          newPercentage += (percentagePerSecond * speedMultiplier) * deltaTime;
         } else if (rewindState) {
-          newPercentage -= (percentagePerSecond * speedMultiplier) / 60;
+          newPercentage -= (percentagePerSecond * speedMultiplier) * deltaTime;
         } else {
           return prev;
         }
@@ -417,6 +513,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
       if (animationId) {
         cancelAnimationFrame(animationId);
       }
+      lastTimestamp = null;
     };
   }, [
     isPlaying,
@@ -447,15 +544,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 }}
               />
             </div>
-            <KeyboardShortcutDisplay
-              keyCode={currentKeyCode}
-              shiftKey={currentShiftKey}
-              isPlaying={isPlaying}
-              ffwSpeedLevel={ffwSpeedLevel}
-              rewindSpeedLevel={rewindSpeedLevel}
-              ffwState={ffwState}
-              rewindState={rewindState}
-            />
             <ContentRenderer 
               markdown={markdown} 
               sections={sections}
@@ -464,6 +552,15 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
             />
             {/* <BodyContent /> */}
           </div>
+          <KeyboardShortcutDisplay
+            keyCode={currentKeyCode}
+            shiftKey={currentShiftKey}
+            isPlaying={isPlaying}
+            ffwSpeedLevel={ffwSpeedLevel}
+            rewindSpeedLevel={rewindSpeedLevel}
+            ffwState={ffwState}
+            rewindState={rewindState}
+          />
           <div className="transportControls">
             <div className="font-mono text-sm">
               {getTimecodeFromScroll(scrollPercentage)}
@@ -474,6 +571,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 variant="outline"
                 size="icon"
                 onClick={() => {
+                  scrollPlayheadIntoView();
                   setIsPlaying(false);
                   setFfwState(false);
                   setFfwSpeedLevel(0);
@@ -501,11 +599,18 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 size="icon"
                 onClick={() => {
                   if (ffwState || rewindState) {
+                    scrollPlayheadIntoView();
                     setIsPlaying(false);
                     setFfwState(false);
                     setRewindState(false);
                   } else {
-                    setIsPlaying((prev) => !prev);
+                    setIsPlaying((prev) => {
+                      if (!prev) {
+                        // About to start playing, ensure playhead is visible
+                        scrollPlayheadIntoView();
+                      }
+                      return !prev;
+                    });
                   }
                 }}
                 style={{
@@ -523,6 +628,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 variant="outline"
                 size="icon"
                 onClick={() => {
+                  scrollPlayheadIntoView();
                   setIsPlaying(false);
                   setRewindState(false);
                   setRewindSpeedLevel(0);
@@ -584,7 +690,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
             {/* Ticks ruler row */}
             <div style={{ display: 'flex', flexDirection: 'row', width: '100%' }}>
               {/* Spacer for track headers */}
-              <div style={{ width: '250px', minWidth: '250px', height: '32px', backgroundColor: 'hsl(var(--background))', borderBottom: '1px solid hsl(var(--border))' }} />
+              <div className="track-headers-spacer" />
               
               {/* Timeline ticks ruler */}
               <div
@@ -610,6 +716,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                   totalDurationMs={totalDuration} 
                   zoomLevel={zoomLevel}
                   timelineWidth={timelineWidth}
+                  onSeek={handleSeek}
                 />
               </div>
             </div>

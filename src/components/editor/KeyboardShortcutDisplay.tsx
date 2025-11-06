@@ -141,17 +141,22 @@ export const KeyboardShortcutDisplay = ({
     if (!shortcut) return null;
   
     return (
-      <div className={`
-        fixed left-1/2 
-        -translate-x-1/2 -translate-y-1/2
-        ${isVisible ? 'scale-110 opacity-100' : 'scale-100 opacity-0'}
-        transition-all duration-200 ease-in-out
-        pointer-events-none z-[9999]
-        bg-black/50 p-4 rounded-lg
-        flex items-center justify-center
-        min-w-[120px]
-      `}
-      style={{top: 'calc(calc(calc(100% - 65px) - 10dvh)/2)'}}
+      <div 
+        className={`
+          fixed
+          ${isVisible ? 'scale-110 opacity-100' : 'scale-100 opacity-0'}
+          transition-all duration-200 ease-in-out
+          pointer-events-none
+          bg-black/50 p-4 rounded-lg
+          flex items-center justify-center
+          min-w-[120px]
+        `}
+        style={{
+          left: '50%',
+          top: 'calc(16px + (calc(100vh - 26dvh - 24px) / 2))',
+          transform: 'translate(-50%, -50%)',
+          zIndex: 9999
+        }}
       >
         {shortcut}
       </div>

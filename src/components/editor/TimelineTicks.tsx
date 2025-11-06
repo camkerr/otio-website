@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, memo } from 'react';
 import Timecode from 'smpte-timecode';
 import { msToFrames } from '@/lib/time-utils';
 
@@ -6,12 +6,27 @@ interface TimelineTicksProps {
   totalDurationMs: number;
   zoomLevel: number;
   timelineWidth: number;
+  onSeek?: (percentage: number) => void;
 }
 
-export const TimelineTicks = ({ totalDurationMs, zoomLevel, timelineWidth }: TimelineTicksProps) => {
+// Memoize TimelineTicks to prevent unnecessary re-renders
+export const TimelineTicks = memo(({ totalDurationMs, zoomLevel, timelineWidth, onSeek }: TimelineTicksProps) => {
+  const handleClick = useMemo(() => {
+    if (!onSeek) return undefined;
+    
+    return (e: React.MouseEvent<HTMLDivElement>) => {
+      // Get click position relative to the ticks container
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      
+      // Calculate percentage based on timeline width
+      const percentage = Math.max(0, Math.min(1, clickX / timelineWidth));
+      onSeek(percentage);
+    };
+  }, [onSeek, timelineWidth]);
 
-  // Calculate appropriate tick interval to maintain good density
-  const getTickIntervals = () => {
+  // Calculate appropriate tick interval to maintain good density - memoized
+  const tickIntervals = useMemo(() => {
     const totalSeconds = totalDurationMs / 1000;
     const targetMinorTicks = 50; // Target more ticks for better granularity
     
@@ -38,15 +53,15 @@ export const TimelineTicks = ({ totalDurationMs, zoomLevel, timelineWidth }: Tim
     const labelInterval = majorInterval * 2; // Label every 2 major ticks (10 minor ticks)
     
     return { minor: minorInterval, major: majorInterval, label: labelInterval };
-  };
+  }, [totalDurationMs, zoomLevel]);
 
-  const renderTicks = () => {
-    const ticks = [];
-    const labels = [];
-    const intervals = getTickIntervals();
+  // Memoize the expensive tick rendering
+  const { ticks, labels } = useMemo(() => {
+    const tickElements = [];
+    const labelElements = [];
     
     // Generate minor ticks
-    const minorInterval = intervals.minor;
+    const minorInterval = tickIntervals.minor;
     const numMinorTicks = Math.ceil(totalDurationMs / minorInterval);
 
     for (let i = 0; i <= numMinorTicks; i++) {
@@ -76,7 +91,7 @@ export const TimelineTicks = ({ totalDurationMs, zoomLevel, timelineWidth }: Tim
         color = 'hsl(var(--foreground))';
       }
       
-      ticks.push(
+      tickElements.push(
         <div
           key={`tick-${i}`}
           style={{
@@ -87,6 +102,7 @@ export const TimelineTicks = ({ totalDurationMs, zoomLevel, timelineWidth }: Tim
             width: '1px',
             backgroundColor: color,
             opacity: opacity,
+            pointerEvents: 'none',
           }}
         />
       );
@@ -96,7 +112,7 @@ export const TimelineTicks = ({ totalDurationMs, zoomLevel, timelineWidth }: Tim
         try {
           const frames = msToFrames(timeMs);
           const tc = new Timecode(frames, 24, false);
-          labels.push(
+          labelElements.push(
             <div
               key={`label-${i}`}
               style={{
@@ -110,6 +126,7 @@ export const TimelineTicks = ({ totalDurationMs, zoomLevel, timelineWidth }: Tim
                 userSelect: 'none',
                 fontFamily: 'monospace',
                 opacity: 0.9,
+                pointerEvents: 'none',
               }}
             >
               {tc.toString()}
@@ -120,25 +137,39 @@ export const TimelineTicks = ({ totalDurationMs, zoomLevel, timelineWidth }: Tim
         }
       }
     }
-    return { ticks, labels };
-  };
-
-  const { ticks, labels } = renderTicks();
+    return { ticks: tickElements, labels: labelElements };
+  }, [totalDurationMs, zoomLevel, timelineWidth, tickIntervals]);
 
   return (
     <div 
+      onClick={handleClick}
       style={{
         position: 'relative',
         width: `${timelineWidth}px`,
+        minWidth: `${timelineWidth}px`,
         height: '32px',
         backgroundColor: 'hsl(var(--background))',
-        borderBottom: '1px solid hsl(var(--border))',
-        pointerEvents: 'none',
+        pointerEvents: 'auto',
         overflow: 'visible',
+        cursor: 'pointer',
       }}
     >
       {labels}
       {ticks}
+      {/* Full-width border line */}
+      <div 
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          width: `${timelineWidth}px`,
+          height: '1px',
+          backgroundColor: 'hsl(var(--border))',
+          pointerEvents: 'none',
+        }}
+      />
     </div>
   );
-};
+});
+
+TimelineTicks.displayName = "TimelineTicks";

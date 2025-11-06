@@ -8,6 +8,7 @@
 }
 
 .programMonitor {
+  position: relative; /* Required for absolute/fixed positioned children like keyboard shortcuts */
   flex: 1;
   overflow-y: scroll;
   border: 2px solid hsl(var(--border));
@@ -18,6 +19,11 @@
   background-color: hsl(var(--background));
   -ms-overflow-style: none;
   scrollbar-width: none;
+  /* Smooth scrolling performance */
+  /* scroll-behavior: smooth; (disabled because it looks worse) */
+  /* GPU acceleration for scrolling */
+  transform: translateZ(0);
+  will-change: scroll-position;
 }
 
 .programMonitorHeader {
@@ -97,6 +103,7 @@
   border-radius: 0 0 var(--radius) var(--radius);
   background-color: hsl(var(--background));
   position: relative; /* So playhead can be positioned absolutely within */
+  overflow: hidden; /* Clip playhead if it goes outside */
 }
 
 .timelineTicksWrapper {
@@ -110,6 +117,17 @@
   display: none;
 }
 
+.track-headers-spacer {
+  width: 250px;
+  min-width: 250px;
+  height: 32px;
+  background: #2d2d2d;
+  border-bottom: 1px solid hsl(var(--border));
+  border-right: 2px solid hsl(var(--border));
+  position: relative;
+  z-index: 1100; /* Higher than playhead (1000) */
+}
+
 .track-headers-fixed {
   display: flex;
   flex-direction: column;
@@ -118,6 +136,8 @@
   background: #2d2d2d;
   border-right: 2px solid hsl(var(--border));
   overflow: hidden;
+  position: relative;
+  z-index: 1100; /* Higher than playhead (1000) */
 }
 
 .timelineWrapper {
@@ -135,6 +155,11 @@
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
+  /* Smooth scrolling performance (disabled because it looks worse) */
+  /* scroll-behavior: smooth; */
+  /* GPU acceleration */
+  transform: translateZ(0);
+  will-change: scroll-position;
 }
 
 .timelineContent {
@@ -177,12 +202,19 @@
   /* Wider click target */
   padding: 0 10px;
   margin-left: -10px;
+  /* Performance optimization: hint to browser this will animate */
+  will-change: transform;
+  /* Use GPU acceleration */
+  transform: translateZ(0);
 }
 
 .playhead {
   position: relative;
   pointer-events: none;
   z-index: 1000;
+  /* Performance optimization */
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 .timeline-tracks-area {
@@ -255,7 +287,6 @@
 .clip {
   position: absolute;
   height: calc(100% - 4px);
-  padding: 0 10px;
   margin: 2px 0;
   color: #ffffff;
   background: #4a6cd4;
@@ -264,5 +295,7 @@
   -webkit-user-select: none;
   -moz-user-select: none;
   pointer-events: none;
+  /* Performance optimization */
+  contain: layout style paint;
 }
 
