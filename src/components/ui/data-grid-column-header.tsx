@@ -1,5 +1,5 @@
 import { HTMLAttributes, ReactNode } from 'react';
-import { cn } from '@/components/lib/utils';
+import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useDataGrid } from '@/components/ui/data-grid';
 import {
@@ -131,7 +131,6 @@ function DataGridColumnHeader<TData, TValue>({
   const headerPin = () => {
     return (
       <Button
-        mode="icon"
         size="sm"
         variant="ghost"
         className="-me-1 size-7 rounded-md"

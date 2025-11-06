@@ -1,8 +1,9 @@
+"use client";
+
 import "@/styles/editor.css";
-import { Lock, Monitor, Eye, Mic, Volume2, Settings } from "lucide-react";
 import { TrackItem } from "@/lib/markdown-parser";
 import { msToPercentage } from "@/lib/time-utils";
-import { useRef, useEffect, useState, useMemo, memo } from "react";
+import { useMemo, memo } from "react";
 
 // Track configuration: h1=0, h2=1, h3=2, img=3, p=4
 const TRACK_CONFIG = [

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { TopNav } from "@/components/layout/top-nav";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { cn } from "@/lib/utils";
 import "./globals.css";
 import "@docsearch/css";
 
@@ -21,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={inter.className}>
+      <body className={cn("min-h-screen bg-background text-foreground antialiased", inter.className)}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

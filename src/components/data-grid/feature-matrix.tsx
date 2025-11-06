@@ -79,7 +79,7 @@ const CellRenderer = ({ value }: { value: string }) => {
                 >
                   <a
                     href={`https://github.com/AcademySoftwareFoundation/OpenTimelineIO/pull/${prNumber}`}
-                    className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 text-sm cursor-pointer"
+                    className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm font-medium text-blue-600 transition-colors hover:bg-blue-50 hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-blue-500/50 focus-visible:outline-offset-2 dark:text-blue-300 dark:hover:bg-blue-500/15 dark:hover:text-blue-200"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => {
