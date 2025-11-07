@@ -103,30 +103,44 @@ export function ReleasesClient({ releases }: ReleasesClientProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
-    const observers = releases.map((release, index) => {
-      const element = document.getElementById(`release-${release.id}`);
-      if (!element) return null;
+    // Create a single observer for all releases
+    const observerOptions = {
+      root: null, // viewport
+      rootMargin: "-30% 0px -60% 0px", // Top 30%, bottom 60% - middle section triggers
+      threshold: [0, 0.25, 0.5, 0.75, 1], // Multiple thresholds for better tracking
+    };
 
-      const observer = new IntersectionObserver(
-        (entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              setActiveIndex(index);
-            }
-          });
-        },
-        {
-          threshold: 0.5,
-          rootMargin: "-20% 0px -20% 0px",
+    const observer = new IntersectionObserver((entries) => {
+      // Find the most visible entry
+      let mostVisible = { index: -1, ratio: 0 };
+      
+      entries.forEach((entry) => {
+        if (entry.isIntersecting && entry.intersectionRatio > mostVisible.ratio) {
+          const elementId = entry.target.id;
+          const releaseId = parseInt(elementId.replace('release-', ''));
+          const index = releases.findIndex(r => r.id === releaseId);
+          
+          if (index !== -1) {
+            mostVisible = { index, ratio: entry.intersectionRatio };
+          }
         }
-      );
+      });
 
-      observer.observe(element);
-      return observer;
+      if (mostVisible.index !== -1) {
+        setActiveIndex(mostVisible.index);
+      }
+    }, observerOptions);
+
+    // Observe all release elements
+    releases.forEach((release) => {
+      const element = document.getElementById(`release-${release.id}`);
+      if (element) {
+        observer.observe(element);
+      }
     });
 
     return () => {
-      observers.forEach((observer) => observer?.disconnect());
+      observer.disconnect();
     };
   }, [releases]);
 
@@ -139,8 +153,8 @@ export function ReleasesClient({ releases }: ReleasesClientProps) {
             <div
               className="sticky bg-background"
               style={{
-                top: "calc(var(--top-nav-height) + 11rem)",
-                height: "calc(100vh - var(--top-nav-height) - 11rem - 2rem)",
+                top: "calc(var(--top-nav-height) + 11.5rem)",
+                height: "calc(100vh - var(--top-nav-height) - 11.5rem - 2rem)",
               }}
             >
               <Timeline releases={releases} activeIndex={activeIndex} />
@@ -158,7 +172,7 @@ export function ReleasesClient({ releases }: ReleasesClientProps) {
                   <Card className="overflow-hidden hover:shadow-lg transition-shadow">
                     {/* Release Header */}
                     <div className="bg-muted/50 border-b px-6 py-4">
-                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
+                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 flex-wrap mb-2">
                             <h2 className="text-2xl font-bold">{release.name}</h2>
@@ -208,7 +222,7 @@ export function ReleasesClient({ releases }: ReleasesClientProps) {
                     </div>
 
                     {/* Release Body */}
-                    <div className="px-6 pb-6">
+                    <div className="px-6 py-6 [&>div>:first-child]:mt-0">
                       <ReleaseNotesRenderer content={release.body} />
 
                       {/* Contributors */}

@@ -37,7 +37,7 @@ export function TopNav() {
   const { resolvedTheme, setTheme } = useTheme();
   const { navWidth } = useNavWidth();
   const pathname = usePathname();
-  
+
   const isDocsPage = pathname?.startsWith('/docs');
 
   // Avoid hydration mismatch by only rendering theme-dependent content after mount
@@ -85,15 +85,15 @@ export function TopNav() {
       <motion.div
         className={cn("mx-auto", containerClass)}
         animate={{ maxWidth: maxWidthValue }}
-        transition={{ 
-          duration: hasAnimated ? 0.2 : 0, 
-          ease: "easeInOut" 
+        transition={{
+          duration: hasAnimated ? 0.2 : 0,
+          ease: "easeInOut"
         }}
         style={{ width: "100%" }}
       >
         {/* Desktop Navigation */}
         <div
-          className="hidden md:grid md:grid-cols-[33%_33%_33%] items-center pl-4 py-4"
+          className="hidden lg:grid lg:grid-cols-[33%_33%_33%] items-center pl-4 py-4"
         >
           <div className="flex items-center">
             <Link href="/">
@@ -131,7 +131,8 @@ export function TopNav() {
                 ))}
               </NavigationMenuList>
             </NavigationMenu>
-            <div className="DocSearch-Button-Wrapper">
+            {/* Full DocSearch bar - only on xl+ */}
+            <div className="hidden xl:block DocSearch-Button-Wrapper">
               <DocSearch
                 appId="R2IYF7ETH7"
                 apiKey="599cec31baffa4868cae4e79f180729b"
@@ -140,6 +141,20 @@ export function TopNav() {
                 theme={colorMode}
               />
             </div>
+            {/* Search icon - on lg to xl */}
+            <Button
+              variant="outline"
+              size="icon"
+              className="xl:hidden"
+              style={{ minWidth: "40px" }}
+              onClick={() => {
+                // Trigger DocSearch programmatically
+                const button = document.querySelector('.DocSearch-Button') as HTMLButtonElement;
+                button?.click();
+              }}
+            >
+              <Search className="h-5 w-5" />
+            </Button>
             <Link href="https://github.com/AcademySoftwareFoundation/OpenTimelineIO">
               <Button variant="outline" size="icon">
                 {mounted ? (
@@ -166,7 +181,7 @@ export function TopNav() {
         </div>
 
         {/* Mobile Navigation */}
-        <div className="flex md:hidden items-center justify-between p-4 relative">
+        <div className="flex lg:hidden items-center justify-between p-4 relative">
           {/* Left: Hamburger Menu */}
           <Sheet open={isOpen} onOpenChange={setIsOpen}>
             <SheetTrigger asChild>

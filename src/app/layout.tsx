@@ -14,6 +14,14 @@ export const metadata: Metadata = {
   description:
     "OpenTimelineIO is an open-source interchange format and API for editorial timeline information, \
     facilitating collaboration and interoperability among various post-production tools",
+  icons: {
+    icon: [
+      { url: '/icons/open-timeline-io-icon-color.svg', type: 'image/svg+xml' },
+      { url: '/icons/open-timeline-io-icon-color.png', type: 'image/png' },
+    ],
+    apple: '/icons/open-timeline-io-icon-color.png',
+    shortcut: '/icons/open-timeline-io-icon-color.png',
+  },
 };
 
 export default function RootLayout({
