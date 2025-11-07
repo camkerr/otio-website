@@ -16,7 +16,7 @@ export async function DocumentationLeftNav() {
         navItems={[
           { title: 'Documentation', path: '/docs' },
           {
-            title: 'API Reference',
+            title: 'ReadTheDocs Reference',
             path: 'https://opentimelineio.readthedocs.io/en/latest/',
             external: true,
           },

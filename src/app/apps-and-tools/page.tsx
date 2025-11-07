@@ -5,7 +5,7 @@ import Image from "next/image";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Film, Eye, FolderKanban, PlayCircle } from "lucide-react";
+import { Search, Film, Eye, FolderKanban, PlayCircle, Edit2, Monitor } from "lucide-react";
 import { Integration } from "@/types/integrations";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { PageHeader } from "@/components/layout/page-header";
@@ -35,7 +35,7 @@ export default function AppsAndToolsPage() {
     },
     {
       id: "2",
-      name: "ftrack cineSync Play",
+      name: "cineSync Play",
       description: "Frame-accurate playback & review & tool",
       company: "ftrack",
       logo: "/placeholder.svg?height=100&width=100",
@@ -61,20 +61,6 @@ export default function AppsAndToolsPage() {
       ],
     },
     {
-      id: "4",
-      name: "mrViewer",
-      description:
-        "flipbook, video and audio player, with OTIO support demonstrated here",
-      company: "mrViewer",
-      logo: "/placeholder.svg?height=100&width=100",
-      type: "app",
-      categories: ["Media", "Player"],
-      media: [
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-      ],
-    },
-    {
       id: "5",
       name: "OpenRV",
       description: "A digital review tool for film, TV, and games",
@@ -89,13 +75,13 @@ export default function AppsAndToolsPage() {
     },
     {
       id: "6",
-      name: "Hiero",
+      name: "Nuke Studio",
       description:
-        "Multi-shot management, conform, editorial, review and distribution workflows tool",
+          "Nuke Studio is the premier online VFX editing software",
       company: "Foundry",
       logo: "/placeholder.svg?height=100&width=100",
       type: "app",
-      categories: ["Management", "Review"],
+      categories: ["Editor", "Compositor"],
       media: [
         { type: "image", url: "/placeholder.svg?height=720&width=1280" },
         { type: "image", url: "/placeholder.svg?height=720&width=1280" },
@@ -130,13 +116,15 @@ export default function AppsAndToolsPage() {
     },
   ];
 
-  const categories = ["Media", "Review", "Management", "Player"];
+  const categories = ["Media", "Review", "Management", "Player", "Editor", "Compositor"];
 
   const categoryIcons = {
     Media: Film,
     Review: Eye,
     Management: FolderKanban,
     Player: PlayCircle,
+    Editor: Edit2,
+    Compositor: Monitor,
   };
 
   const filteredAppsAndTools = integrations.filter((integration) => {

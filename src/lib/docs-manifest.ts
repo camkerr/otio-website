@@ -190,7 +190,7 @@ export function getNavStructure(manifest: DocsManifest) {
   return [
     {
       title: 'Quick Start',
-      path: '/docs/quickstart',
+      path: '/docs/tutorials/quickstart',
       children: manifest.categories.quickstart.map((doc) => ({
         title: doc.title,
         path: `/docs/${doc.slug}`,
@@ -213,7 +213,7 @@ export function getNavStructure(manifest: DocsManifest) {
       })),
     },
     {
-      title: 'API Reference',
+      title: 'ReadTheDocs Reference',
       path: 'https://opentimelineio.readthedocs.io/en/latest/',
       external: true,
     },

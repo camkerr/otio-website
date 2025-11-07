@@ -21,13 +21,14 @@ import {
 import { DocSearch } from "@docsearch/react";
 import { ModeToggle } from "@/components/layout/dark-mode";
 import { Button } from "@/components/ui/button";
+import { Switch } from "@/components/ui/switch";
 import { useTheme } from "next-themes";
-import { Menu, Search } from "lucide-react";
+import { Menu, Search, Moon, Sun } from "lucide-react";
 import { useNavWidth } from "@/contexts/nav-width-context";
 import { motion } from "motion/react";
 
 export function TopNav() {
-  const { resolvedTheme } = useTheme();
+  const { resolvedTheme, theme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
   const { navWidth } = useNavWidth();
@@ -144,25 +145,33 @@ export function TopNav() {
               <Menu className="h-5 w-5" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left">
+          <SheetContent side="left" className="flex flex-col">
             <SheetHeader>
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
-            <nav className="flex flex-col gap-4 mt-8">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className="text-lg hover:text-primary transition-colors"
-                  onClick={() => setIsOpen(false)}
-                >
-                  {item.label}
-                </Link>
-              ))}
-              <div className="pt-4 border-t">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-muted-foreground">Theme:</span>
-                  <ModeToggle />
+            <nav className="flex flex-col flex-1">
+              <div className="flex flex-col gap-1 mt-8 px-6">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="text-2xl font-medium py-3 hover:text-primary transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+              <div className="mt-auto pt-6 border-t px-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Sun className="h-5 w-5 text-muted-foreground" />
+                    <span className="text-sm font-medium">Theme</span>
+                  </div>
+                  <Switch
+                    checked={resolvedTheme === "dark"}
+                    onCheckedChange={(checked) => setTheme(checked ? "dark" : "light")}
+                  />
                 </div>
               </div>
             </nav>
