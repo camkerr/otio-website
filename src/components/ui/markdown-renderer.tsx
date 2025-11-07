@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
@@ -13,6 +14,7 @@ import { oneLight, oneDark } from "react-syntax-highlighter/dist/esm/styles/pris
 import { useTheme } from "next-themes";
 import { getProxiedImageUrl } from "@/lib/utils";
 import { type LightboxImage } from "@/components/ui/lightbox";
+import { formatMarkdown } from "@/lib/markdown-utils";
 
 interface MarkdownRendererProps {
   content: string;
@@ -31,7 +33,19 @@ function slugify(text: string): string {
 
 export function MarkdownRenderer({ content, openLightbox, className = "" }: MarkdownRendererProps) {
   const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === "dark";
+  const [mounted, setMounted] = useState(false);
+  
+  // Ensure we only use the theme after hydration to avoid mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+  
+  // Use a default theme during SSR to match initial client render
+  // Default to light theme to match the default system preference
+  const isDark = mounted && resolvedTheme === "dark";
+  
+  // Format markdown to normalize line breaks before rendering
+  const formattedContent = formatMarkdown(content);
   
   return (
     <div className={`prose prose-sm lg:prose-base max-w-none dark:prose-invert ${className}`}>
@@ -43,13 +57,13 @@ export function MarkdownRenderer({ content, openLightbox, className = "" }: Mark
           [
             rehypeAutolinkHeadings,
             {
-              behavior: 'append',
-              content: {
-                type: 'text',
-                value: ' #',
-              },
+              behavior: 'wrap',
+              // content: {
+              //   type: 'text',
+              //   value: ' #',
+              // },
               properties: {
-                className: ['anchor-link', 'opacity-0', 'group-hover:opacity-100', 'transition-opacity', 'ml-2', 'text-muted-foreground', 'hover:text-foreground'],
+                className: 'anchor-link opacity-0 group-hover:opacity-100 transition-opacity ml-2 text-muted-foreground/60 hover:text-muted-foreground no-underline hover:underline',
                 ariaLabel: 'Link to this section',
               },
             },
@@ -131,7 +145,7 @@ export function MarkdownRenderer({ content, openLightbox, className = "" }: Mark
               <h1
                 {...props}
                 id={id}
-                className="text-2xl lg:text-3xl font-bold mt-6 lg:mt-8 mb-4 lg:mb-6 scroll-mt-20 group relative"
+                className="text-2xl lg:text-3xl font-bold mt-6 lg:mt-8 mb-4 lg:mb-6 scroll-mt-8 group relative"
               >
                 {props.children}
               </h1>
@@ -143,7 +157,7 @@ export function MarkdownRenderer({ content, openLightbox, className = "" }: Mark
               <h2
                 {...props}
                 id={id}
-                className="text-xl lg:text-2xl font-semibold mt-6 lg:mt-8 mb-3 lg:mb-4 scroll-mt-20 group relative border-b border-border pb-2"
+                className="text-xl lg:text-2xl font-semibold mt-6 lg:mt-8 mb-3 lg:mb-4 scroll-mt-8 group relative border-b border-border pb-2"
               >
                 {props.children}
               </h2>
@@ -155,7 +169,7 @@ export function MarkdownRenderer({ content, openLightbox, className = "" }: Mark
               <h3
                 {...props}
                 id={id}
-                className="text-lg lg:text-xl font-medium mt-5 lg:mt-6 mb-2 lg:mb-3 scroll-mt-20 group relative"
+                className="text-lg lg:text-xl font-medium mt-5 lg:mt-6 mb-2 lg:mb-3 scroll-mt-8 group relative"
               >
                 {props.children}
               </h3>
@@ -167,7 +181,7 @@ export function MarkdownRenderer({ content, openLightbox, className = "" }: Mark
               <h4
                 {...props}
                 id={id}
-                className="text-base lg:text-lg font-medium mt-4 lg:mt-5 mb-2 scroll-mt-20 group relative"
+                className="text-base lg:text-lg font-medium mt-4 lg:mt-5 mb-2 scroll-mt-8 group relative"
               >
                 {props.children}
               </h4>
@@ -274,7 +288,7 @@ export function MarkdownRenderer({ content, openLightbox, className = "" }: Mark
           ),
         }}
       >
-        {content}
+        {formattedContent}
       </ReactMarkdown>
     </div>
   );

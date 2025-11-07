@@ -220,3 +220,46 @@ export function getNavStructure(manifest: DocsManifest) {
   ];
 }
 
+/**
+ * Get previous and next documents for navigation (constrained within the current category)
+ */
+export function getPreviousNextDocs(manifest: DocsManifest, currentSlug: string): {
+  previous: DocItem | null;
+  next: DocItem | null;
+} {
+  const currentDoc = findDocBySlug(manifest, currentSlug);
+  
+  if (!currentDoc) {
+    return { previous: null, next: null };
+  }
+  
+  // Get all documents in the current category
+  const categoryDocs = manifest.categories[currentDoc.category] || [];
+  
+  // Find the current document's index within its category
+  const currentIndex = categoryDocs.findIndex((doc) => doc.slug === currentSlug);
+  
+  if (currentIndex === -1) {
+    return { previous: null, next: null };
+  }
+  
+  // Get previous and next within the same category
+  const previous = currentIndex > 0 ? categoryDocs[currentIndex - 1] : null;
+  const next = currentIndex < categoryDocs.length - 1 ? categoryDocs[currentIndex + 1] : null;
+  
+  return { previous, next };
+}
+
+/**
+ * Get category display name
+ */
+export function getCategoryDisplayName(category: DocItem['category']): string {
+  const categoryMap: Record<DocItem['category'], string> = {
+    quickstart: 'Quick Start',
+    tutorials: 'Tutorials',
+    'use-cases': 'Use Cases',
+    'api-reference': 'API Reference',
+  };
+  return categoryMap[category] || category;
+}
+

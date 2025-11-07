@@ -47,3 +47,107 @@ export function extractH1Title(markdown: string): { title: string; content: stri
   };
 }
 
+/**
+ * Format markdown by normalizing line breaks.
+ * Removes unnecessary line breaks within paragraphs while preserving:
+ * - Code blocks (fenced and indented)
+ * - List items
+ * - Blockquotes
+ * - Headings
+ * - Horizontal rules
+ * - Double line breaks (paragraph breaks)
+ */
+export function formatMarkdown(markdown: string): string {
+  const lines = markdown.split('\n');
+  const formatted: string[] = [];
+  let inCodeBlock = false;
+  let inIndentedCodeBlock = false;
+  let currentParagraph: string[] = [];
+
+  const flushParagraph = () => {
+    if (currentParagraph.length > 0) {
+      formatted.push(currentParagraph.join(' '));
+      currentParagraph = [];
+    }
+  };
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const trimmed = line.trim();
+
+    // Check for fenced code blocks
+    const codeBlockMatch = trimmed.match(/^(`{3,}|~{3,})(\w*)?/);
+    if (codeBlockMatch) {
+      flushParagraph();
+      inCodeBlock = !inCodeBlock;
+      formatted.push(line);
+      continue;
+    }
+
+    // If we're in a code block, preserve everything as-is
+    if (inCodeBlock) {
+      formatted.push(line);
+      continue;
+    }
+
+    // Check for indented code blocks (4+ spaces at start of line)
+    if (line.match(/^ {4,}/)) {
+      flushParagraph();
+      inIndentedCodeBlock = true;
+      formatted.push(line);
+      continue;
+    } else if (inIndentedCodeBlock) {
+      // Still in code block if empty line or still indented
+      if (trimmed === '' || line.match(/^ {4,}/)) {
+        formatted.push(line);
+        continue;
+      } else {
+        inIndentedCodeBlock = false;
+      }
+    }
+
+    // Preserve headings
+    if (trimmed.match(/^#{1,6}\s/)) {
+      flushParagraph();
+      formatted.push(line);
+      continue;
+    }
+
+    // Preserve horizontal rules
+    if (trimmed.match(/^(-{3,}|\*{3,}|_{3,})$/)) {
+      flushParagraph();
+      formatted.push(line);
+      continue;
+    }
+
+    // Preserve list items (including nested)
+    if (trimmed.match(/^(\s*)([-*+]|\d+[.)])\s/)) {
+      flushParagraph();
+      formatted.push(line);
+      continue;
+    }
+
+    // Preserve blockquotes
+    if (trimmed.startsWith('>')) {
+      flushParagraph();
+      formatted.push(line);
+      continue;
+    }
+
+    // Preserve empty lines (paragraph breaks)
+    if (trimmed === '') {
+      flushParagraph();
+      formatted.push(line);
+      continue;
+    }
+
+    // Regular paragraph text - accumulate for joining
+    currentParagraph.push(trimmed);
+  }
+
+  // Flush any remaining paragraph
+  flushParagraph();
+
+  return formatted.join('\n');
+}
+

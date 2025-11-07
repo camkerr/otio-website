@@ -146,3 +146,39 @@ body {
   background-color: hsl(var(--accent)) !important;
   color: hsl(var(--accent-foreground)) !important;
 }
+
+/* Anchor links in headings - hidden by default, show on hover */
+.anchor-link {
+  opacity: 0 !important;
+  transition: opacity 0.2s ease;
+  margin-left: 0.5rem;
+  color: hsl(var(--muted-foreground) / 0.6);
+  text-decoration: none !important;
+}
+
+/* When wrapping headings, ensure no underline on the heading text */
+h1.anchor-link,
+h2.anchor-link,
+h3.anchor-link,
+h4.anchor-link {
+  text-decoration: none !important;
+}
+
+.group:hover .anchor-link {
+  opacity: 1 !important;
+  text-decoration: none !important;
+}
+
+/* Only show underline when directly hovering the anchor link itself */
+.anchor-link:hover {
+  color: hsl(var(--muted-foreground));
+  text-decoration: underline !important;
+}
+
+/* But don't show underline when hovering the heading that contains the anchor */
+h1.group:hover .anchor-link,
+h2.group:hover .anchor-link,
+h3.group:hover .anchor-link,
+h4.group:hover .anchor-link {
+  text-decoration: none !important;
+}

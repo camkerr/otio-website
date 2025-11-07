@@ -293,7 +293,7 @@ export function DocumentationNavClient({ navItems }: DocumentationNavClientProps
             ref={searchInputRef}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
-            placeholder="Search docs..."
+            placeholder="Search documentation"
             prefix={<Search className="h-4 w-4" />}
             aria-label="Search documentation"
             className="pl-8"

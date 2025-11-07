@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation';
 import { getDocContent, getEditUrl, getDocMetadata } from '@/lib/github-docs';
-import { generateDocsManifest, findDocBySlug } from '@/lib/docs-manifest';
+import { generateDocsManifest, findDocBySlug, getPreviousNextDocs } from '@/lib/docs-manifest';
 import { convertRstToMarkdown, extractTitle } from '@/lib/rst-converter';
 import { extractH1Title } from '@/lib/markdown-utils';
 import { Document } from '@/components/docs/document';
@@ -81,11 +81,21 @@ export default async function DocPage({ params }: DocPageProps) {
     // Extract h1 title from markdown
     const { title, content } = extractH1Title(markdown);
     
+    // Get previous and next documents
+    const { previous, next } = getPreviousNextDocs(manifest, slugPath);
+    
     return (
       <div className="px-4 pb-4">
         <div className="w-full mx-auto">
-          <div className="max-w-5xl mx-auto px-4">
-            <Document markdown={content} title={title} metadata={metadata} editUrl={editUrl} />
+          <div className="max-w-7xl mx-auto px-4">
+            <Document 
+              markdown={content} 
+              title={title} 
+              metadata={metadata} 
+              editUrl={editUrl}
+              previous={previous}
+              next={next}
+            />
           </div>
         </div>
       </div>
