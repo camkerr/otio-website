@@ -29,7 +29,7 @@ export function convertRstToMarkdown(rst: string): string {
   markdown = markdown.replace(/^\.\.\s+code-block::\s*(\w+)?\s*\n((?:^  .*\n?)+)/gm, (match, lang, code) => {
     const indent = /^  /.test(code) ? 2 : 0;
     const cleanedCode = code.split('\n')
-      .map(line => line.slice(indent))
+      .map((line: string) => line.slice(indent))
       .join('\n')
       .trim();
     return `\`\`\`${lang || ''}\n${cleanedCode}\n\`\`\``;
@@ -38,7 +38,7 @@ export function convertRstToMarkdown(rst: string): string {
   // Convert literal blocks (indented code)
   markdown = markdown.replace(/^::\s*\n((?:^  .*\n?)+)/gm, (match, code) => {
     const cleanedCode = code.split('\n')
-      .map(line => line.slice(2))
+      .map((line: string) => line.slice(2))
       .join('\n')
       .trim();
     return `\`\`\`\n${cleanedCode}\n\`\`\``;
