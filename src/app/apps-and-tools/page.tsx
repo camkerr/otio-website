@@ -158,8 +158,8 @@ export default function AppsAndToolsPage() {
     <div className="flex flex-col min-h-screen bg-background">
       {/* Header */}
       <PageHeader
-        title="Apps and Integrations"
-        subtitle="Find out if your favorite app already supports OTIO, and search for new tools!"
+        title="Apps and Tools"
+        subtitle="Find out if your favorite application or tool already supports OTIO - or discover new ones!"
         rightContent={
           <EditInGithub repoPath="/content/integrations" />
         }
