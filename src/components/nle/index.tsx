@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { KeyboardShortcutDisplay } from "@/components/nle/keyboard-shortcut-display";
 import { ScrollContext } from "@/components/nle/scroll-context";
 import { TimelineTicks } from "@/components/nle/timeline-ticks";
-import { Play, Pause, FastForward, Rewind, Lock, Monitor, Eye, ZoomIn, ZoomOut } from "lucide-react";
+import { Play, Pause, FastForward, Rewind, Monitor, Eye, ZoomIn, ZoomOut } from "lucide-react";
 import { ContentRenderer } from "@/components/nle/content-renderer";
 import { Sequence } from "@/components/nle/sequence";
 import { SequenceSelector } from "@/components/nle/sequence-selector";
@@ -244,6 +244,17 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
       setShouldAutoScroll(false);
     }
   }, [shouldAutoScroll, playheadPosition, scrollPlayheadIntoView]);
+
+  // Get track header width from CSS variable
+  const trackHeaderWidth = useMemo(() => {
+    if (typeof window !== 'undefined') {
+      const width = getComputedStyle(document.documentElement)
+        .getPropertyValue('--track-header-width')
+        .trim();
+      return parseInt(width) || 180;
+    }
+    return 180;
+  }, []);
 
   const handlePlayheadDrag = useCallback((e: any, data: { x: number }) => {
     setIsPlaying(false);
@@ -557,8 +568,10 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
             rewindState={rewindState}
           />
           <div className="transportControls">
-            <div className="font-mono text-sm">
-              {getTimecodeFromScroll(scrollPercentage)}
+            <div className="flex justify-start items-center">
+              <div className="font-mono text-sm bg-muted px-3 py-1 rounded inline-block">
+                {getTimecodeFromScroll(scrollPercentage)}
+              </div>
             </div>
             <div className="playbackControlsButtonWrapper">
               <Button
@@ -645,8 +658,10 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 <FastForward />
               </Button>
             </div>
-            <div className="font-mono text-sm text-right">
-              {getTimelineDurationTimecode()}
+            <div className="flex justify-end items-center">
+              <div className="font-mono text-sm bg-muted px-3 py-1 rounded inline-block">
+                {getTimelineDurationTimecode()}
+              </div>
             </div>
           </div>
           <div className="timelineControlsBar">
@@ -696,7 +711,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                   overflowY: 'hidden',
                   height: '32px',
                   flex: 1,
-                  backgroundColor: 'hsl(var(--background))',
                   scrollbarWidth: 'none',
                   msOverflowStyle: 'none',
                 }}
@@ -721,10 +735,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
               {/* Fixed track headers column */}
               <div className="track-headers-fixed">
                 <div className="track-header">
-                  <div className="track-locked">
-                    <Lock size={16} />
-                  </div>
-                  <div className="track-label">{"<h1>"}</div>
+                  <div className="track-label" data-track="h1">{"<h1>"}</div>
                   <div className="track-name">Header 1</div>
                   <div className="track-controls">
                     <button>
@@ -736,10 +747,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                   </div>
                 </div>
                 <div className="track-header">
-                  <div className="track-locked">
-                    <Lock size={16} />
-                  </div>
-                  <div className="track-label">{"<h2>"}</div>
+                  <div className="track-label" data-track="h2">{"<h2>"}</div>
                   <div className="track-name">Header 2</div>
                   <div className="track-controls">
                     <button>
@@ -751,10 +759,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                   </div>
                 </div>
                 <div className="track-header">
-                  <div className="track-locked">
-                    <Lock size={16} />
-                  </div>
-                  <div className="track-label">{"<h3>"}</div>
+                  <div className="track-label" data-track="h3">{"<h3>"}</div>
                   <div className="track-name">Header 3</div>
                   <div className="track-controls">
                     <button>
@@ -766,10 +771,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                   </div>
                 </div>
                 <div className="track-header">
-                  <div className="track-locked">
-                    <Lock size={16} />
-                  </div>
-                  <div className="track-label">{"<img>"}</div>
+                  <div className="track-label" data-track="img">{"<img>"}</div>
                   <div className="track-name">Image</div>
                   <div className="track-controls">
                     <button>
@@ -781,10 +783,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                   </div>
                 </div>
                 <div className="track-header">
-                  <div className="track-locked">
-                    <Lock size={16} />
-                  </div>
-                  <div className="track-label">{"<p>"}</div>
+                  <div className="track-label" data-track="p">{"<p>"}</div>
                   <div className="track-name">Paragraph</div>
                   <div className="track-controls">
                     <button>
@@ -833,7 +832,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 className="playheadContainer"
                 style={{
                   position: "absolute",
-                  left: `${250 - timelineScrollLeft}px`, // Offset for track headers and account for scroll
+                  left: `${trackHeaderWidth - timelineScrollLeft}px`, // Offset for track headers and account for scroll
                   top: 0, // Start at the top of ticks
                   height: "100%",
                   zIndex: 1000,

@@ -110,6 +110,7 @@
   display: flex;
   flex-direction: row;
   position: relative;
+  background: var(--track-header-bg);
   z-index: 10; /* Lower than playhead */
 }
 
@@ -118,10 +119,10 @@
 }
 
 .track-headers-spacer {
-  width: 250px;
-  min-width: 250px;
+  width: var(--track-header-width);
+  min-width: var(--track-header-width);
   height: 32px;
-  background: #2d2d2d;
+  background: var(--track-header-bg);
   border-bottom: 1px solid hsl(var(--border));
   border-right: 2px solid hsl(var(--border));
   position: relative;
@@ -131,9 +132,9 @@
 .track-headers-fixed {
   display: flex;
   flex-direction: column;
-  width: 250px;
-  min-width: 250px;
-  background: #2d2d2d;
+  width: var(--track-header-width);
+  min-width: var(--track-header-width);
+  background: var(--track-header-bg);
   border-right: 2px solid hsl(var(--border));
   overflow: hidden;
   position: relative;
@@ -149,7 +150,7 @@
   display: flex;
   flex-direction: row;
   padding: 0 8px 0 0;
-  background-color: hsl(var(--background));
+  background-color: var(--track-header-bg);
   -ms-overflow-style: none;
   scrollbar-width: none;
   user-select: none;
@@ -223,6 +224,7 @@
   flex-direction: column;
   color: #ffffff;
   height: 100%;
+  background: var(--track-header-bg);
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -232,26 +234,40 @@
   display: flex;
   align-items: center;
   padding: 4px 8px;
-  background: #2d2d2d;
+  background: var(--track-header-bg);
   gap: 6px;
   height: 32px;
   min-height: 32px;
-  border-bottom: 1px solid #333;
-}
-
-.track-locked {
-  opacity: 0.7;
-  cursor: pointer;
+  border-bottom: 1px solid hsl(var(--border));
 }
 
 .track-label {
-  background: #4a6cd4;
   padding: 2px 8px;
   border-radius: 3px;
   font-size: 0.7em;
   min-width: 52px;
   text-align: center;
   align-items: baseline;
+}
+
+.track-label[data-track="h1"] {
+  background: var(--track-label-h1);
+}
+
+.track-label[data-track="h2"] {
+  background: var(--track-label-h2);
+}
+
+.track-label[data-track="h3"] {
+  background: var(--track-label-h3);
+}
+
+.track-label[data-track="img"] {
+  background: var(--track-label-img);
+}
+
+.track-label[data-track="p"] {
+  background: var(--track-label-p);
 }
 
 .track-name {
@@ -279,7 +295,8 @@
   flex-direction: row;
   height: 32px;
   min-height: 32px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid hsl(var(--border));
+  background: var(--track-header-bg);
   z-index: 20;
 }
 
