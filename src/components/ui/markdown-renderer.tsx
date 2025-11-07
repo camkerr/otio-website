@@ -141,7 +141,7 @@ export function MarkdownRenderer({ content, openLightbox, className = "" }: Mark
               <h1
                 {...props}
                 id={id}
-                className="text-2xl lg:text-3xl font-bold mt-6 lg:mt-8 mb-4 lg:mb-6 scroll-mt-8 group relative"
+                className="text-2xl lg:text-3xl font-bold mt-6 lg:mt-8 mb-4 lg:mb-6 scroll-mt-8 group relative no-underline hover:underline"
               >
                 {props.children}
               </h1>
@@ -153,7 +153,7 @@ export function MarkdownRenderer({ content, openLightbox, className = "" }: Mark
               <h2
                 {...props}
                 id={id}
-                className="text-xl lg:text-2xl font-semibold mt-6 lg:mt-8 mb-3 lg:mb-4 scroll-mt-8 group relative border-b border-border pb-2"
+                className="text-xl lg:text-2xl font-semibold mt-6 lg:mt-8 mb-3 lg:mb-4 scroll-mt-8 group relative no-underline hover:underline"
               >
                 {props.children}
               </h2>
@@ -165,7 +165,7 @@ export function MarkdownRenderer({ content, openLightbox, className = "" }: Mark
               <h3
                 {...props}
                 id={id}
-                className="text-lg lg:text-xl font-medium mt-5 lg:mt-6 mb-2 lg:mb-3 scroll-mt-8 group relative"
+                className="text-lg lg:text-xl font-medium mt-5 lg:mt-6 mb-2 lg:mb-3 scroll-mt-8 group relative no-underline hover:underline"
               >
                 {props.children}
               </h3>
@@ -177,14 +177,14 @@ export function MarkdownRenderer({ content, openLightbox, className = "" }: Mark
               <h4
                 {...props}
                 id={id}
-                className="text-base lg:text-lg font-medium mt-4 lg:mt-5 mb-2 scroll-mt-8 group relative"
+                className="text-base lg:text-lg font-medium mt-4 lg:mt-5 mb-2 scroll-mt-8 group relative no-underline hover:underline"
               >
                 {props.children}
               </h4>
             );
           },
           p: ({ ...props }) => (
-            <p {...props} className="mb-3 lg:mb-4 leading-relaxed text-sm lg:text-base" />
+            <p {...props} className="mb-5 lg:mb-6 leading-loose tracking-[0.0025em] text-sm lg:text-base" />
           ),
           ul: ({ ...props }) => (
             <ul {...props} className="list-disc list-outside mb-3 lg:mb-4 space-y-1 lg:space-y-2 pl-6 [&_ul]:list-[circle] [&_ul_ul]:list-[square] [&_ul_ul_ul]:list-['▸\00a0'] [&_ul_ul_ul_ul]:list-['–\00a0'] [&_ul]:mt-1 [&_ul]:mb-1 [&_ul]:pl-4" />

@@ -182,3 +182,32 @@ h3.group:hover .anchor-link,
 h4.group:hover .anchor-link {
   text-decoration: none !important;
 }
+
+/* Prevent underlines on headings wrapped in anchor tags from rehypeAutolinkHeadings */
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  text-decoration: none !important;
+}
+
+.prose h1 > a,
+.prose h2 > a,
+.prose h3 > a,
+.prose h4 > a {
+  text-decoration: none !important;
+}
+
+.prose h1:hover,
+.prose h2:hover,
+.prose h3:hover,
+.prose h4:hover {
+  text-decoration: underline !important;
+}
+
+.prose h1 > a:hover,
+.prose h2 > a:hover,
+.prose h3 > a:hover,
+.prose h4 > a:hover {
+  text-decoration: underline !important;
+}

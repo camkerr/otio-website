@@ -1,4 +1,4 @@
-import { getDocsList } from './github-docs';
+import { getDocsList, getDocContent, extractH1FromContent } from './github-docs';
 
 export interface DocItem {
   title: string;
@@ -7,6 +7,17 @@ export interface DocItem {
   category: 'quickstart' | 'tutorials' | 'use-cases' | 'api-reference';
   githubPath: string;
   children?: DocItem[];
+}
+
+/**
+ * Convert a title to a URL-safe slug
+ */
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 export interface DocsManifest {
@@ -20,55 +31,47 @@ export interface DocsManifest {
 }
 
 /**
- * Map file paths to friendly slugs and categories
+ * Determine category and slug from file path and H1 title
  */
-function mapPathToSlug(path: string): { slug: string; category: DocItem['category']; title: string } {
+function mapPathToSlug(path: string, h1Title: string): { slug: string; category: DocItem['category']; title: string } {
   // Remove docs/ prefix and file extension
   const cleanPath = path.replace(/^docs\//, '').replace(/\.(rst|md)$/, '');
   
-  // Helper to format title from filename
-  const formatTitle = (filename: string): string => {
-    return filename
-      .replace(/[-_]/g, ' ')
-      .replace(/\b\w/g, (l) => l.toUpperCase());
-  };
+  // Generate slug from H1 title
+  const titleSlug = slugify(h1Title);
   
   // Check for tutorials directory
   if (cleanPath.startsWith('tutorials/')) {
-    const filename = cleanPath.replace(/^tutorials\//, '');
     return {
-      slug: `tutorials/${filename}`,
+      slug: `tutorials/${titleSlug}`,
       category: 'tutorials',
-      title: formatTitle(filename),
+      title: h1Title,
     };
   }
   
   // Check for use-cases directory (handle both use-cases and use_cases)
   if (cleanPath.startsWith('use-cases/') || cleanPath.startsWith('use_cases/')) {
-    const filename = cleanPath.replace(/^use-cases\//, '').replace(/^use_cases\//, '');
     return {
-      slug: `use-cases/${filename}`,
+      slug: `use-cases/${titleSlug}`,
       category: 'use-cases',
-      title: formatTitle(filename),
+      title: h1Title,
     };
   }
   
   // Quick start files (can be in root or quickstart directory)
   if (cleanPath.includes('quickstart') || cleanPath.includes('quick_start')) {
-    const filename = cleanPath.includes('/') ? cleanPath.split('/').pop()! : cleanPath;
     return {
-      slug: `quickstart/${filename}`,
+      slug: `quickstart/${titleSlug}`,
       category: 'quickstart',
-      title: formatTitle(filename),
+      title: h1Title,
     };
   }
   
   // Root-level files default to tutorials
-  const filename = cleanPath.includes('/') ? cleanPath.split('/').pop()! : cleanPath;
   return {
-    slug: `tutorials/${filename}`,
+    slug: `tutorials/${titleSlug}`,
     category: 'tutorials',
-    title: formatTitle(filename),
+    title: h1Title,
   };
 }
 
@@ -127,9 +130,12 @@ export async function generateDocsManifest(): Promise<DocsManifest> {
     const filteredFiles = files.filter((file) => shouldIncludeDoc(file.path));
     console.log(`[Docs Manifest] After filtering: ${filteredFiles.length} files`);
     
-    const docs: DocItem[] = filteredFiles
-      .map((file) => {
-        const { slug, category, title } = mapPathToSlug(file.path);
+    // Fetch content and extract H1 title for each file
+    const docsPromises = filteredFiles.map(async (file) => {
+      try {
+        const content = await getDocContent(file.path);
+        const h1Title = extractH1FromContent(content);
+        const { slug, category, title } = mapPathToSlug(file.path, h1Title);
         return {
           title,
           path: file.path,
@@ -137,7 +143,22 @@ export async function generateDocsManifest(): Promise<DocsManifest> {
           category,
           githubPath: file.path,
         };
-      })
+      } catch (error) {
+        console.error(`[Docs Manifest] Error processing file ${file.path}:`, error);
+        // Fallback to filename-based title if content fetch fails
+        const fallbackTitle = file.path.split('/').pop()?.replace(/\.(rst|md)$/, '') || 'Documentation';
+        const { slug, category, title } = mapPathToSlug(file.path, fallbackTitle);
+        return {
+          title,
+          path: file.path,
+          slug,
+          category,
+          githubPath: file.path,
+        };
+      }
+    });
+    
+    const docs = (await Promise.all(docsPromises))
       .sort((a, b) => a.title.localeCompare(b.title));
 
     // Debug: Log some examples

@@ -11,6 +11,20 @@ interface DocPageProps {
   }>;
 }
 
+export async function generateStaticParams() {
+  try {
+    const manifest = await generateDocsManifest();
+    
+    // Convert all doc slugs to the format Next.js expects
+    return manifest.allDocs.map((doc) => ({
+      slug: doc.slug.split('/'),
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
+}
+
 export async function generateMetadata({ params }: DocPageProps) {
   const { slug } = await params;
   const slugPath = slug.join('/');

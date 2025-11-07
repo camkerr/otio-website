@@ -219,11 +219,12 @@ export function DocumentationNavClient({ navItems }: DocumentationNavClientProps
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                title={child.title}
               >
                 <span className="flex h-2.5 w-2.5 items-center justify-center">
                   <span className="h-1.5 w-1.5 rounded-full bg-border" />
                 </span>
-                <span className="flex-1 truncate">{child.title}</span>
+                <span className="flex-1 truncate max-w-[220px]">{child.title}</span>
                 <ExternalLink className="h-4 w-4 opacity-60" />
               </a>
             </li>
@@ -240,6 +241,7 @@ export function DocumentationNavClient({ navItems }: DocumentationNavClientProps
                   ? "bg-primary/10 text-primary"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
+              title={child.title}
               onClick={(event) => {
                 const isModifiedClick =
                   event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0;
@@ -250,7 +252,7 @@ export function DocumentationNavClient({ navItems }: DocumentationNavClientProps
                 }
               }}
             >
-              <span className="flex-1 truncate text-left">{child.title}</span>
+              <span className="flex-1 truncate text-left max-w-[240px]">{child.title}</span>
               {hasChildren && (
                 <ChevronDown
                   className={cn(
@@ -322,11 +324,12 @@ export function DocumentationNavClient({ navItems }: DocumentationNavClientProps
                             : "text-foreground hover:bg-muted/60",
                       )}
                       onClick={(event) => handleSectionClick(event, item)}
+                      title={item.title}
                     >
                       <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
                         <Icon className="h-4 w-4" />
                       </span>
-                      <span className="flex-1 text-left">{item.title}</span>
+                      <span className="flex-1 truncate text-left max-w-[180px]">{item.title}</span>
                       {item.external ? (
                         <ExternalLink className="h-4 w-4 opacity-60" />
                       ) : item.children?.length ? (

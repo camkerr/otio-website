@@ -334,3 +334,39 @@ export function getViewUrl(path: string): string {
   return `https://github.com/${REPO}/blob/main/${path}`;
 }
 
+/**
+ * Extract H1 title from markdown or RST content
+ */
+export function extractH1FromContent(content: string): string {
+  const lines = content.split('\n');
+  
+  // Try Markdown-style headers first (# Header)
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('# ')) {
+      return trimmed.replace(/^#+\s+/, '').trim();
+    }
+  }
+  
+  // Try RST-style headers (underlined with ===, ---, or ~~~)
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.trim() && i + 1 < lines.length) {
+      const nextLine = lines[i + 1];
+      if (/^[=~-]{3,}$/.test(nextLine)) {
+        return line.trim();
+      }
+    }
+  }
+  
+  // Fallback: use first non-empty line
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.startsWith('#')) {
+      return trimmed.slice(0, 100);
+    }
+  }
+  
+  return 'Documentation';
+}
+
