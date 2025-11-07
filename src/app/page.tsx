@@ -1,5 +1,6 @@
 // import { useRemark } from "@/lib/hooks";
 import { EditorialInterfaceComponent } from "../components/editor/index";
+import { NavWidthSetter } from "@/components/layout/nav-width-setter";
 import { promises as fs } from "fs";
 import path from "path";
 
@@ -14,8 +15,8 @@ export default async function NonLinearEditor() {
   // const [] = useRemark();
 
   return (
-    <>
+    <NavWidthSetter width="full">
       <EditorialInterfaceComponent markdown={markdown} />
-    </>
+    </NavWidthSetter>
   );
 }

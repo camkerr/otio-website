@@ -23,11 +23,14 @@ import { ModeToggle } from "@/components/layout/dark-mode";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { Menu, Search } from "lucide-react";
+import { useNavWidth } from "@/contexts/nav-width-context";
+import { motion } from "motion/react";
 
 export function TopNav() {
-  const { theme, resolvedTheme } = useTheme();
+  const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
+  const { navWidth } = useNavWidth();
 
   // Avoid hydration mismatch by only rendering theme-dependent content after mount
   React.useEffect(() => {
@@ -47,11 +50,23 @@ export function TopNav() {
     { href: "/docs", label: "Documentation" },
   ];
 
+  const containerClass = navWidth === "full" ? "w-full" : "max-w-7xl";
+  const maxWidthValue = navWidth === "full" ? "100%" : "80rem"; // 80rem = max-w-7xl
+
   return (
     <div className="sticky top-0 z-10 bg-background border-b">
-      <div className="max-w-7xl mx-auto">
+      <motion.div 
+        className={cn("mx-auto", containerClass)}
+        animate={{ maxWidth: maxWidthValue }}
+        transition={{ duration: 0.15, delay: 0.25, ease: "easeInOut" }}
+        style={{ width: "100%" }}
+      >
         {/* Desktop Navigation */}
-        <div className="hidden md:grid md:grid-cols-[33%_33%_33%] items-center pl-4 py-4">
+        <motion.div 
+          className="hidden md:grid md:grid-cols-[33%_33%_33%] items-center pl-4 py-4"
+          layout="position"
+          transition={{ duration: 0.25, delay: 0.5, ease: "easeInOut" }}
+        >
         <div className="flex items-center">
           <Link href="/">
             <Image
@@ -118,7 +133,7 @@ export function TopNav() {
           </Link>
           <ModeToggle style={{ minWidth: "40px" }} />
         </div>
-      </div>
+      </motion.div>
 
       {/* Mobile Navigation */}
       <div className="flex md:hidden items-center justify-between p-4 relative">
@@ -222,7 +237,7 @@ export function TopNav() {
           theme={colorMode}
         />
       </div>
-      </div>
+      </motion.div>
     </div>
   );
 }

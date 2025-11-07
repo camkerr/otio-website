@@ -1,10 +1,13 @@
 import { LeftNav } from "@/components/ui/documentation-nav";
+import { NavWidthSetter } from "@/components/layout/nav-width-setter";
+
 export default function DocsLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
+    <NavWidthSetter width="full">
     <div
       style={{
         display: "grid",
@@ -16,5 +19,6 @@ export default function DocsLayout({
       <LeftNav />
       {children}
     </div>
+    </NavWidthSetter>
   );
 }

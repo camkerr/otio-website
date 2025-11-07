@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { TopNav } from "@/components/layout/top-nav";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { NavWidthProvider } from "@/contexts/nav-width-context";
 import { cn } from "@/lib/utils";
 import "./globals.css";
 import "@docsearch/css";
@@ -29,12 +30,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange={false}
         >
+          <NavWidthProvider>
           <div className="flex flex-col min-h-screen">
             <TopNav />
             <main className="flex-1 flex flex-col">
               {children}
             </main>
           </div>
+          </NavWidthProvider>
         </ThemeProvider>
       </body>
     </html>

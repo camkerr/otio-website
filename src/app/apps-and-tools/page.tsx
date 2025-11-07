@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -148,6 +148,11 @@ export default function AppsAndToolsPage() {
       integration.description.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategories && matchesSearch;
   });
+
+  // Scroll to top when categories change
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [selectedCategories]);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
