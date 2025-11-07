@@ -3,8 +3,8 @@ import { unstable_cache } from 'next/cache';
 const REPO = 'AcademySoftwareFoundation/OpenTimelineIO';
 const DOCS_PATH = 'docs';
 const INDEX_FILE = 'docs/index.rst';
-// const CACHE_REVALIDATE = 3600 * 24; // 1 day in seconds
-const CACHE_REVALIDATE = 10; // 1 minute in seconds
+const CACHE_REVALIDATE = 60 * 60 * 24; // 1 day in seconds
+// const CACHE_REVALIDATE = 10; // 10 seconds
 
 interface GitHubTreeItem {
   path: string;

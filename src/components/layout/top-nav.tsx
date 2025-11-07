@@ -64,6 +64,7 @@ export function TopNav() {
   const navItems = [
     { href: "/features", label: "Features" },
     { href: "/apps-and-tools", label: "Apps and Tools" },
+    { href: "/contributors", label: "Contributors" },
     { href: "/docs", label: "Documentation" },
   ];
 
