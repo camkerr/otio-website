@@ -13,8 +13,8 @@ export default async function RavenDemo() {
 
   return (
     <>
-      <div style={{ padding: "1rem", overflowY: "scroll" }}>
-        <MarkdownTutorial markdown={markdown} layout="sidebar" />
+      <div style={{ padding: "1rem" }}>
+        <MarkdownTutorial markdown={markdown} layout="full" />
       </div>
       <iframe src="/raven/raven.html" width="100%" height="100%"></iframe>
     </>

@@ -1,6 +1,6 @@
 "use client";
 
-import "@/styles/editor.css";
+import "@/styles/nle.css";
 import { TrackItem } from "@/lib/markdown-parser";
 import { msToPercentage } from "@/lib/time-utils";
 import { useMemo, memo } from "react";

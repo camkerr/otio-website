@@ -48,5 +48,5 @@ export function getProxiedImageUrl(url: string): string {
   }
   
   const encodedUrl = encodeURIComponent(url);
-  return `/api/github/proxy-image?url=${encodedUrl}`;
+  return `/api/github-image?url=${encodedUrl}`;
 }

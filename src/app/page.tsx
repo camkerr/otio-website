@@ -1,5 +1,5 @@
 // import { useRemark } from "@/lib/hooks";
-import { EditorialInterfaceComponent } from "../components/editor/index";
+import { EditorialInterfaceComponent } from "@/components/nle/index";
 import { NavWidthSetter } from "@/components/layout/nav-width-setter";
 import { promises as fs } from "fs";
 import path from "path";

@@ -1,20 +1,20 @@
 "use client";
 
-import React, { useRef, useEffect, useState, useCallback, useMemo } from "react";
-import Playhead from "./Playhead";
-import Draggable from "react-draggable"; // The default
+import { useRef, useEffect, useState, useCallback, useMemo } from "react";
+import Playhead from "@/components/nle/playhead";
+import Draggable from "react-draggable";
 import Timecode from "smpte-timecode";
 import { Button } from "@/components/ui/button";
-import { KeyboardShortcutDisplay } from "@/components/editor/KeyboardShortcutDisplay";
-import { ScrollContext } from "@/components/editor/ScrollContext";
-import { TimelineTicks } from "@/components/editor/TimelineTicks";
+import { KeyboardShortcutDisplay } from "@/components/nle/keyboard-shortcut-display";
+import { ScrollContext } from "@/components/nle/scroll-context";
+import { TimelineTicks } from "@/components/nle/timeline-ticks";
 import { Play, Pause, FastForward, Rewind, Lock, Monitor, Eye, ZoomIn, ZoomOut } from "lucide-react";
-import { ContentRenderer } from "@/components/editor/ContentRenderer";
-import { Sequence } from "@/components/editor/Sequence";
-import "@/styles/editor.css";
-import { SequenceSelector } from "./SequenceSelector";
+import { ContentRenderer } from "@/components/nle/content-renderer";
+import { Sequence } from "@/components/nle/sequence";
+import { SequenceSelector } from "@/components/nle/sequence-selector";
 import { parseMarkdownToClips } from "@/lib/markdown-parser";
 import { msToFrames, percentageToMs } from "@/lib/time-utils";
+import "@/styles/nle.css";
 
 const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const [scrollPercentage, setScrollPercentage] = useState(0);
@@ -23,7 +23,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const [isScrolling, setIsScrolling] = useState(false);
   const [ffwState, setFfwState] = useState(false);
   const [rewindState, setRewindState] = useState(false);
-  const [screenRefreshRate, setScreenRefreshRate] = useState(60); // Default to 60fps
   const [ffwSpeedLevel, setFfwSpeedLevel] = useState(0);
   const [rewindSpeedLevel, setRewindSpeedLevel] = useState(0);
   const [currentKeyCode, setCurrentKeyCode] = useState("");
@@ -55,7 +54,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const playheadRef = useRef<HTMLDivElement>(null);
   const timelineContainerRef = useRef<HTMLDivElement>(null);
   const timelineWrapperRef = useRef<HTMLDivElement>(null);
-  const timelineContentRef = useRef<HTMLDivElement>(null);
 
   const getTimecodeFromScroll = useCallback(
     (percentage: number) => {
