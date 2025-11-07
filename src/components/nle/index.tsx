@@ -39,7 +39,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
     try {
       return parseMarkdownToClips(markdown);
     } catch (error) {
-      console.error("Error parsing markdown:", error);
       return { clips: [], totalDuration: 60000, sections: [] }; // Default 60s
     }
   }, [markdown]);
@@ -67,7 +66,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
 
         return tc.toString();
       } catch (error) {
-        console.error("Timecode conversion error:", error);
         return "00:00:00;00";
       }
     },
@@ -80,7 +78,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
       const tc = new Timecode(timelineDurationFrames, 24, false);
       return tc.toString();
     } catch (error) {
-      console.error("Timecode conversion error:", error);
       return "00:00:00;00";
     }
   }, [timelineDurationFrames]);

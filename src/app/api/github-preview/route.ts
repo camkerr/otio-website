@@ -99,7 +99,6 @@ export async function GET(request: NextRequest) {
       },
     });
   } catch (error) {
-    console.error('Error fetching GitHub issue:', error);
     return NextResponse.json(
       { error: 'Failed to fetch issue data' },
       { status: 500 }

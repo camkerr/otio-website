@@ -99,9 +99,6 @@ async function fetchDocsTree(): Promise<GitHubTreeItem[]> {
       throw new Error('Repository or docs directory not found');
     }
     if (response.status === 403) {
-      const rateLimitRemaining = response.headers.get('x-ratelimit-remaining');
-      const rateLimitReset = response.headers.get('x-ratelimit-reset');
-      console.error(`[GitHub Docs] Rate limit exceeded. Remaining: ${rateLimitRemaining}, Reset: ${rateLimitReset}`);
       throw new Error(`GitHub API rate limit exceeded. Please add GITHUB_TOKEN to increase limits.`);
     }
     throw new Error(`GitHub API error: ${response.status}`);
@@ -111,7 +108,6 @@ async function fetchDocsTree(): Promise<GitHubTreeItem[]> {
   
   // Ensure contents is an array
   if (!Array.isArray(contents)) {
-    console.error('[GitHub Docs] Contents API returned non-array:', typeof contents);
     throw new Error('Unexpected response format from GitHub API');
   }
   
@@ -129,11 +125,8 @@ async function fetchDocsTree(): Promise<GitHubTreeItem[]> {
 
     if (!dirResponse.ok) {
       if (dirResponse.status === 403) {
-        const rateLimitRemaining = dirResponse.headers.get('x-ratelimit-remaining');
-        console.error(`[GitHub Docs] Rate limit exceeded for directory ${path}. Remaining: ${rateLimitRemaining}`);
         throw new Error(`GitHub API rate limit exceeded. Please add GITHUB_TOKEN to increase limits.`);
       }
-      console.warn(`[GitHub Docs] Failed to fetch directory: ${path} (${dirResponse.status})`);
       return;
     }
 
@@ -141,11 +134,8 @@ async function fetchDocsTree(): Promise<GitHubTreeItem[]> {
     
     // Ensure items is an array
     if (!Array.isArray(items)) {
-      console.warn(`[GitHub Docs] Directory ${path} returned non-array`);
       return;
     }
-    
-    console.log(`[GitHub Docs] Processing directory ${path}: ${items.length} items`);
     
     for (const item of items) {
       if (item.type === 'file' && (item.path.endsWith('.md') || item.path.endsWith('.rst'))) {
@@ -156,7 +146,6 @@ async function fetchDocsTree(): Promise<GitHubTreeItem[]> {
           size: item.size,
           url: item.url,
         });
-        console.log(`[GitHub Docs] Added file: ${item.path}`);
       } else if (item.type === 'dir' && !item.path.includes('_static') && !item.path.includes('_templates') && !item.path.includes('_build')) {
         // Recursively fetch subdirectories (skip build directories)
         await fetchDirectory(item.path);
@@ -165,7 +154,6 @@ async function fetchDocsTree(): Promise<GitHubTreeItem[]> {
   }
 
   // Process the root docs directory
-  console.log(`[GitHub Docs] Processing root docs directory: ${contents.length} items`);
   for (const item of contents) {
     if (item.type === 'file' && (item.path.endsWith('.md') || item.path.endsWith('.rst'))) {
       allFiles.push({
@@ -175,16 +163,12 @@ async function fetchDocsTree(): Promise<GitHubTreeItem[]> {
         size: item.size,
         url: item.url,
       });
-      console.log(`[GitHub Docs] Added root file: ${item.path}`);
     } else if (item.type === 'dir' && !item.path.includes('_static') && !item.path.includes('_templates') && !item.path.includes('_build')) {
       // Fetch subdirectories (especially tutorials and use-cases)
-      console.log(`[GitHub Docs] Fetching directory: ${item.path}`);
       await fetchDirectory(item.path);
     }
   }
 
-  console.log(`[GitHub Docs] Found ${allFiles.length} files via Contents API`);
-  console.log(`[GitHub Docs] Sample paths:`, allFiles.slice(0, 10).map(f => f.path));
   return allFiles;
 }
 
@@ -206,9 +190,6 @@ async function fetchRawContent(path: string): Promise<string> {
       throw new Error(`File not found: ${path}`);
     }
     if (response.status === 403) {
-      const rateLimitRemaining = response.headers.get('x-ratelimit-remaining');
-      const rateLimitReset = response.headers.get('x-ratelimit-reset');
-      console.error(`[GitHub Docs] Rate limit exceeded for file ${path}. Remaining: ${rateLimitRemaining}, Reset: ${rateLimitReset}`);
       throw new Error(`GitHub API rate limit exceeded. Please add GITHUB_TOKEN to increase limits.`);
     }
     throw new Error(`GitHub API error: ${response.status}`);
@@ -251,10 +232,6 @@ async function fetchFileMetadata(path: string): Promise<DocMetadata> {
   });
 
   if (!response.ok) {
-    if (response.status === 403) {
-      const rateLimitRemaining = response.headers.get('x-ratelimit-remaining');
-      console.warn(`[GitHub Docs] Rate limit exceeded for metadata ${path}. Remaining: ${rateLimitRemaining}`);
-    }
     // If we can't get commit info, return defaults (metadata is non-critical)
     return {
       lastModified: new Date().toISOString(),

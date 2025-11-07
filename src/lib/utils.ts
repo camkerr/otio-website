@@ -50,3 +50,15 @@ export function getProxiedImageUrl(url: string): string {
   const encodedUrl = encodeURIComponent(url);
   return `/api/github-image?url=${encodedUrl}`;
 }
+
+/**
+ * Convert text to a URL-friendly slug
+ * Used for generating heading IDs consistently across the app
+ */
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}

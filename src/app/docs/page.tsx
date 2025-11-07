@@ -7,7 +7,6 @@ export default async function DocsPage() {
   try {
     manifest = await generateDocsManifest();
   } catch (error) {
-    console.error("Error loading documentation:", error);
     manifest = null;
   }
 

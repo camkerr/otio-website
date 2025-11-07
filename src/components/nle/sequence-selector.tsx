@@ -1,3 +1,6 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -23,6 +26,21 @@ export function SequenceSelector({
   activeSequenceId,
   onSequenceChange,
 }: SequenceSelectorProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Avoid hydration mismatch by only rendering after mount
+  if (!mounted) {
+    return (
+      <div className="flex items-center justify-center">
+        <div className="w-[300px] h-10 rounded-md border border-input bg-background" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center justify-center">
       <Select

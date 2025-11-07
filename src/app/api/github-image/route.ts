@@ -123,8 +123,6 @@ export async function GET(request: NextRequest) {
     });
 
   } catch (error) {
-    console.error("Error proxying GitHub image:", error);
-    
     if (error instanceof Error && error.message.includes('404')) {
       return NextResponse.json(
         { error: "Image not found" },

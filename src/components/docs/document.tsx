@@ -35,7 +35,7 @@ export function Document({ markdown, title, metadata, editUrl, previous, next }:
     <div className="flex gap-8 w-full">
       <article className="flex-1 min-w-0">
         {title && (
-          <header className="mb-8 py-6 border-b border-border">
+          <header className="mb-8 py-8 border-b border-border">
             <h1 className="text-3xl lg:text-4xl xl:text-4xl font-bold tracking-tight text-foreground mb-4">
               {title}
             </h1>

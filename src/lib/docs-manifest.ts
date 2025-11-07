@@ -1,4 +1,5 @@
 import { getDocsList, getDocContent, extractH1FromContent } from './github-docs';
+import { slugify } from './utils';
 
 export interface DocItem {
   title: string;
@@ -7,17 +8,6 @@ export interface DocItem {
   category: 'quickstart' | 'tutorials' | 'use-cases' | 'api-reference';
   githubPath: string;
   children?: DocItem[];
-}
-
-/**
- * Convert a title to a URL-safe slug
- */
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
 }
 
 export interface DocsManifest {
@@ -112,10 +102,7 @@ export async function generateDocsManifest(): Promise<DocsManifest> {
   try {
     const files = await getDocsList();
     
-    console.log(`[Docs Manifest] Found ${files.length} total files from GitHub`);
-    
     if (!files || files.length === 0) {
-      console.warn('No documentation files found in GitHub repository');
       return {
         categories: {
           quickstart: [],
@@ -128,7 +115,6 @@ export async function generateDocsManifest(): Promise<DocsManifest> {
     }
     
     const filteredFiles = files.filter((file) => shouldIncludeDoc(file.path));
-    console.log(`[Docs Manifest] After filtering: ${filteredFiles.length} files`);
     
     // Fetch content and extract H1 title for each file
     const docsPromises = filteredFiles.map(async (file) => {
@@ -144,7 +130,6 @@ export async function generateDocsManifest(): Promise<DocsManifest> {
           githubPath: file.path,
         };
       } catch (error) {
-        console.error(`[Docs Manifest] Error processing file ${file.path}:`, error);
         // Fallback to filename-based title if content fetch fails
         const fallbackTitle = file.path.split('/').pop()?.replace(/\.(rst|md)$/, '') || 'Documentation';
         const { slug, category, title } = mapPathToSlug(file.path, fallbackTitle);
@@ -161,16 +146,6 @@ export async function generateDocsManifest(): Promise<DocsManifest> {
     const docs = (await Promise.all(docsPromises))
       .sort((a, b) => a.title.localeCompare(b.title));
 
-    // Debug: Log some examples
-    if (docs.length > 0) {
-      console.log(`[Docs Manifest] Sample docs:`, docs.slice(0, 5).map(d => ({
-        path: d.githubPath,
-        slug: d.slug,
-        category: d.category,
-        title: d.title,
-      })));
-    }
-
     // Group by category
     const categories = {
       quickstart: docs.filter((d) => d.category === 'quickstart'),
@@ -179,20 +154,11 @@ export async function generateDocsManifest(): Promise<DocsManifest> {
       'api-reference': docs.filter((d) => d.category === 'api-reference'),
     };
 
-    console.log(`[Docs Manifest] Categorized:`, {
-      quickstart: categories.quickstart.length,
-      tutorials: categories.tutorials.length,
-      'use-cases': categories['use-cases'].length,
-      'api-reference': categories['api-reference'].length,
-      total: docs.length,
-    });
-
     return {
       categories,
       allDocs: docs,
     };
   } catch (error) {
-    console.error('Error generating docs manifest:', error);
     throw error;
   }
 }

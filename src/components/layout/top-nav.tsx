@@ -29,14 +29,24 @@ import { useNavWidth } from "@/contexts/nav-width-context";
 import { motion } from "motion/react";
 
 export function TopNav() {
-  const { resolvedTheme, theme, setTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
   const [isOpen, setIsOpen] = React.useState(false);
+  const [hasAnimated, setHasAnimated] = React.useState(false);
+  const { resolvedTheme, setTheme } = useTheme();
   const { navWidth } = useNavWidth();
 
   // Avoid hydration mismatch by only rendering theme-dependent content after mount
   React.useEffect(() => {
     setMounted(true);
+  }, []);
+
+  // Mark that initial render is complete to enable animations
+  React.useEffect(() => {
+    // Allow animations after a brief moment to prevent initial load jank
+    const timer = setTimeout(() => {
+      setHasAnimated(true);
+    }, 100);
+    return () => clearTimeout(timer);
   }, []);
 
   // Determine the color mode for DocSearch
@@ -60,33 +70,35 @@ export function TopNav() {
       <motion.div
         className={cn("mx-auto", containerClass)}
         animate={{ maxWidth: maxWidthValue }}
-        transition={{ duration: 0.15, delay: 0.25, ease: "easeInOut" }}
+        transition={{ 
+          duration: hasAnimated ? 0.2 : 0, 
+          ease: "easeInOut" 
+        }}
         style={{ width: "100%" }}
       >
         {/* Desktop Navigation */}
-        <motion.div
+        <div
           className="hidden md:grid md:grid-cols-[33%_33%_33%] items-center pl-4 py-4"
-          layout="position"
-          transition={{ duration: 0.25, delay: 0.5, ease: "easeInOut" }}
         >
           <div className="flex items-center">
             <Link href="/">
-              <Image
-                src={"/images/OpenTimelineIO@3xLight.png"}
-                className="absolute scale-0 dark:scale-100"
-                alt="OTIO Logo"
-                width={250}
-                objectFit="contain"
-                height={18}
-              />
-              <Image
-                src={"/images/OpenTimelineIO@3xDark.png"}
-                alt="OTIO Logo"
-                className="scale-100 dark:scale-0"
-                width={250}
-                objectFit="contain"
-                height={18}
-              />
+              {mounted ? (
+                <Image
+                  src={resolvedTheme === "dark" ? "/images/OpenTimelineIO@3xLight.png" : "/images/OpenTimelineIO@3xDark.png"}
+                  alt="OTIO Logo"
+                  width={250}
+                  objectFit="contain"
+                  height={18}
+                />
+              ) : (
+                <Image
+                  src={"/images/OpenTimelineIO@3xDark.png"}
+                  alt="OTIO Logo"
+                  width={250}
+                  objectFit="contain"
+                  height={18}
+                />
+              )}
             </Link>
           </div>
           <div className="flex justify-center"></div>
@@ -115,27 +127,28 @@ export function TopNav() {
             </div>
             <Link href="https://github.com/AcademySoftwareFoundation/OpenTimelineIO">
               <Button variant="outline" size="icon">
-                <Image
-                  objectFit="contain"
-                  width={16}
-                  height={16}
-                  className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-                  src="/icons/github/github-mark.png"
-                  alt="GitHub"
-                />
-                <Image
-                  objectFit="contain"
-                  width={16}
-                  height={16}
-                  className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-                  src="/icons/github/github-mark-white.png"
-                  alt="GitHub"
-                />
+                {mounted ? (
+                  <Image
+                    objectFit="contain"
+                    width={16}
+                    height={16}
+                    src={resolvedTheme === "dark" ? "/icons/github/github-mark-white.png" : "/icons/github/github-mark.png"}
+                    alt="GitHub"
+                  />
+                ) : (
+                  <Image
+                    objectFit="contain"
+                    width={16}
+                    height={16}
+                    src="/icons/github/github-mark.png"
+                    alt="GitHub"
+                  />
+                )}
               </Button>
             </Link>
             <ModeToggle style={{ minWidth: "40px" }} />
           </div>
-        </motion.div>
+        </div>
 
         {/* Mobile Navigation */}
         <div className="flex md:hidden items-center justify-between p-4 relative">
@@ -190,22 +203,23 @@ export function TopNav() {
           {/* Center: Logo */}
           <div className="absolute left-1/2 -translate-x-1/2 z-100">
             <Link href="/">
-              <Image
-                src={"/images/OpenTimelineIO@3xLight.png"}
-                className="absolute scale-0 dark:scale-100"
-                alt="OTIO Logo"
-                width={150}
-                height={11}
-                priority
-              />
-              <Image
-                src={"/images/OpenTimelineIO@3xDark.png"}
-                alt="OTIO Logo"
-                className="scale-100 dark:scale-0"
-                width={150}
-                height={11}
-                priority
-              />
+              {mounted ? (
+                <Image
+                  src={resolvedTheme === "dark" ? "/images/OpenTimelineIO@3xLight.png" : "/images/OpenTimelineIO@3xDark.png"}
+                  alt="OTIO Logo"
+                  width={150}
+                  height={11}
+                  priority
+                />
+              ) : (
+                <Image
+                  src={"/images/OpenTimelineIO@3xDark.png"}
+                  alt="OTIO Logo"
+                  width={150}
+                  height={11}
+                  priority
+                />
+              )}
             </Link>
           </div>
 
@@ -224,22 +238,23 @@ export function TopNav() {
             </Button>
             <Link href="https://github.com/AcademySoftwareFoundation/OpenTimelineIO">
               <Button variant="outline" size="icon">
-                <Image
-                  objectFit="contain"
-                  width={16}
-                  height={16}
-                  className="rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0"
-                  src="/icons/github/github-mark.png"
-                  alt="GitHub"
-                />
-                <Image
-                  objectFit="contain"
-                  width={16}
-                  height={16}
-                  className="absolute rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100"
-                  src="/icons/github/github-mark-white.png"
-                  alt="GitHub"
-                />
+                {mounted ? (
+                  <Image
+                    objectFit="contain"
+                    width={16}
+                    height={16}
+                    src={resolvedTheme === "dark" ? "/icons/github/github-mark-white.svg" : "/icons/github/github-mark.svg"}
+                    alt="GitHub"
+                  />
+                ) : (
+                  <Image
+                    objectFit="contain"
+                    width={16}
+                    height={16}
+                    src="/icons/github/github-mark.svg"
+                    alt="GitHub"
+                  />
+                )}
               </Button>
             </Link>
           </div>

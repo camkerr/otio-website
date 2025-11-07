@@ -11,125 +11,137 @@ interface TableOfContentsProps {
 
 export function TableOfContents({ items }: TableOfContentsProps) {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const hasInitializedRef = useRef(false);
+  const activeIdRef = useRef<string | null>(null);
+  const rafIdRef = useRef<number | null>(null);
+  const headingCacheRef = useRef<{ id: string; element: HTMLElement }[]>([]);
+  const scrollContainerRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
     if (items.length === 0) return;
 
-    // Reset initialization flag when items change
-    hasInitializedRef.current = false;
+    activeIdRef.current = null;
+    setActiveId(null);
+    headingCacheRef.current = [];
 
-    const observerOptions = {
-      rootMargin: "-73px 0px -66% 0px", // Account for header and trigger when section is in upper third
-      threshold: [0, 0.25, 0.5, 0.75, 1],
+    scrollContainerRef.current = document.querySelector('[data-docs-scroll-container]') as HTMLElement | null;
+
+    const HEADER_OFFSET = 120;
+
+    const getScrollPosition = () => {
+      if (scrollContainerRef.current) {
+        return scrollContainerRef.current.scrollTop;
+      }
+      return window.scrollY;
     };
 
-    const observerCallback = (entries: IntersectionObserverEntry[]) => {
-      // Get all visible entries
-      const visibleEntries = entries.filter((entry) => entry.isIntersecting);
-      
-      if (visibleEntries.length > 0) {
-        // Find the entry with the highest intersection ratio
-        const mostVisible = visibleEntries.reduce((prev, current) => 
-          current.intersectionRatio > prev.intersectionRatio ? current : prev
-        );
-        setActiveId(mostVisible.target.id);
-      } else {
-        // No visible entries - find the last heading that passed the top
-        const passedEntries = entries
-          .filter((entry) => entry.boundingClientRect.top < 100)
-          .sort((a, b) => b.boundingClientRect.top - a.boundingClientRect.top);
-        
-        if (passedEntries.length > 0) {
-          setActiveId(passedEntries[0].target.id);
+    const getElementTop = (element: HTMLElement) => {
+      if (scrollContainerRef.current) {
+        const containerRect = scrollContainerRef.current.getBoundingClientRect();
+        const elementRect = element.getBoundingClientRect();
+        return elementRect.top - containerRect.top + scrollContainerRef.current.scrollTop;
+      }
+      return element.getBoundingClientRect().top + window.scrollY;
+    };
+
+    const collectHeadings = () => {
+      headingCacheRef.current = items
+        .map((item) => {
+          const element = document.getElementById(item.id);
+          if (element instanceof HTMLElement) {
+            return { id: item.id, element };
+          }
+          return null;
+        })
+        .filter((entry): entry is { id: string; element: HTMLElement } => entry !== null);
+    };
+
+    const getActiveHeading = (): string | null => {
+      if (headingCacheRef.current.length === 0) {
+        collectHeadings();
+      }
+
+      const headings = headingCacheRef.current;
+      if (headings.length === 0) {
+        return null;
+      }
+
+      const scrollPosition = getScrollPosition() + HEADER_OFFSET;
+      let currentId = headings[0].id;
+
+      for (const { id, element } of headings) {
+        const elementTop = getElementTop(element);
+        if (elementTop <= scrollPosition) {
+          currentId = id;
+        } else {
+          break;
         }
+      }
+
+      return currentId;
+    };
+
+    const updateActiveHeading = () => {
+      const newActiveId = getActiveHeading();
+      if (newActiveId && newActiveId !== activeIdRef.current) {
+        activeIdRef.current = newActiveId;
+        setActiveId(newActiveId);
       }
     };
 
-    const observer = new IntersectionObserver(observerCallback, observerOptions);
-    const observedElements = new Set<Element>();
+    const scheduleUpdate = () => {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
 
-    // Wait for DOM to be ready, then observe all heading elements
-    const observeHeadings = () => {
-      const foundElements: Element[] = [];
-      items.forEach((item) => {
-        const element = document.getElementById(item.id);
-        if (element && !observedElements.has(element)) {
-          foundElements.push(element);
-          observedElements.add(element);
-          observer.observe(element);
-        }
+      rafIdRef.current = requestAnimationFrame(() => {
+        updateActiveHeading();
+        rafIdRef.current = null;
       });
-      
-      // If we found elements, set initial active item (only once)
-      if (foundElements.length > 0 && !hasInitializedRef.current) {
-        setActiveId(foundElements[0].id);
-        hasInitializedRef.current = true;
-      }
-      
-      return observedElements.size;
     };
 
-    // Use MutationObserver to detect when headings are added to the DOM
-    // Only observe the document content area to avoid excessive callbacks
+    collectHeadings();
+    updateActiveHeading();
+
+    const retryTimeouts: number[] = [];
+    retryTimeouts.push(window.setTimeout(() => {
+      collectHeadings();
+      updateActiveHeading();
+    }, 100));
+    retryTimeouts.push(window.setTimeout(() => {
+      collectHeadings();
+      updateActiveHeading();
+    }, 300));
+
+    const scrollTarget: HTMLElement | Window = scrollContainerRef.current ?? window;
+    scrollTarget.addEventListener('scroll', scheduleUpdate, { passive: true });
+    window.addEventListener('resize', scheduleUpdate, { passive: true });
+
     const contentArea = document.querySelector('.document-content');
-    const targetNode = contentArea || document.body;
-    
-    let mutationObserver: MutationObserver | null = null;
-    let hasFoundAllHeadings = false;
+    const mutationObserver = new MutationObserver(() => {
+      collectHeadings();
+      updateActiveHeading();
+    });
 
-    const setupMutationObserver = () => {
-      if (hasFoundAllHeadings) return;
-      
-      mutationObserver = new MutationObserver(() => {
-        const foundCount = observeHeadings();
-        // If we found all headings, we can disconnect the mutation observer
-        if (foundCount === items.length) {
-          hasFoundAllHeadings = true;
-          mutationObserver?.disconnect();
-        }
-      });
-
-      // Start observing the document for changes
-      mutationObserver.observe(targetNode, {
+    if (contentArea) {
+      mutationObserver.observe(contentArea, {
         childList: true,
         subtree: true,
       });
-    };
-
-    // Try immediately, then retry with increasing delays
-    let foundCount = observeHeadings();
-    const timeoutIds: NodeJS.Timeout[] = [];
-    
-    if (foundCount === items.length) {
-      hasFoundAllHeadings = true;
-    } else {
-      // Setup mutation observer to catch headings as they're added
-      setupMutationObserver();
-      
-      // Retry after short delay
-      timeoutIds.push(setTimeout(() => {
-        foundCount = observeHeadings();
-        if (foundCount === items.length) {
-          hasFoundAllHeadings = true;
-          mutationObserver?.disconnect();
-        } else if (foundCount < items.length) {
-          // Retry after longer delay
-          timeoutIds.push(setTimeout(() => {
-            const finalCount = observeHeadings();
-            if (finalCount === items.length) {
-              hasFoundAllHeadings = true;
-              mutationObserver?.disconnect();
-            }
-          }, 300));
-        }
-      }, 100));
     }
 
     return () => {
-      mutationObserver?.disconnect();
-      timeoutIds.forEach(id => clearTimeout(id));
-      observer.disconnect();
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+      scrollTarget.removeEventListener('scroll', scheduleUpdate);
+      window.removeEventListener('resize', scheduleUpdate);
+      retryTimeouts.forEach((id) => clearTimeout(id));
+      mutationObserver.disconnect();
     };
   }, [items]);
 
@@ -161,6 +173,7 @@ export function TableOfContents({ items }: TableOfContentsProps) {
                     )}
                     onClick={() => {
                       // Update active ID when clicked
+                      activeIdRef.current = item.id;
                       setActiveId(item.id);
                     }}
                   >
@@ -190,4 +203,5 @@ export function TableOfContents({ items }: TableOfContentsProps) {
     </aside>
   );
 }
+
 

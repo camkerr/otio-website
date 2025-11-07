@@ -9,7 +9,6 @@ export async function DocumentationLeftNav() {
     
     return <DocumentationNavClient navItems={navItems} />;
   } catch (error) {
-    console.error('Error loading documentation navigation:', error);
     // Fallback to basic nav
     return (
       <DocumentationNavClient

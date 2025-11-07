@@ -20,7 +20,6 @@ export async function generateStaticParams() {
       slug: doc.slug.split('/'),
     }));
   } catch (error) {
-    console.error('Error generating static params:', error);
     return [];
   }
 }
@@ -66,18 +65,9 @@ export default async function DocPage({ params }: DocPageProps) {
     // Get the manifest to find the doc
     const manifest = await generateDocsManifest();
     
-    // Debug logging
-    console.log('Looking for slug:', slugPath);
-    console.log('Total docs found:', manifest.allDocs.length);
-    if (manifest.allDocs.length > 0) {
-      console.log('First few docs:', manifest.allDocs.slice(0, 5).map(d => ({ slug: d.slug, path: d.githubPath })));
-    }
-    
     const doc = findDocBySlug(manifest, slugPath);
     
     if (!doc) {
-      console.error(`Document not found for slug: ${slugPath}`);
-      console.error('Available slugs:', manifest.allDocs.map(d => d.slug));
       notFound();
     }
     
@@ -115,9 +105,6 @@ export default async function DocPage({ params }: DocPageProps) {
       </div>
     );
   } catch (error) {
-    console.error('Error loading documentation:', error);
-    console.error('Error details:', error instanceof Error ? error.message : String(error));
-    console.error('Stack:', error instanceof Error ? error.stack : 'No stack trace');
     notFound();
   }
 }

@@ -7,12 +7,11 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import remarkBreaks from "remark-breaks";
 import rehypeRaw from "rehype-raw";
-import rehypeSlug from "rehype-slug";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneLight, oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 import { useTheme } from "next-themes";
 import { getProxiedImageUrl } from "@/lib/utils";
+import { rehypeSlugCustom } from "@/lib/rehype-slug-custom";
 import { type LightboxImage } from "@/components/ui/lightbox";
 import { formatMarkdown } from "@/lib/markdown-utils";
 
@@ -20,15 +19,6 @@ interface MarkdownRendererProps {
   content: string;
   openLightbox?: (images: LightboxImage[], startIndex: number) => void;
   className?: string;
-}
-
-// Helper to generate slug from text
-function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '');
 }
 
 export function MarkdownRenderer({ content, openLightbox, className = "" }: MarkdownRendererProps) {
@@ -51,20 +41,7 @@ export function MarkdownRenderer({ content, openLightbox, className = "" }: Mark
     <div className={`prose prose-sm lg:prose-base max-w-none dark:prose-invert ${className}`}>
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkBreaks]}
-        rehypePlugins={[
-          rehypeRaw,
-          rehypeSlug,
-          [
-            rehypeAutolinkHeadings,
-            {
-              behavior: 'wrap',
-              properties: {
-                className: 'anchor-link opacity-0 group-hover:opacity-100 transition-opacity ml-2 text-muted-foreground/60 hover:text-muted-foreground no-underline hover:underline',
-                ariaLabel: 'Link to this section',
-              },
-            },
-          ],
-        ]}
+        rehypePlugins={[rehypeRaw, rehypeSlugCustom]}
         components={{
           img: ({ ...props }) => {
             const proxiedSrc = props.src && typeof props.src === 'string' ? getProxiedImageUrl(props.src) : props.src;
@@ -135,54 +112,74 @@ export function MarkdownRenderer({ content, openLightbox, className = "" }: Mark
               style={{ maxHeight: '300px' }}
             />
           ),
-          h1: ({ ...props }) => {
-            const id = props.id || (typeof props.children === 'string' ? slugify(props.children) : undefined);
-            return (
-              <h1
-                {...props}
-                id={id}
-                className="text-2xl lg:text-3xl font-bold mt-6 lg:mt-8 mb-4 lg:mb-6 scroll-mt-8 group relative no-underline hover:underline"
-              >
-                {props.children}
-              </h1>
-            );
-          },
-          h2: ({ ...props }) => {
-            const id = props.id || (typeof props.children === 'string' ? slugify(props.children) : undefined);
-            return (
-              <h2
-                {...props}
-                id={id}
-                className="text-xl lg:text-2xl font-semibold mt-6 lg:mt-8 mb-3 lg:mb-4 scroll-mt-8 group relative no-underline hover:underline"
-              >
-                {props.children}
-              </h2>
-            );
-          },
-          h3: ({ ...props }) => {
-            const id = props.id || (typeof props.children === 'string' ? slugify(props.children) : undefined);
-            return (
-              <h3
-                {...props}
-                id={id}
-                className="text-lg lg:text-xl font-medium mt-5 lg:mt-6 mb-2 lg:mb-3 scroll-mt-8 group relative no-underline hover:underline"
-              >
-                {props.children}
-              </h3>
-            );
-          },
-          h4: ({ ...props }) => {
-            const id = props.id || (typeof props.children === 'string' ? slugify(props.children) : undefined);
-            return (
-              <h4
-                {...props}
-                id={id}
-                className="text-base lg:text-lg font-medium mt-4 lg:mt-5 mb-2 scroll-mt-8 group relative no-underline hover:underline"
-              >
-                {props.children}
-              </h4>
-            );
-          },
+          h1: ({ ...props }) => (
+            <h1
+              {...props}
+              className="text-2xl lg:text-3xl font-bold mt-6 lg:mt-8 mb-4 lg:mb-6 scroll-mt-8 group relative"
+            >
+              {props.children}
+              {props.id && (
+                <a
+                  href={`#${props.id}`}
+                  className="anchor-link opacity-0 group-hover:opacity-100 transition-opacity ml-2 text-muted-foreground/60 hover:text-muted-foreground no-underline hover:underline"
+                  aria-label="Link to this section"
+                >
+                  #
+                </a>
+              )}
+            </h1>
+          ),
+          h2: ({ ...props }) => (
+            <h2
+              {...props}
+              className="text-xl lg:text-2xl font-semibold mt-6 lg:mt-8 mb-3 lg:mb-4 scroll-mt-8 group relative"
+            >
+              {props.children}
+              {props.id && (
+                <a
+                  href={`#${props.id}`}
+                  className="anchor-link opacity-0 group-hover:opacity-100 transition-opacity ml-2 text-muted-foreground/60 hover:text-muted-foreground no-underline hover:underline"
+                  aria-label="Link to this section"
+                >
+                  #
+                </a>
+              )}
+            </h2>
+          ),
+          h3: ({ ...props }) => (
+            <h3
+              {...props}
+              className="text-lg lg:text-xl font-medium mt-5 lg:mt-6 mb-2 lg:mb-3 scroll-mt-8 group relative"
+            >
+              {props.children}
+              {props.id && (
+                <a
+                  href={`#${props.id}`}
+                  className="anchor-link opacity-0 group-hover:opacity-100 transition-opacity ml-2 text-muted-foreground/60 hover:text-muted-foreground no-underline hover:underline"
+                  aria-label="Link to this section"
+                >
+                  #
+                </a>
+              )}
+            </h3>
+          ),
+          h4: ({ ...props }) => (
+            <h4
+              {...props}
+              className="text-base lg:text-lg font-medium mt-4 lg:mt-5 mb-2 scroll-mt-8 group relative"
+            >
+              {props.children}
+              {props.id && (
+                <a
+                  href={`#${props.id}`}
+                  className="anchor-link opacity-0 group-hover:opacity-100 transition-opacity ml-2 text-muted-foreground/60 hover:text-muted-foreground no-underline hover:underline"
+                  aria-label="Link to this section"
+                >
+                  #
+                </a>
+              )}
+            </h4>
+          ),
           p: ({ ...props }) => (
             <p {...props} className="mb-5 lg:mb-6 leading-loose tracking-[0.0025em] text-sm lg:text-base" />
           ),
