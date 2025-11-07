@@ -3,6 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   NavigationMenu,
@@ -24,9 +25,10 @@ import { ModeToggle } from "@/components/layout/dark-mode";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "next-themes";
-import { Menu, Search, Moon, Sun } from "lucide-react";
+import { Menu, Search, Moon, Sun, ChevronRight } from "lucide-react";
 import { useNavWidth } from "@/contexts/nav-width-context";
 import { motion } from "motion/react";
+import { MobileDocsNavWrapper } from "@/components/docs/mobile-docs-nav-wrapper";
 
 export function TopNav() {
   const [mounted, setMounted] = React.useState(false);
@@ -34,6 +36,9 @@ export function TopNav() {
   const [hasAnimated, setHasAnimated] = React.useState(false);
   const { resolvedTheme, setTheme } = useTheme();
   const { navWidth } = useNavWidth();
+  const pathname = usePathname();
+  
+  const isDocsPage = pathname?.startsWith('/docs');
 
   // Avoid hydration mismatch by only rendering theme-dependent content after mount
   React.useEffect(() => {
@@ -61,6 +66,14 @@ export function TopNav() {
     { href: "/apps-and-tools", label: "Apps and Tools" },
     { href: "/docs", label: "Documentation" },
   ];
+
+  const getCurrentPageLabel = () => {
+    if (!pathname || pathname === '/') return null;
+    const item = navItems.find(item => pathname.startsWith(item.href));
+    return item?.label || null;
+  };
+
+  const currentPageLabel = getCurrentPageLabel();
 
   const containerClass = navWidth === "full" ? "w-full" : "max-w-7xl";
   const maxWidthValue = navWidth === "full" ? "100%" : "80rem"; // 80rem = max-w-7xl
@@ -159,28 +172,52 @@ export function TopNav() {
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="flex flex-col">
-              <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
+            <SheetContent side="left" className="flex flex-col p-0 gap-0">
+              <SheetHeader className="px-4 border-b border-border h-(--top-nav-height) flex flex-col justify-center py-0 space-y-0">
+                <SheetTitle className="text-left m-0">
+                  {currentPageLabel ? (
+                    <span className="flex items-center gap-2 text-base">
+                      <Link
+                        href="/"
+                        onClick={() => setIsOpen(false)}
+                        className="hover:text-primary transition-colors py-1 -ml-1 px-1 rounded"
+                      >
+                        Home
+                      </Link>
+                      <ChevronRight className="h-4 w-4" />
+                      <span>{currentPageLabel}</span>
+                    </span>
+                  ) : (
+                    "Home"
+                  )}
+                </SheetTitle>
               </SheetHeader>
-              <nav className="flex flex-col flex-1">
-                <div className="flex flex-col gap-0 px-6">
-                  {navItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className="text-2xl font-medium py-3 hover:text-primary transition-colors"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
+              {isDocsPage ? (
+                // Documentation navigation for docs pages
+                <div className="flex-1 overflow-hidden">
+                  <MobileDocsNavWrapper onClose={() => setIsOpen(false)} />
                 </div>
-              </nav>
-              <SheetFooter className="p-0">
-                <button
+              ) : (
+                // Standard navigation for other pages
+                <nav className="flex flex-col flex-1">
+                  <div className="flex flex-col gap-0 px-6 py-4">
+                    {navItems.map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        className="text-2xl font-medium py-3 hover:text-primary transition-colors"
+                        onClick={() => setIsOpen(false)}
+                      >
+                        {item.label}
+                      </Link>
+                    ))}
+                  </div>
+                </nav>
+              )}
+              <SheetFooter className="p-0 border-t border-border mt-auto">
+                <div
                   onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-                  className="w-full flex items-center justify-between px-6 py-4 hover:bg-accent transition-colors"
+                  className="w-full flex items-center justify-between pl-4 pr-6 py-4 hover:bg-accent transition-colors cursor-pointer"
                 >
                   <span className="text-sm font-medium">Theme</span>
                   <div className="flex items-center gap-3">
@@ -195,7 +232,7 @@ export function TopNav() {
                       <Sun className="h-5 w-5 text-muted-foreground" />
                     )}
                   </div>
-                </button>
+                </div>
               </SheetFooter>
             </SheetContent>
           </Sheet>

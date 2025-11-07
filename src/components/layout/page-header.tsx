@@ -16,7 +16,7 @@ export function PageHeader({
   sticky = false,
 }: PageHeaderProps) {
   const borderClass = hasBorder ? "border-b" : "";
-  const stickyClass = sticky ? "sticky top-[73px] z-10" : "";
+  const stickyClass = sticky ? "sticky top-(--top-nav-height) z-10" : "";
   
   return (
     <div className={`bg-background ${borderClass} ${stickyClass}`}>

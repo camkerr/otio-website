@@ -47,8 +47,8 @@ export default async function DocsPage() {
   ];
 
   return (
-    <div className="px-4 pb-4">
-      <div className="max-w-7xl mx-auto py-8">
+    <div className="px-4 pb-4 md:px-0">
+      <div className="max-w-7xl mx-auto md:px-4 py-8">
         <h1 className="text-4xl font-bold mb-4">OpenTimelineIO Documentation</h1>
         <p className="text-lg text-muted-foreground mb-8">
           Learn how to use OpenTimelineIO to work with editorial cut information.

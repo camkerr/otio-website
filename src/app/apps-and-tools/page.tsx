@@ -159,7 +159,7 @@ export default function AppsAndToolsPage() {
       <div className="container mx-auto px-4 max-w-7xl flex gap-8 py-8">
         {/* Sticky sidebar */}
         <aside className="w-[280px] shrink-0">
-          <div className="sticky top-[calc(73px+11.1rem)] space-y-6">
+          <div className="sticky top-[calc((--top-nav-height)+11.1rem)] space-y-6">
             {/* Search bar */}
             <div className="relative">
               <Input

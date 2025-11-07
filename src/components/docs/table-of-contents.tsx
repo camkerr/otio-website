@@ -150,7 +150,7 @@ export function TableOfContents({ items }: TableOfContentsProps) {
   }
 
   return (
-    <aside className="hidden xl:block sticky top-[calc(73px+1rem)] self-start w-64 shrink-0 ml-8 max-h-[calc(100vh-73px-2rem)]">
+    <aside className="hidden xl:block sticky top-[calc((--top-nav-height)+1rem)] self-start w-64 shrink-0 ml-8 max-h-[calc(100vh-(--top-nav-height)-2rem)]">
       <div className="h-full overflow-y-auto">
         <nav className="relative">
           {/* Progress indicator line */}

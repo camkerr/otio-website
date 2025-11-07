@@ -21,7 +21,9 @@ const SheetOverlay = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <SheetPrimitive.Overlay
     className={cn(
-      'fixed inset-0 z-1200 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
+      'fixed inset-0 z-1200 bg-black/80',
+      'data-[state=open]:animate-sheet-overlay-in',
+      'data-[state=closed]:animate-sheet-overlay-out',
       className,
     )}
     {...props}
@@ -31,7 +33,7 @@ const SheetOverlay = React.forwardRef<
 SheetOverlay.displayName = SheetPrimitive.Overlay.displayName;
 
 const sheetVariants = cva(
-  'fixed z-[1200] gap-4 bg-background shadow-lg transition ease-in-out data-[state=closed]:duration-300 data-[state=open]:duration-500 data-[state=open]:animate-in data-[state=closed]:animate-out',
+  'fixed z-[1200] gap-4 bg-background shadow-lg',
   {
     defaultVariants: {
       side: 'right',
@@ -39,11 +41,11 @@ const sheetVariants = cva(
     variants: {
       side: {
         bottom:
-          'inset-x-0 bottom-0 border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom',
-        left: 'inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm',
+          'inset-x-0 bottom-0 border-t data-[state=open]:[animation:var(--animate-sheet-slide-in-from-bottom)] data-[state=closed]:[animation:var(--animate-sheet-slide-out-to-bottom)]',
+        left: 'inset-y-0 left-0 h-full w-3/4 border-r data-[state=open]:[animation:var(--animate-sheet-slide-in-from-left)] data-[state=closed]:[animation:var(--animate-sheet-slide-out-to-left)] sm:max-w-sm',
         right:
-          'inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm',
-        top: 'inset-x-0 top-0 border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top',
+          'inset-y-0 right-0 h-full w-3/4 border-l data-[state=open]:[animation:var(--animate-sheet-slide-in-from-right)] data-[state=closed]:[animation:var(--animate-sheet-slide-out-to-right)] sm:max-w-sm',
+        top: 'inset-x-0 top-0 border-b data-[state=open]:[animation:var(--animate-sheet-slide-in-from-top)] data-[state=closed]:[animation:var(--animate-sheet-slide-out-to-top)]',
       },
     },
   },
@@ -73,8 +75,8 @@ const SheetContent = React.forwardRef<React.ComponentRef<typeof SheetPrimitive.C
         {showCloseButton && (
           <SheetPrimitive.Close
             className={cn(
-              // Base button styles - aligned with header padding
-              'absolute top-6 right-6 z-10',
+              // Base button styles - aligned with header
+              'absolute top-[calc((var(--top-nav-height)-2rem)/2)] right-4 z-10',
               'inline-flex items-center justify-center',
               'h-8 w-8', // Larger click target
               'rounded-md',
@@ -114,7 +116,7 @@ const SheetHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
     className={cn(
       'flex flex-col space-y-2 text-left bg-background',
       // Sticky header styles
-      'flex-shrink-0 p-6',
+      'shrink-0 p-6',
       // Border
       'border-b',
       className
@@ -186,7 +188,7 @@ const SheetBody = ({
         aria-hidden="true"
         className={cn(
           'absolute top-0 left-0 right-0 h-8 z-10 pointer-events-none',
-          'bg-gradient-to-b from-background from-30% via-background/70 to-transparent',
+          'bg-linear-to-b from-background from-30% via-background/70 to-transparent',
           'shadow-[inset_0_8px_16px_-8px_rgba(0,0,0,0.15)] dark:shadow-[inset_0_8px_16px_-8px_rgba(100,116,139,0.2)]',
           'transition-opacity duration-200 ease-out',
           scrollState.canScrollUp ? 'opacity-100' : 'opacity-0'
@@ -213,7 +215,7 @@ const SheetBody = ({
         aria-hidden="true"
         className={cn(
           'absolute bottom-0 left-0 right-0 h-8 z-10 pointer-events-none',
-          'bg-gradient-to-t from-background from-30% via-background/70 to-transparent',
+          'bg-linear-to-t from-background from-30% via-background/70 to-transparent',
           'shadow-[inset_0_-8px_16px_-8px_rgba(0,0,0,0.15)] dark:shadow-[inset_0_-8px_16px_-8px_rgba(100,116,139,0.2)]',
           'transition-opacity duration-200 ease-out',
           scrollState.canScrollDown ? 'opacity-100' : 'opacity-0'
@@ -229,7 +231,7 @@ const SheetFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElemen
     className={cn(
       'flex flex-col-reverse gap-4 sm:flex-row sm:justify-end',
       // Sticky footer styles
-      'flex-shrink-0 p-6',
+      'shrink-0 p-6',
       // Border
       'border-t',
       className

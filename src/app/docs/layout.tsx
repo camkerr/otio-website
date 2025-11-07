@@ -8,8 +8,9 @@ export default function DocsLayout({
 }>) {
   return (
     <NavWidthSetter width="full">
-      <div className="flex w-full h-[calc(100vh-73px)]">
-        <aside className="sticky top-0 h-[calc(100vh-73px)] w-[280px] md:w-[320px] shrink-0">
+      <div className="flex w-full h-[calc(100vh-(--top-nav-height))]">
+        {/* Hide sidebar on mobile, show only on desktop */}
+        <aside className="hidden md:block sticky top-0 h-[calc(100vh-(--top-nav-height))] w-[280px] md:w-[320px] shrink-0">
           <DocumentationLeftNav />
         </aside>
         <main className="flex-1 overflow-y-auto" data-docs-scroll-container>

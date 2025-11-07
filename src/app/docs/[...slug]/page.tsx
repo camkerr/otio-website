@@ -89,9 +89,9 @@ export default async function DocPage({ params }: DocPageProps) {
     const { previous, next } = getPreviousNextDocs(manifest, slugPath);
     
     return (
-      <div className="px-4 pb-4">
+      <div className="px-4 pb-4 md:px-0">
         <div className="w-full mx-auto">
-          <div className="max-w-7xl mx-auto px-4">
+          <div className="max-w-7xl mx-auto md:px-4">
             <Document 
               markdown={content} 
               title={title} 
