@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { Open_Sans } from "next/font/google";
 import { TopNav } from "@/components/layout/top-nav";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { NavWidthProvider } from "@/contexts/nav-width-context";
@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import "./globals.css";
 import "@docsearch/css";
 
-const inter = Inter({ subsets: ["latin"] });
+const openSans = Open_Sans({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "OpenTimelineIO",
@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("min-h-screen bg-background text-foreground antialiased", inter.className)}>
+      <body className={cn("min-h-screen bg-background text-foreground antialiased", openSans.className)}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

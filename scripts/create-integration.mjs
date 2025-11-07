@@ -6,7 +6,8 @@ import path from "node:path";
 import chalk from "chalk";
 import fetch from "node-fetch";
 
-const CONTENT_BASE_PATH = "./content/integrations";
+const INTEGRATIONS_JSON_PATH = "./content/integrations/integrations.json";
+const PUBLIC_MEDIA_PATH = "./public/integrations";
 
 function slugify(text) {
   return text
@@ -15,19 +16,21 @@ function slugify(text) {
     .replace(/^-+|-+$/g, '');
 }
 
-async function downloadMedia(url, outputDir, filename) {
+async function downloadMedia(url, integrationId, filename) {
   try {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Failed to fetch ${url}: ${response.statusText}`);
     
     const buffer = await response.arrayBuffer();
     const extension = path.extname(url) || '.jpg'; // fallback to .jpg if no extension
-    const outputPath = path.join(outputDir, `${filename}${extension}`);
+    const outputFilename = `${integrationId}-${filename}${extension}`;
+    const outputPath = path.join(PUBLIC_MEDIA_PATH, outputFilename);
     
-    await fs.writeFile(outputPath, buffer);
+    await fs.mkdir(PUBLIC_MEDIA_PATH, { recursive: true });
+    await fs.writeFile(outputPath, Buffer.from(buffer));
     
-    // Return the relative path from the manifest.json location
-    return `./${filename}${extension}`;
+    // Return the public URL path
+    return `/integrations/${outputFilename}`;
   } catch (error) {
     console.error(chalk.yellow(`Warning: Failed to download media from ${url}`), error);
     return url; // Fallback to original URL if download fails
@@ -60,7 +63,7 @@ async function createIntegration() {
     {
       type: "input",
       name: "logo",
-      message: `Enter the app or tool's logo URL:`,
+      message: `Enter the app or tool's logo URL (or press Enter to skip):`,
     },
     {
       type: "input",
@@ -70,10 +73,8 @@ async function createIntegration() {
     },
   ]);
 
-  // Create directory early
-  const slugifiedName = slugify(answers.name);
-  const outputDir = path.join(CONTENT_BASE_PATH, `${answers.type}s`, slugifiedName);
-  await fs.mkdir(outputDir, { recursive: true });
+  // Generate ID
+  const integrationId = slugify(answers.name);
 
   let media = [];
   
@@ -111,7 +112,7 @@ async function createIntegration() {
           type: "confirm",
           name: "isHero",
           message: "Is this the hero media?",
-          default: false,
+          default: media.length === 0,
         },
         {
           type: "confirm",
@@ -130,7 +131,7 @@ async function createIntegration() {
       const mediaFilename = `media-${media.length + 1}`;
       mediaDetails.url = await downloadMedia(
         mediaDetails.url,
-        outputDir,
+        integrationId,
         mediaFilename
       );
 
@@ -138,7 +139,7 @@ async function createIntegration() {
       if (mediaDetails.thumbnail) {
         mediaDetails.thumbnail = await downloadMedia(
           mediaDetails.thumbnail,
-          outputDir,
+          integrationId,
           `${mediaFilename}-thumb`
         );
       }
@@ -148,24 +149,71 @@ async function createIntegration() {
     }
   }
 
-  // Also download the logo
-  console.log(chalk.blue('Downloading logo...'));
-  answers.logo = await downloadMedia(answers.logo, outputDir, 'logo');
+  // Download the logo if provided
+  let logo = answers.logo;
+  if (logo && logo.trim()) {
+    console.log(chalk.blue('Downloading logo...'));
+    logo = await downloadMedia(logo, integrationId, 'logo');
+  }
 
-  const integration = {
-    ...answers,
+  const newIntegration = {
+    id: integrationId,
+    type: answers.type,
+    name: answers.name,
+    description: answers.description,
+    company: answers.company,
+    logo: logo || "",
+    categories: answers.categories,
     media,
   };
 
-  const outputPath = path.join(outputDir, 'manifest.json');
-
   try {
-    await fs.writeFile(outputPath, JSON.stringify(integration, null, 2));
-    console.log(chalk.green(`✓ Successfully created ${outputPath}`));
-    console.log(chalk.blue("Integration manifest:"));
-    console.log(chalk.gray(JSON.stringify(integration, null, 2)));
+    // Read existing integrations
+    let integrations = [];
+    try {
+      const fileContent = await fs.readFile(INTEGRATIONS_JSON_PATH, 'utf-8');
+      integrations = JSON.parse(fileContent);
+    } catch (error) {
+      console.log(chalk.yellow('No existing integrations.json found, creating new file...'));
+    }
+
+    // Check for duplicate ID
+    const existingIndex = integrations.findIndex(i => i.id === integrationId);
+    if (existingIndex !== -1) {
+      const { overwrite } = await inquirer.prompt([
+        {
+          type: "confirm",
+          name: "overwrite",
+          message: `Integration with ID "${integrationId}" already exists. Overwrite?`,
+          default: false,
+        },
+      ]);
+
+      if (overwrite) {
+        integrations[existingIndex] = newIntegration;
+        console.log(chalk.yellow(`Updated existing integration: ${integrationId}`));
+      } else {
+        console.log(chalk.red('Operation cancelled.'));
+        return;
+      }
+    } else {
+      // Add new integration and sort
+      integrations.push(newIntegration);
+      integrations.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    // Write back to file
+    await fs.writeFile(
+      INTEGRATIONS_JSON_PATH,
+      JSON.stringify(integrations, null, 2) + '\n',
+      'utf-8'
+    );
+
+    console.log(chalk.green(`✓ Successfully added integration to ${INTEGRATIONS_JSON_PATH}`));
+    console.log(chalk.blue("\nIntegration details:"));
+    console.log(chalk.gray(JSON.stringify(newIntegration, null, 2)));
   } catch (error) {
-    console.error(chalk.red("Error creating integration manifest:"), error);
+    console.error(chalk.red("Error creating integration:"), error);
   }
 }
 

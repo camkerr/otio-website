@@ -1,0 +1,514 @@
+[
+  {
+    "id": "adobe-premiere-pro",
+    "type": "app",
+    "name": "Adobe Premiere Pro",
+    "description": "Industry-leading non-linear video editor with timeline import/export (beta)",
+    "company": "Adobe",
+    "logo": "/integrations/adobe_logo.png",
+    "categories": [
+      "Editor"
+    ],
+    "media": [],
+    "url": "https://www.adobe.com/products/premiere.html"
+  },
+  {
+    "id": "altera",
+    "type": "app",
+    "name": "Altera",
+    "description": "Metadata Management tool for film and video production (coming soon)",
+    "company": "Cine.dev",
+    "logo": "https://logo.clearbit.com/cine.dev",
+    "categories": [
+      "Management"
+    ],
+    "media": [],
+    "url": "https://cine.dev/"
+  },
+  {
+    "id": "avid-media-composer",
+    "type": "app",
+    "name": "AVID Media Composer",
+    "description": "Professional non-linear editing system with timeline export (preview)",
+    "company": "AVID",
+    "logo": "https://logo.clearbit.com/avid.com",
+    "categories": [
+      "Editor"
+    ],
+    "media": [],
+    "url": "https://www.avid.com/media-composer"
+  },
+  {
+    "id": "blender-vse-io",
+    "type": "tool",
+    "name": "Blender VSE IO",
+    "description": "Blender Video Sequence Editor add-on for importing and exporting various editorial interchange formats",
+    "company": "Superprod",
+    "logo": "https://logo.clearbit.com/superprod.fr",
+    "categories": [
+      "Plugin"
+    ],
+    "media": [],
+    "url": "https://gitlab.com/superprod/stax_suite/vse_io"
+  },
+  {
+    "id": "cezanne-studio",
+    "type": "app",
+    "name": "Cezanne Studio",
+    "description": "Media player and review tool",
+    "company": "Cezanne",
+    "logo": "https://cezanne.studio/images/icons/ico_cezanne_54x54dk.png",
+    "categories": [
+      "Player",
+      "Review"
+    ],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/cezanne-studio-media-shot-info.png",
+        "isHero": true
+      },
+      {
+        "type": "image",
+        "url": "/integrations/universal-viewer-multichannel.png",
+        "isHero": false
+      },
+      {
+        "type": "image",
+        "url": "/integrations/edit-import.png",
+        "isHero": false
+      }
+    ],
+    "url": "http://cezanne.ahead.io/cezanne-studio/"
+  },
+  {
+    "id": "davinci-resolve",
+    "type": "app",
+    "name": "DaVinci Resolve",
+    "description": "Professional color grading and editing software with OTIO and OTIOZ import/export support",
+    "company": "Blackmagic Design",
+    "logo": "https://logo.clearbit.com/blackmagicdesign.com",
+    "categories": [
+      "Editor"
+    ],
+    "media": [],
+    "url": "https://www.blackmagicdesign.com/products/davinciresolve"
+  },
+  {
+    "id": "editreader",
+    "type": "app",
+    "name": "EditReader",
+    "description": "Animatic and animation production timeline manager that tracks timeline changes. Supports OTIO input and output",
+    "company": "EditReader",
+    "logo": "https://logo.clearbit.com/editreader.co.uk",
+    "categories": [
+      "Management"
+    ],
+    "media": [],
+    "url": "http://www.editreader.co.uk/"
+  },
+  {
+    "id": "ftrack-cinesync-play",
+    "type": "app",
+    "name": "ftrack cineSync Play",
+    "description": "Frame-accurate playback and review tool",
+    "company": "ftrack",
+    "logo": "https://logo.clearbit.com/ftrack.com",
+    "categories": [
+      "Player",
+      "Review"
+    ],
+    "media": [],
+    "url": "https://www.ftrack.com/en/cinesync-play"
+  },
+  {
+    "id": "hiero",
+    "type": "app",
+    "name": "Hiero",
+    "description": "Multi-shot management, conform, editorial, review and distribution workflows tool",
+    "company": "The Foundry",
+    "logo": "https://logo.clearbit.com/foundry.com",
+    "categories": [
+      "Management",
+      "Review"
+    ],
+    "media": [],
+    "url": "https://www.foundry.com/products/nuke-family/hiero"
+  },
+  {
+    "id": "hiero-otio",
+    "type": "tool",
+    "name": "hiero-otio",
+    "description": "Import and export OpenTimelineIO files directly in Hiero or Nuke Studio",
+    "company": "Alex Petrynet",
+    "logo": "",
+    "categories": [
+      "Plugin"
+    ],
+    "media": [],
+    "url": "https://github.com/apetrynet/hiero-otio/"
+  },
+  {
+    "id": "kdenlive",
+    "type": "app",
+    "name": "Kdenlive",
+    "description": "KDE Non-Linear Video Editor with OTIO support since version 20.04",
+    "company": "KDE",
+    "logo": "https://logo.clearbit.com/kdenlive.org",
+    "categories": [
+      "Editor"
+    ],
+    "media": [],
+    "url": "https://kdenlive.org/en/about/"
+  },
+  {
+    "id": "magla",
+    "type": "tool",
+    "name": "Magla",
+    "description": "SQL-powered data pipeline for animation and VFX with dynamically generated OTIO timelines",
+    "company": "Magnetic Lab",
+    "logo": "",
+    "categories": [
+      "Pipeline"
+    ],
+    "media": [],
+    "url": "https://github.com/magnetic-lab/magla"
+  },
+  {
+    "id": "matchbox",
+    "type": "app",
+    "name": "Matchbox",
+    "description": "Change Management solution for post production - compares reels and finds every cut change and VFX tweak",
+    "company": "The Cargo Cult",
+    "logo": "https://logo.clearbit.com/thecargocult.nz",
+    "categories": [
+      "Management",
+      "Review"
+    ],
+    "media": [],
+    "url": "https://www.thecargocult.nz/products/matchbox"
+  },
+  {
+    "id": "maya-otio",
+    "type": "tool",
+    "name": "maya-otio",
+    "description": "Maya plugin to import and export OpenTimelineIO files directly into scenes",
+    "company": "rosborne132",
+    "logo": "",
+    "categories": [
+      "Plugin"
+    ],
+    "media": [],
+    "url": "https://github.com/rosborne132/maya-otio"
+  },
+  {
+    "id": "mrviewer",
+    "type": "app",
+    "name": "mrViewer",
+    "description": "Flipbook, video and audio player with OTIO support",
+    "company": "mrViewer",
+    "logo": "https://logo.clearbit.com/sourceforge.net",
+    "categories": [
+      "Player",
+      "Review"
+    ],
+    "media": [],
+    "url": "https://mrviewer.sourceforge.io/"
+  },
+  {
+    "id": "nuke-studio",
+    "type": "app",
+    "name": "Nuke Studio",
+    "description": "Multi-shot management, editorial and compositing tool",
+    "company": "The Foundry",
+    "logo": "https://logo.clearbit.com/foundry.com",
+    "categories": [
+      "Editor",
+      "Compositor"
+    ],
+    "media": [],
+    "url": "https://www.foundry.com/products/nuke-family/nuke-studio"
+  },
+  {
+    "id": "olive",
+    "type": "app",
+    "name": "Olive",
+    "description": "Free open-source non-linear video editor with OTIO import and export support",
+    "company": "Olive Team",
+    "logo": "https://logo.clearbit.com/olivevideoeditor.org",
+    "categories": [
+      "Editor"
+    ],
+    "media": [],
+    "url": "https://olivevideoeditor.org/"
+  },
+  {
+    "id": "openrv",
+    "type": "app",
+    "name": "OpenRV",
+    "description": "Open source digital review tool for film, TV, and games",
+    "company": "Academy Software Foundation",
+    "logo": "https://logo.clearbit.com/aswf.io",
+    "categories": [
+      "Player",
+      "Review"
+    ],
+    "media": [],
+    "url": "https://github.com/AcademySoftwareFoundation/OpenRV"
+  },
+  {
+    "id": "otio-cdl-adapter",
+    "type": "tool",
+    "name": "otio-cdl-adapter",
+    "description": "Simple OTIO adapter for exporting .cdl files for each clip in an OTIO instance",
+    "company": "Josh Mission",
+    "logo": "",
+    "categories": [
+      "Adapter"
+    ],
+    "media": [],
+    "url": "https://github.com/josh-mission/otio-cdl-adapter"
+  },
+  {
+    "id": "otio-cookelensmetadata",
+    "type": "tool",
+    "name": "otio-cookelensmetadata",
+    "description": "Proof-of-concept OpenTimelineIO adapter for the Cooke LMF lens metadata format",
+    "company": "Reinecke",
+    "logo": "",
+    "categories": [
+      "Adapter"
+    ],
+    "media": [],
+    "url": "https://github.com/reinecke/otio-cookelensmetadata"
+  },
+  {
+    "id": "otio-drp-adapter",
+    "type": "tool",
+    "name": "otio-drp-adapter",
+    "description": "OTIO adapter for reading .drp files from Blackmagic ATEM ISO video mixer",
+    "company": "Community",
+    "logo": "",
+    "categories": [
+      "Adapter"
+    ],
+    "media": [],
+    "url": "https://pypi.org/project/otio-drp-adapter/"
+  },
+  {
+    "id": "otio-mlt-adapter",
+    "type": "tool",
+    "name": "otio-mlt-adapter",
+    "description": "OTIO adapter for writing MLT Multimedia Framework files",
+    "company": "Community",
+    "logo": "",
+    "categories": [
+      "Adapter"
+    ],
+    "media": [],
+    "url": "https://pypi.org/project/otio-mlt-adapter/"
+  },
+  {
+    "id": "otio-premiereproject",
+    "type": "tool",
+    "name": "otio-premiereproject",
+    "description": "OpenTimelineIO adapter for reading Premiere .prproj files",
+    "company": "Splidje",
+    "logo": "",
+    "categories": [
+      "Adapter"
+    ],
+    "media": [],
+    "url": "https://github.com/splidje/otio-premiereproject"
+  },
+  {
+    "id": "otio-swift-bindings",
+    "type": "tool",
+    "name": "OpenTimelineIO Swift Bindings",
+    "description": "Swift language bindings for OpenTimelineIO",
+    "company": "OpenTimelineIO",
+    "logo": "",
+    "categories": [
+      "Library"
+    ],
+    "media": [],
+    "url": "https://github.com/OpenTimelineIO/OpenTimelineIO-Swift-Bindings"
+  },
+  {
+    "id": "otio-unreal-plugin",
+    "type": "tool",
+    "name": "OpenTimelineIO Unreal Plugin",
+    "description": "Plugin for Unreal Engine that maps between OTIO timeline and UE level sequence hierarchy",
+    "company": "OpenTimelineIO",
+    "logo": "",
+    "categories": [
+      "Plugin"
+    ],
+    "media": [],
+    "url": "https://github.com/OpenTimelineIO/OpenTimelineIO-Unreal-Plugin"
+  },
+  {
+    "id": "protio",
+    "type": "tool",
+    "name": "protio",
+    "description": "Premiere Pro OTIO Plugin for enhanced timeline integration",
+    "company": "boredstiff",
+    "logo": "",
+    "categories": [
+      "Plugin"
+    ],
+    "media": [],
+    "url": "https://github.com/boredstiff/protio"
+  },
+  {
+    "id": "pype",
+    "type": "tool",
+    "name": "Pype",
+    "description": "Multi-platform open-source pipeline connecting asset database, project management and time tracking",
+    "company": "Pype Club",
+    "logo": "",
+    "categories": [
+      "Pipeline"
+    ],
+    "media": [],
+    "url": "https://github.com/pypeclub/pype"
+  },
+  {
+    "id": "raven",
+    "type": "tool",
+    "name": "raven",
+    "description": "Desktop app for MacOS, Windows, Linux, and web for inspecting OTIO files",
+    "company": "OpenTimelineIO",
+    "logo": "/integrations/raven-logo.jpg",
+    "categories": [
+      "Inspector"
+    ],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/raven-media-1.png",
+        "isHero": true
+      }
+    ],
+    "url": "https://github.com/OpenTimelineIO/raven"
+  },
+  {
+    "id": "resolve-otio",
+    "type": "tool",
+    "name": "resolve-otio",
+    "description": "OpenTimelineIO plugin for DaVinci Resolve",
+    "company": "eric-with-a-c",
+    "logo": "",
+    "categories": [
+      "Plugin"
+    ],
+    "media": [],
+    "url": "https://github.com/eric-with-a-c/resolve-otio"
+  },
+  {
+    "id": "rv",
+    "type": "app",
+    "name": "RV",
+    "description": "Commercial version of OpenRV - digital review tool for film, TV, and games",
+    "company": "ShotGrid",
+    "logo": "https://logo.clearbit.com/shotgridsoftware.com",
+    "categories": [
+      "Player",
+      "Review"
+    ],
+    "media": [],
+    "url": "https://www.shotgridsoftware.com/rv/"
+  },
+  {
+    "id": "sg-otio",
+    "type": "tool",
+    "name": "SG OTIO",
+    "description": "OpenTimelineIO ShotGrid Python Library for integration with ShotGrid",
+    "company": "GPLgithub",
+    "logo": "",
+    "categories": [
+      "Library"
+    ],
+    "media": [],
+    "url": "https://github.com/GPLgithub/sg-otio"
+  },
+  {
+    "id": "shot-manager",
+    "type": "tool",
+    "name": "Shot Manager",
+    "description": "Blender Add-on from Ubisoft for shot management workflows",
+    "company": "Ubisoft",
+    "logo": "https://logo.clearbit.com/ubisoft.com",
+    "categories": [
+      "Plugin"
+    ],
+    "media": [],
+    "url": "https://github.com/ubisoft/shotmanager"
+  },
+  {
+    "id": "speech-edit",
+    "type": "tool",
+    "name": "speech-edit",
+    "description": "Automatically cut videos using speech detection - perfect for vlogs and talking-head videos",
+    "company": "Ethan Ou",
+    "logo": "",
+    "categories": [
+      "Automation"
+    ],
+    "media": [],
+    "url": "https://github.com/ethan-ou/speech-edit"
+  },
+  {
+    "id": "tlrender",
+    "type": "app",
+    "name": "tlRender",
+    "description": "Open source library for building playback and review applications for VFX, film, and animation",
+    "company": "Darby Johnson",
+    "logo": "",
+    "categories": [
+      "Player",
+      "Library"
+    ],
+    "media": [],
+    "url": "https://github.com/darbyjohnston/tlRender"
+  },
+  {
+    "id": "toucan",
+    "type": "tool",
+    "name": "toucan",
+    "description": "Experimental offline renderer for OTIO sequences",
+    "company": "Darby Johnson",
+    "logo": "",
+    "categories": [
+      "Renderer"
+    ],
+    "media": [],
+    "url": "https://github.com/darbyjohnston/toucan"
+  },
+  {
+    "id": "unreal-otio-exporter",
+    "type": "tool",
+    "name": "UnrealOTIOExporter",
+    "description": "Movie Render Queue Setting for Unreal Engine to export OTIO timelines",
+    "company": "mvanneutigem",
+    "logo": "",
+    "categories": [
+      "Plugin"
+    ],
+    "media": [],
+    "url": "https://github.com/mvanneutigem/UnrealOtioExporter"
+  },
+  {
+    "id": "video-tracks",
+    "type": "tool",
+    "name": "Video Tracks",
+    "description": "Blender Add-on from Ubisoft for video track management",
+    "company": "Ubisoft",
+    "logo": "https://logo.clearbit.com/ubisoft.com",
+    "categories": [
+      "Plugin"
+    ],
+    "media": [],
+    "url": "https://github.com/ubisoft/videotracks"
+  }
+]

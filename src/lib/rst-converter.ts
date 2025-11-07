@@ -54,6 +54,27 @@ export function convertRstToMarkdown(rst: string): string {
   markdown = markdown.replace(/`([^`]+)\s*<([^>]+)>`_/g, '[$1]($2)');
   markdown = markdown.replace(/`([^`]+)`_/g, '[$1]($1)'); // Simple reference links
   
+  // Convert RST image directive to Markdown
+  // Matches: .. image:: path/to/image.png
+  //          :alt: Alt text (optional)
+  //          :width: 800px (optional, ignored in markdown)
+  markdown = markdown.replace(/^\.\.\s+image::\s*([^\n]+)\s*(?:\n\s+:[^\n]+)*\n?/gm, (match, imagePath) => {
+    // Extract alt text if present
+    const altMatch = match.match(/:alt:\s*([^\n]+)/);
+    const alt = altMatch ? altMatch[1].trim() : '';
+    return `![${alt}](${imagePath.trim()})\n`;
+  });
+  
+  // Convert RST figure directive to Markdown (similar to image but with caption)
+  // Matches: .. figure:: path/to/image.png
+  //          :alt: Alt text (optional)
+  //          Caption text (optional)
+  markdown = markdown.replace(/^\.\.\s+figure::\s*([^\n]+)\s*(?:\n\s+:[^\n]+)*(?:\n\s*\n\s+([^\n]+))?/gm, (match, imagePath, caption) => {
+    const altMatch = match.match(/:alt:\s*([^\n]+)/);
+    const alt = altMatch ? altMatch[1].trim() : (caption || '');
+    return `![${alt}](${imagePath.trim()})\n${caption ? `\n*${caption.trim()}*\n` : ''}`;
+  });
+  
   // Convert lists (RST uses - or * for unordered, numbers for ordered)
   // This is mostly compatible with Markdown already
   

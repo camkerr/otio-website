@@ -7,6 +7,7 @@ export type Integration = {
   logo: string;
   categories: string[];
   media: MediaItem[];
+  url?: string;
 };
 
 export type MediaItem = {

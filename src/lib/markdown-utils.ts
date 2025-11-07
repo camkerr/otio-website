@@ -62,6 +62,8 @@ export function formatMarkdown(markdown: string): string {
   const formatted: string[] = [];
   let inCodeBlock = false;
   let inIndentedCodeBlock = false;
+  let inListItem = false;
+  let listItemIndent = 0;
   let currentParagraph: string[] = [];
 
   const flushParagraph = () => {
@@ -75,12 +77,13 @@ export function formatMarkdown(markdown: string): string {
     const line = lines[i];
     const trimmed = line.trim();
 
-    // Check for fenced code blocks
-    const codeBlockMatch = trimmed.match(/^(`{3,}|~{3,})(\w*)?/);
+    // Check for fenced code blocks (including directives like ```{glossary})
+    const codeBlockMatch = trimmed.match(/^(`{3,}|~{3,})/);
     if (codeBlockMatch) {
       flushParagraph();
       inCodeBlock = !inCodeBlock;
       formatted.push(line);
+      inListItem = false;
       continue;
     }
 
@@ -91,7 +94,7 @@ export function formatMarkdown(markdown: string): string {
     }
 
     // Check for indented code blocks (4+ spaces at start of line)
-    if (line.match(/^ {4,}/)) {
+    if (line.match(/^ {4,}/) && !inListItem) {
       flushParagraph();
       inIndentedCodeBlock = true;
       formatted.push(line);
@@ -110,6 +113,7 @@ export function formatMarkdown(markdown: string): string {
     if (trimmed.match(/^#{1,6}\s/)) {
       flushParagraph();
       formatted.push(line);
+      inListItem = false;
       continue;
     }
 
@@ -117,20 +121,74 @@ export function formatMarkdown(markdown: string): string {
     if (trimmed.match(/^(-{3,}|\*{3,}|_{3,})$/)) {
       flushParagraph();
       formatted.push(line);
+      inListItem = false;
       continue;
     }
 
-    // Preserve list items (including nested)
-    if (trimmed.match(/^(\s*)([-*+]|\d+[.)])\s/)) {
+    // Check for list items (markers only or with minimal content)
+    const listMatch = line.match(/^(\s*)([-*+]|\d+[.)])\s*(.*)$/);
+    if (listMatch) {
       flushParagraph();
+      const markerIndent = listMatch[1].length;
+      const marker = listMatch[0].substring(0, listMatch[0].indexOf(listMatch[2]) + listMatch[2].length);
+      const contentOnSameLine = listMatch[3].trim();
+      
+      // If there's no content on the same line, try to join with next line
+      if (!contentOnSameLine) {
+        // Find the next non-empty line
+        let nextLineIdx = i + 1;
+        while (nextLineIdx < lines.length && lines[nextLineIdx].trim() === '') {
+          nextLineIdx++;
+        }
+        
+        if (nextLineIdx < lines.length) {
+          const nextLine = lines[nextLineIdx];
+          // Don't join if next line is another list marker, heading, or code block
+          if (!nextLine.match(/^(\s*)([-*+]|\d+[.)])\s/) && 
+              !nextLine.match(/^(\s*)```/) && 
+              !nextLine.match(/^(\s*)#{1,6}\s/)) {
+            formatted.push(marker + ' ' + nextLine.trim());
+            i = nextLineIdx; // Skip to the line we just processed
+            inListItem = true;
+            listItemIndent = markerIndent;
+            continue;
+          }
+        }
+      }
+      
+      // Either has content on same line or couldn't join with next line
       formatted.push(line);
+      inListItem = true;
+      listItemIndent = markerIndent;
       continue;
+    }
+
+    // If we're in a list item, check if this line is part of it
+    if (inListItem) {
+      // Empty line might end the list item
+      if (trimmed === '') {
+        formatted.push(line);
+        inListItem = false;
+        continue;
+      }
+      
+      // Check if line is indented (part of list item content)
+      const leadingSpaces = line.match(/^(\s*)/)?.[1].length || 0;
+      if (leadingSpaces > listItemIndent) {
+        // This is indented content belonging to the list item
+        formatted.push(line);
+        continue;
+      } else {
+        // Not indented enough, not part of list item anymore
+        inListItem = false;
+      }
     }
 
     // Preserve blockquotes
     if (trimmed.startsWith('>')) {
       flushParagraph();
       formatted.push(line);
+      inListItem = false;
       continue;
     }
 
@@ -138,6 +196,7 @@ export function formatMarkdown(markdown: string): string {
     if (trimmed === '') {
       flushParagraph();
       formatted.push(line);
+      inListItem = false;
       continue;
     }
 

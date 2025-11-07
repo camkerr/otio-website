@@ -2,7 +2,9 @@ import { unstable_cache } from 'next/cache';
 
 const REPO = 'AcademySoftwareFoundation/OpenTimelineIO';
 const DOCS_PATH = 'docs';
-const CACHE_REVALIDATE = 3600 * 24; // 1 day in seconds
+const INDEX_FILE = 'docs/index.rst';
+// const CACHE_REVALIDATE = 3600 * 24; // 1 day in seconds
+const CACHE_REVALIDATE = 10; // 1 minute in seconds
 
 interface GitHubTreeItem {
   path: string;
@@ -80,10 +82,77 @@ function getGitHubHeaders() {
 }
 
 /**
+ * Parse index.rst to extract all referenced documentation paths
+ * This is cached to avoid parsing the file on every request
+ */
+const getAllowedDocPaths = unstable_cache(
+  async (): Promise<Set<string>> => {
+    try {
+      const indexContent = await fetchRawContent(INDEX_FILE);
+      const allowedPaths = new Set<string>();
+      
+      // Always include the index file itself
+      allowedPaths.add(INDEX_FILE);
+      
+      const lines = indexContent.split('\n');
+      let inTocTree = false;
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        const trimmed = line.trim();
+        
+        // Detect toctree directive
+        if (trimmed.startsWith('.. toctree::')) {
+          inTocTree = true;
+          continue;
+        }
+        
+        // Exit toctree when we hit a non-indented line (that's not empty or a comment)
+        if (inTocTree && trimmed && !line.startsWith('   ') && !trimmed.startsWith(':')) {
+          inTocTree = false;
+        }
+        
+        // Parse paths in toctree sections
+        if (inTocTree && line.startsWith('   ') && trimmed && !trimmed.startsWith(':')) {
+          let path = trimmed;
+          
+          // Add both .rst and .md versions since the index doesn't specify extension
+          // (except when explicitly mentioned like .md files)
+          if (path.endsWith('.md')) {
+            allowedPaths.add(`${DOCS_PATH}/${path}`);
+          } else {
+            // Try both extensions
+            allowedPaths.add(`${DOCS_PATH}/${path}.rst`);
+            allowedPaths.add(`${DOCS_PATH}/${path}.md`);
+          }
+        }
+      }
+      
+      return allowedPaths;
+    } catch (error) {
+      console.error('Failed to parse index.rst, allowing all docs:', error);
+      // If we can't parse index.rst, return an empty set to allow all files
+      // This ensures the site doesn't break if there's a parsing issue
+      return new Set();
+    }
+  },
+  ['allowed-doc-paths'],
+  {
+    revalidate: CACHE_REVALIDATE,
+    tags: ['docs'],
+  }
+);
+
+/**
  * Fetch the docs directory tree from GitHub
  * Uses Contents API for reliability (git/trees can truncate)
+ * Filters files based on index.rst references
  */
 async function fetchDocsTree(): Promise<GitHubTreeItem[]> {
+  // Get allowed paths from index.rst
+  const allowedPaths = await getAllowedDocPaths();
+  const shouldFilterFiles = allowedPaths.size > 0;
+  
   // Always use Contents API for reliability
   // (git/trees API can truncate and doesn't always indicate it properly)
   const contentsUrl = `https://api.github.com/repos/${REPO}/contents/${DOCS_PATH}`;
@@ -113,6 +182,12 @@ async function fetchDocsTree(): Promise<GitHubTreeItem[]> {
   
   const allFiles: GitHubTreeItem[] = [];
 
+  // Helper function to check if a file should be included
+  function isAllowedFile(filePath: string): boolean {
+    if (!shouldFilterFiles) return true; // If parsing failed, allow all files
+    return allowedPaths.has(filePath);
+  }
+
   // Recursively fetch all markdown files from subdirectories
   async function fetchDirectory(path: string): Promise<void> {
     const dirUrl = `https://api.github.com/repos/${REPO}/contents/${path}`;
@@ -139,13 +214,16 @@ async function fetchDocsTree(): Promise<GitHubTreeItem[]> {
     
     for (const item of items) {
       if (item.type === 'file' && (item.path.endsWith('.md') || item.path.endsWith('.rst'))) {
-        allFiles.push({
-          path: item.path,
-          type: 'blob',
-          sha: item.sha,
-          size: item.size,
-          url: item.url,
-        });
+        // Only include files that are referenced in index.rst
+        if (isAllowedFile(item.path)) {
+          allFiles.push({
+            path: item.path,
+            type: 'blob',
+            sha: item.sha,
+            size: item.size,
+            url: item.url,
+          });
+        }
       } else if (item.type === 'dir' && !item.path.includes('_static') && !item.path.includes('_templates') && !item.path.includes('_build')) {
         // Recursively fetch subdirectories (skip build directories)
         await fetchDirectory(item.path);
@@ -156,13 +234,16 @@ async function fetchDocsTree(): Promise<GitHubTreeItem[]> {
   // Process the root docs directory
   for (const item of contents) {
     if (item.type === 'file' && (item.path.endsWith('.md') || item.path.endsWith('.rst'))) {
-      allFiles.push({
-        path: item.path,
-        type: 'blob',
-        sha: item.sha,
-        size: item.size,
-        url: item.url,
-      });
+      // Only include files that are referenced in index.rst
+      if (isAllowedFile(item.path)) {
+        allFiles.push({
+          path: item.path,
+          type: 'blob',
+          sha: item.sha,
+          size: item.size,
+          url: item.url,
+        });
+      }
     } else if (item.type === 'dir' && !item.path.includes('_static') && !item.path.includes('_templates') && !item.path.includes('_build')) {
       // Fetch subdirectories (especially tutorials and use-cases)
       await fetchDirectory(item.path);
@@ -206,6 +287,7 @@ async function fetchRawContent(path: string): Promise<string> {
 
 /**
  * Get cached list of documentation files
+ * This list is filtered based on what's referenced in index.rst
  */
 export const getDocsList = unstable_cache(
   async (): Promise<GitHubTreeItem[]> => {
@@ -217,6 +299,15 @@ export const getDocsList = unstable_cache(
     tags: ['docs'],
   }
 );
+
+/**
+ * Get the list of allowed documentation paths (for debugging)
+ * This shows which files from index.rst are being included
+ */
+export async function getDebugAllowedPaths(): Promise<string[]> {
+  const paths = await getAllowedDocPaths();
+  return Array.from(paths).sort();
+}
 
 /**
  * Fetch commit metadata for a file
@@ -345,5 +436,96 @@ export function extractH1FromContent(content: string): string {
   }
   
   return 'Documentation';
+}
+
+/**
+ * Transform relative image paths in markdown to absolute GitHub URLs
+ * This handles images in the docs/_static directory and other relative paths
+ * 
+ * @param content - The markdown content with potentially relative image paths
+ * @param docPath - The path to the documentation file (e.g., 'docs/tutorials/quickstart.rst')
+ * @returns The markdown content with absolute GitHub URLs
+ */
+export function transformImagePaths(content: string, docPath: string): string {
+  // Get the directory of the current document
+  const docDir = docPath.substring(0, docPath.lastIndexOf('/'));
+  
+  // Transform markdown image syntax: ![alt](path)
+  content = content.replace(
+    /!\[([^\]]*)\]\(([^)]+)\)/g,
+    (match, alt, imagePath) => {
+      // Skip if already an absolute URL
+      if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+        return match;
+      }
+      
+      // Resolve relative path
+      let resolvedPath = imagePath;
+      
+      // Handle ../ paths (go up directories)
+      if (imagePath.startsWith('../')) {
+        const parts = docDir.split('/');
+        let imagePathParts = imagePath.split('/');
+        
+        // Remove leading ../ and corresponding directory parts
+        while (imagePathParts[0] === '..' && parts.length > 0) {
+          imagePathParts.shift();
+          parts.pop();
+        }
+        
+        resolvedPath = [...parts, ...imagePathParts].join('/');
+      } else if (imagePath.startsWith('./')) {
+        // Handle ./ paths (current directory)
+        resolvedPath = `${docDir}/${imagePath.substring(2)}`;
+      } else if (!imagePath.startsWith('/')) {
+        // Handle relative paths without ./ prefix
+        resolvedPath = `${docDir}/${imagePath}`;
+      } else {
+        // Handle absolute paths (starting with /)
+        resolvedPath = imagePath.substring(1);
+      }
+      
+      // Create absolute GitHub URL
+      const absoluteUrl = `https://raw.githubusercontent.com/${REPO}/main/${resolvedPath}`;
+      return `![${alt}](${absoluteUrl})`;
+    }
+  );
+  
+  // Transform HTML image syntax: <img src="path">
+  content = content.replace(
+    /<img([^>]*?)src=["']([^"']+)["']([^>]*)>/gi,
+    (match, before, imagePath, after) => {
+      // Skip if already an absolute URL
+      if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+        return match;
+      }
+      
+      // Resolve relative path (same logic as above)
+      let resolvedPath = imagePath;
+      
+      if (imagePath.startsWith('../')) {
+        const parts = docDir.split('/');
+        let imagePathParts = imagePath.split('/');
+        
+        while (imagePathParts[0] === '..' && parts.length > 0) {
+          imagePathParts.shift();
+          parts.pop();
+        }
+        
+        resolvedPath = [...parts, ...imagePathParts].join('/');
+      } else if (imagePath.startsWith('./')) {
+        resolvedPath = `${docDir}/${imagePath.substring(2)}`;
+      } else if (!imagePath.startsWith('/')) {
+        resolvedPath = `${docDir}/${imagePath}`;
+      } else {
+        resolvedPath = imagePath.substring(1);
+      }
+      
+      const absoluteUrl = `https://raw.githubusercontent.com/${REPO}/main/${resolvedPath}`;
+      return `<img${before}src="${absoluteUrl}"${after}>`;
+    }
+  );
+  
+  return content;
 }
 

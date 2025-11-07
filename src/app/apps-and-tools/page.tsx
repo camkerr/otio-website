@@ -5,11 +5,12 @@ import Image from "next/image";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Film, Eye, FolderKanban, PlayCircle, Edit2, Monitor } from "lucide-react";
+import { Search, Eye, FolderKanban, PlayCircle, Edit2, Monitor, Wrench, FileJson, Package, Workflow } from "lucide-react";
 import { Integration } from "@/types/integrations";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { EditInGithub } from "@/components/edit-in-github";
+import { getIntegrations, getAllCategories } from "@/lib/integrations";
 
 export default function AppsAndToolsPage() {
   const [selectedProject, setSelectedProject] = useState<Integration | null>(
@@ -19,112 +20,23 @@ export default function AppsAndToolsPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [mediaIndex, setMediaIndex] = useState(0);
 
-  const integrations: Integration[] = [
-    {
-      id: "1",
-      name: "Cezanne",
-      description: "Media player and review tool",
-      company: "Cezanne",
-      logo: "/placeholder.svg?height=100&width=100",
-      type: "app",
-      categories: ["Media", "Review"],
-      media: [
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-      ],
-    },
-    {
-      id: "2",
-      name: "cineSync Play",
-      description: "Frame-accurate playback & review & tool",
-      company: "ftrack",
-      logo: "/placeholder.svg?height=100&width=100",
-      type: "app",
-      categories: ["Media", "Review"],
-      media: [
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-      ],
-    },
-    {
-      id: "3",
-      name: "Hiero",
-      description:
-        "Multi-shot management, conform, editorial, review and distribution workflows tool",
-      company: "Foundry",
-      logo: "/placeholder.svg?height=100&width=100",
-      type: "app",
-      categories: ["Management", "Review"],
-      media: [
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-      ],
-    },
-    {
-      id: "5",
-      name: "OpenRV",
-      description: "A digital review tool for film, TV, and games",
-      company: "OpenRV",
-      logo: "/placeholder.svg?height=100&width=100",
-      type: "app",
-      categories: ["Review", "Media"],
-      media: [
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-      ],
-    },
-    {
-      id: "6",
-      name: "Nuke Studio",
-      description:
-          "Nuke Studio is the premier online VFX editing software",
-      company: "Foundry",
-      logo: "/placeholder.svg?height=100&width=100",
-      type: "app",
-      categories: ["Editor", "Compositor"],
-      media: [
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-      ],
-    },
-    {
-      id: "7",
-      name: "mrViewer",
-      description:
-        "flipbook, video and audio player, with OTIO support demonstrated here",
-      company: "mrViewer",
-      logo: "/placeholder.svg?height=100&width=100",
-      type: "app",
-      categories: ["Media", "Player"],
-      media: [
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-      ],
-    },
-    {
-      id: "8",
-      name: "OpenRV",
-      description: "A digital review tool for film, TV, and games",
-      company: "OpenRV",
-      logo: "/placeholder.svg?height=100&width=100",
-      type: "app",
-      categories: ["Review", "Media"],
-      media: [
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-        { type: "image", url: "/placeholder.svg?height=720&width=1280" },
-      ],
-    },
-  ];
+  // Load integrations from JSON
+  const integrations = getIntegrations();
+  const categories = getAllCategories();
 
-  const categories = ["Media", "Review", "Management", "Player", "Editor", "Compositor"];
-
-  const categoryIcons = {
-    Media: Film,
-    Review: Eye,
-    Management: FolderKanban,
+  const categoryIcons: Record<string, typeof PlayCircle> = {
     Player: PlayCircle,
+    Review: Eye,
     Editor: Edit2,
+    Management: FolderKanban,
     Compositor: Monitor,
+    Plugin: Wrench,
+    Adapter: FileJson,
+    Library: Package,
+    Pipeline: Workflow,
+    Inspector: Eye,
+    Renderer: Monitor,
+    Automation: Workflow,
   };
 
   const filteredAppsAndTools = integrations.filter((integration) => {
@@ -149,7 +61,7 @@ export default function AppsAndToolsPage() {
         title="Apps and Tools"
         subtitle="Find out if your favorite application or tool already supports OTIO - or discover new ones!"
         rightContent={
-          <EditInGithub repoPath="/content/integrations" />
+          <EditInGithub repoPath="/content/integrations/integrations.json" />
         }
         hasBorder={true}
         sticky={true}
@@ -159,7 +71,7 @@ export default function AppsAndToolsPage() {
       <div className="container mx-auto px-4 max-w-7xl flex gap-8 py-8">
         {/* Sticky sidebar */}
         <aside className="w-[280px] shrink-0">
-          <div className="sticky top-[calc((--top-nav-height)+11.1rem)] space-y-6">
+          <div className="sticky top-[calc(var(--top-nav-height)+11.1rem)] space-y-6">
             {/* Search bar */}
             <div className="relative">
               <Input
@@ -189,7 +101,7 @@ export default function AppsAndToolsPage() {
               </div>
               <div className="space-y-1">
                 {categories.map((category) => {
-                  const Icon = categoryIcons[category as keyof typeof categoryIcons];
+                  const Icon = categoryIcons[category as keyof typeof categoryIcons] || Package;
                   const isActive = selectedCategories.includes(category);
                   return (
                     <button
@@ -226,53 +138,68 @@ export default function AppsAndToolsPage() {
         {/* Main content */}
         <div className="flex-1">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-8">
-            {filteredAppsAndTools.map((integration) => (
-              <div
-                key={integration.id}
-                className="group cursor-pointer rounded-lg border bg-card transition-all hover:shadow-lg"
-                onClick={() => {
-                  setSelectedProject(integration);
-                  setMediaIndex(0);
-                }}
-              >
-                <div className="aspect-video relative">
-                  <Image
-                    src={integration.media[0].url}
-                    alt={integration.name}
-                    className="object-cover transition-transform group-hover:scale-105"
-                    fill
-                  />
-                </div>
-                <div className="p-4 relative">
-                  <div className="absolute -top-8 left-4">
-                    <div className="h-12 w-12 rounded-full border-4 border-background bg-white shadow-md">
+            {filteredAppsAndTools.map((integration) => {
+              const heroMedia = integration.media.find(m => m.isHero) || integration.media[0];
+              const hasMedia = integration.media.length > 0 && heroMedia;
+              
+              return (
+                <div
+                  key={integration.id}
+                  className="group cursor-pointer rounded-lg border bg-card transition-all hover:shadow-lg"
+                  onClick={() => {
+                    setSelectedProject(integration);
+                    setMediaIndex(0);
+                  }}
+                >
+                  <div className="aspect-video relative bg-muted overflow-hidden rounded-t-lg">
+                    {hasMedia ? (
                       <Image
-                        src={integration.logo}
-                        alt={`${integration.company} logo`}
-                        className="rounded-full object-cover"
+                        src={heroMedia.url}
+                        alt={integration.name}
+                        className="object-cover transition-transform group-hover:scale-105"
                         fill
                       />
-                    </div>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                        {integration.type === "app" ? (
+                          <Monitor className="w-16 h-16" />
+                        ) : (
+                          <Wrench className="w-16 h-16" />
+                        )}
+                      </div>
+                    )}
+                    {integration.logo && (
+                      <div className="absolute bottom-3 left-4 z-1">
+                        <div className="h-14 w-14 rounded-lg border-4 border-background bg-white shadow-lg overflow-hidden">
+                          <div className="relative w-full h-full">
+                            <Image
+                              src={integration.logo}
+                              alt={`${integration.company} logo`}
+                              className="object-contain"
+                              fill
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div className="pt-4">
-                    <h3 className="font-semibold text-lg mb-1">
+                  <div className="p-4 flex flex-col min-h-[180px]">
+                    <h3 className="font-semibold text-lg mb-2">
                       {integration.name}
                     </h3>
-                    <div className="min-h-10">
-                      <p className="text-sm text-muted-foreground line-clamp-2 pb-4">
-                        {integration.description}
-                      </p>
-                    </div>
-                    <div className="mt-auto flex items-bottom justify-between">
-                      <span className="text-sm font-medium">
+                    <p className="text-sm text-muted-foreground line-clamp-3 mb-4 flex-1">
+                      {integration.description}
+                    </p>
+                    <div className="flex items-center justify-between mt-auto">
+                      <span className="text-sm font-medium text-muted-foreground">
                         {integration.company}
                       </span>
                       <Button size="sm">Learn More</Button>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </div>
@@ -287,43 +214,74 @@ export default function AppsAndToolsPage() {
               <DialogHeader>
                 <DialogTitle>{selectedProject.name}</DialogTitle>
               </DialogHeader>
-              <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
-                {selectedProject.media[mediaIndex].type === "video" ? (
-                  <video
-                    src={selectedProject.media[mediaIndex].url}
-                    controls
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <Image
-                    src={selectedProject.media[mediaIndex].url}
-                    alt={`${selectedProject.name} preview`}
-                    className="object-cover"
-                    fill
-                  />
-                )}
+              {selectedProject.media.length > 0 ? (
+                <>
+                  <div className="aspect-video relative rounded-lg overflow-hidden mb-4">
+                    {selectedProject.media[mediaIndex].type === "video" ? (
+                      <video
+                        src={selectedProject.media[mediaIndex].url}
+                        controls
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <Image
+                        src={selectedProject.media[mediaIndex].url}
+                        alt={`${selectedProject.name} preview`}
+                        className="object-cover"
+                        fill
+                      />
+                    )}
+                  </div>
+                  {selectedProject.media.length > 1 && (
+                    <div className="flex gap-2 overflow-x-auto pb-4">
+                      {selectedProject.media.map((item, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setMediaIndex(index)}
+                          className={`relative w-20 h-20 rounded-lg overflow-hidden shrink-0 ${
+                            mediaIndex === index ? "ring-2 ring-primary" : ""
+                          }`}
+                        >
+                          <Image
+                            src={item.type === "video" ? item.thumbnail! : item.url}
+                            alt={`Preview ${index + 1}`}
+                            className="object-cover"
+                            fill
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="aspect-video relative rounded-lg overflow-hidden mb-4 bg-muted flex items-center justify-center">
+                  <div className="text-center text-muted-foreground">
+                    <Monitor className="w-16 h-16 mx-auto mb-2" />
+                    <p>No media available</p>
+                  </div>
+                </div>
+              )}
+              <div className="space-y-2">
+                <p className="text-muted-foreground">
+                  {selectedProject.description}
+                </p>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="font-medium">Company:</span>
+                  <span className="text-muted-foreground">{selectedProject.company}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="font-medium">Type:</span>
+                  <span className="text-muted-foreground capitalize">{selectedProject.type}</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm flex-wrap">
+                  <span className="font-medium">Categories:</span>
+                  {selectedProject.categories.map((cat) => (
+                    <span key={cat} className="px-2 py-1 bg-muted rounded-md text-xs">
+                      {cat}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <div className="flex gap-2 overflow-x-auto pb-4">
-                {selectedProject.media.map((item, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setMediaIndex(index)}
-                    className={`relative w-20 h-20 rounded-lg overflow-hidden shrink-0 ${
-                      mediaIndex === index ? "ring-2 ring-primary" : ""
-                    }`}
-                  >
-                    <Image
-                      src={item.type === "video" ? item.thumbnail! : item.url}
-                      alt={`Preview ${index + 1}`}
-                      className="object-cover"
-                      fill
-                    />
-                  </button>
-                ))}
-              </div>
-              <p className="text-muted-foreground">
-                {selectedProject.description}
-              </p>
             </>
           )}
         </DialogContent>

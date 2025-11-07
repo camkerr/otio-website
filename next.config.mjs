@@ -13,6 +13,23 @@ const nextConfig = {
         'remark',
         'remark-parse',
     ],
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'cezanne.studio',
+                pathname: '/images/**',
+            },
+            {
+                protocol: 'https',
+                hostname: '*.githubusercontent.com',
+            },
+            {
+                protocol: 'https',
+                hostname: 'logo.clearbit.com',
+            },
+        ],
+    },
     async headers() {
         return [
             {

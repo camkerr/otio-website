@@ -21,7 +21,7 @@ export function PageHeader({
   return (
     <div className={`bg-background ${borderClass} ${stickyClass}`}>
       <div className="container mx-auto px-4 pt-8 pb-8 max-w-7xl">
-        <div className="flex justify-between items-start">
+        <div className="flex justify-between items-end">
           <div className="text-left">
             <h1 className="text-4xl font-bold mb-4">{title}</h1>
             {subtitle && (

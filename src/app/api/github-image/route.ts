@@ -34,7 +34,7 @@ async function fetchImageFromGitHub(imageUrl: string, token: string): Promise<{ 
     headers: {
       'Authorization': `Bearer ${token}`,
       'User-Agent': 'OTIO-Website',
-      'Accept': 'image/*,*/*;q=0.8',
+      'Accept': 'image/*,image/svg+xml,*/*;q=0.8',
     },
     redirect: 'follow',
     next: {
@@ -47,7 +47,25 @@ async function fetchImageFromGitHub(imageUrl: string, token: string): Promise<{ 
   }
 
   const buffer = await response.arrayBuffer();
-  const contentType = response.headers.get('content-type') || 'image/png';
+  let contentType = response.headers.get('content-type') || 'image/png';
+  
+  // If content type is not set, try to infer from URL extension
+  if (contentType === 'image/png' && imageUrl.includes('.')) {
+    const extension = imageUrl.split('.').pop()?.toLowerCase();
+    const contentTypeMap: Record<string, string> = {
+      'svg': 'image/svg+xml',
+      'png': 'image/png',
+      'jpg': 'image/jpeg',
+      'jpeg': 'image/jpeg',
+      'gif': 'image/gif',
+      'webp': 'image/webp',
+      'bmp': 'image/bmp',
+      'ico': 'image/x-icon',
+    };
+    if (extension && contentTypeMap[extension]) {
+      contentType = contentTypeMap[extension];
+    }
+  }
   
   return { buffer, contentType };
 }
