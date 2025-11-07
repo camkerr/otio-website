@@ -21,7 +21,7 @@ export default async function DocTemplate() {
 
   return (
     <>
-      <div style={{ padding: "1rem", overflowY: "scroll" }}>
+      <div className="px-4 pb-4 overflow-y-scroll">
         <MarkdownTutorial markdown={markdown} layout="sidebar" />
       </div>
       <iframe src="/raven/raven.html" width="100%" height="100%"></iframe>

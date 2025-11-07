@@ -115,13 +115,13 @@ export function MarkdownRenderer({ content, openLightbox, className = "" }: Mark
           code: ({ ...props }) => {
             const isInline = !(props as { className?: string }).className?.includes('language-');
             return isInline ? (
-              <code {...props} className="bg-gray-100 dark:bg-black/30 px-1.5 py-0.5 rounded text-xs lg:text-sm font-mono" />
+              <code {...props} className="bg-gray-100 dark:bg-gray-800 dark:text-gray-100 px-1.5 py-0.5 rounded text-xs lg:text-sm font-mono" />
             ) : (
-              <code {...props} className="block bg-gray-100 dark:bg-black/30 p-2 rounded text-xs lg:text-sm font-mono overflow-x-auto" />
+              <code {...props} className="block bg-gray-100 dark:bg-gray-800 dark:text-gray-100 p-2 rounded text-xs lg:text-sm font-mono overflow-x-auto" />
             );
           },
           pre: ({ ...props }) => (
-            <pre {...props} className="bg-gray-100 dark:bg-black/30 p-2 lg:p-3 rounded border border-gray-200 dark:border-white/5 overflow-x-auto my-2 lg:my-3 text-xs lg:text-sm" />
+            <pre {...props} className="bg-gray-100 dark:bg-gray-800 dark:text-gray-100 p-2 lg:p-3 rounded border border-gray-200 dark:border-gray-700 overflow-x-auto my-2 lg:my-3 text-xs lg:text-sm" />
           ),
           blockquote: ({ ...props }) => (
             <blockquote {...props} className="border-l-4 border-gray-300 dark:border-gray-600 pl-3 lg:pl-4 italic my-3 lg:my-4 text-sm lg:text-base" />

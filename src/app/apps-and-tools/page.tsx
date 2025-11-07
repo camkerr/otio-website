@@ -5,13 +5,13 @@ import Image from "next/image";
 import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Search, X } from "lucide-react";
+import { Search, Film, Eye, FolderKanban, PlayCircle } from "lucide-react";
 import { Integration, MediaItem } from "@/types/integrations";
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { PageHeader } from "@/components/layout/page-header";
+import { EditInGithub } from "@/components/edit-in-github";
 
-export default function ToolsAndAppsPage() {
+export default function AppsAndToolsPage() {
   const [selectedProject, setSelectedProject] = useState<Integration | null>(
     null
   );
@@ -132,6 +132,13 @@ export default function ToolsAndAppsPage() {
 
   const categories = ["Media", "Review", "Management", "Player"];
 
+  const categoryIcons = {
+    Media: Film,
+    Review: Eye,
+    Management: FolderKanban,
+    Player: PlayCircle,
+  };
+
   const filteredAppsAndTools = integrations.filter((integration) => {
     const matchesCategories =
       selectedCategories.length === 0 ||
@@ -143,29 +150,27 @@ export default function ToolsAndAppsPage() {
   });
 
   return (
-    <div className="min-h-[calc(100vh-210px)] bg-background">
-      {/* Make header sticky */}
-      {/* <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"> */}
-      <div className="sticky top-0">
-        <div className="container mx-auto px-4 pt-8 max-w-7xl">
-          <div className="text-left mb-8">
-            <h1 className="text-4xl font-bold mb-4">Apps and Integrations</h1>
-            <p className="text-md text-muted-foreground">
-              Find out if your favorite app already supports OTIO, and search for
-              new tools!
-            </p>
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-col min-h-screen bg-background">
+      {/* Header */}
+      <PageHeader
+        title="Apps and Integrations"
+        subtitle="Find out if your favorite app already supports OTIO, and search for new tools!"
+        rightContent={
+          <EditInGithub repoPath="/content/integrations" />
+        }
+        hasBorder={true}
+        sticky={true}
+      />
 
       {/* Main layout with sticky sidebar */}
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-[250px,1fr] gap-8">
-          {/* Sticky sidebar */}
-          <div className="sticky top-[156px] h-fit space-y-4">
+      <div className="container mx-auto px-4 max-w-7xl flex gap-8 py-8">
+        {/* Sticky sidebar */}
+        <aside className="w-[280px] shrink-0">
+          <div className="sticky top-[calc(73px+11.1rem)] space-y-6">
+            {/* Search bar */}
             <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
+                prefix={<Search className="h-4 w-4 text-muted-foreground" />}
                 placeholder="Search tools..."
                 className="pl-8"
                 value={searchQuery}
@@ -173,96 +178,109 @@ export default function ToolsAndAppsPage() {
               />
             </div>
 
+            {/* Categories */}
             <div className="space-y-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg py-1 font-semibold">Categories</h2>
-                {selectedCategories.length > 0 && (
-                  <Button
-                    variant="outline"
-                    // size="lg"
-                    onClick={() => setSelectedCategories([])}
-                    className="h-auto py-1 px-2 text-muted-foreground"
-                  >
-                    Clear
-                  </Button>
-                )}
+                <h2 className="text-lg font-semibold">Categories</h2>
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedCategories([])}
+                  className={`h-auto py-1 px-2 text-muted-foreground transition-opacity ${
+                    selectedCategories.length > 0
+                      ? "opacity-100 pointer-events-auto"
+                      : "opacity-0 pointer-events-none"
+                  }`}
+                >
+                  Clear
+                </Button>
               </div>
-              {categories.map((category) => (
-                <div key={category} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={category}
-                    checked={selectedCategories.includes(category)}
-                    onCheckedChange={(checked) => {
-                      setSelectedCategories((prev) =>
-                        checked
-                          ? [...prev, category]
-                          : prev.filter((c) => c !== category)
-                      );
-                    }}
-                  />
-                  <label
-                    htmlFor={category}
-                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                  >
-                    {category}
-                  </label>
-                </div>
-              ))}
+              <div className="space-y-1">
+                {categories.map((category) => {
+                  const Icon = categoryIcons[category as keyof typeof categoryIcons];
+                  const isActive = selectedCategories.includes(category);
+                  return (
+                    <button
+                      key={category}
+                      onClick={() => {
+                        setSelectedCategories((prev) =>
+                          isActive
+                            ? prev.filter((c) => c !== category)
+                            : [...prev, category]
+                        );
+                      }}
+                      className={`group w-[calc(280px+1rem)] flex items-center gap-4 -ml-4 pl-4 pr-2 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        isActive
+                          ? "bg-primary text-primary-foreground shadow-sm"
+                          : "text-foreground hover:bg-accent hover:text-accent-foreground"
+                      }`}
+                    >
+                      <Icon
+                        className={`h-4 w-4 shrink-0 transition-colors duration-200 ${
+                          isActive
+                            ? "text-primary-foreground"
+                            : "text-muted-foreground group-hover:text-accent-foreground"
+                        }`}
+                      />
+                      <span className="flex-1 text-left">{category}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           </div>
+        </aside>
 
-          {/* Scrollable main content */}
-          <ScrollArea className="h-[calc(100vh-213px)]">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8 pr-4">
-              {filteredAppsAndTools.map((integration) => (
-                <div
-                  key={integration.id}
-                  className="group cursor-pointer rounded-lg border bg-card transition-all hover:shadow-lg"
-                  onClick={() => {
-                    setSelectedProject(integration);
-                    setMediaIndex(0);
-                  }}
-                >
-                  <div className="aspect-video relative">
-                    <Image
-                      src={integration.media[0].url}
-                      alt={integration.name}
-                      className="object-cover transition-transform group-hover:scale-105"
-                      fill
-                    />
-                  </div>
-                  <div className="p-4 relative">
-                    <div className="absolute -top-8 left-4">
-                      <div className="h-12 w-12 rounded-full border-4 border-background bg-white shadow-md">
-                        <Image
-                          src={integration.logo}
-                          alt={`${integration.company} logo`}
-                          className="rounded-full object-cover"
-                          fill
-                        />
-                      </div>
+        {/* Main content */}
+        <div className="flex-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 pb-8">
+            {filteredAppsAndTools.map((integration) => (
+              <div
+                key={integration.id}
+                className="group cursor-pointer rounded-lg border bg-card transition-all hover:shadow-lg"
+                onClick={() => {
+                  setSelectedProject(integration);
+                  setMediaIndex(0);
+                }}
+              >
+                <div className="aspect-video relative">
+                  <Image
+                    src={integration.media[0].url}
+                    alt={integration.name}
+                    className="object-cover transition-transform group-hover:scale-105"
+                    fill
+                  />
+                </div>
+                <div className="p-4 relative">
+                  <div className="absolute -top-8 left-4">
+                    <div className="h-12 w-12 rounded-full border-4 border-background bg-white shadow-md">
+                      <Image
+                        src={integration.logo}
+                        alt={`${integration.company} logo`}
+                        className="rounded-full object-cover"
+                        fill
+                      />
                     </div>
-                    <div className="pt-4">
-                      <h3 className="font-semibold text-lg mb-1">
-                        {integration.name}
-                      </h3>
-                      <div className="min-h-10">
-                        <p className="text-sm text-muted-foreground line-clamp-2 pb-4">
-                          {integration.description}
-                        </p>
-                      </div>
-                      <div className="mt-auto flex items-bottom justify-between">
-                        <span className="text-sm font-medium">
-                          {integration.company}
-                        </span>
-                        <Button size="sm">Learn More</Button>
-                      </div>
+                  </div>
+                  <div className="pt-4">
+                    <h3 className="font-semibold text-lg mb-1">
+                      {integration.name}
+                    </h3>
+                    <div className="min-h-10">
+                      <p className="text-sm text-muted-foreground line-clamp-2 pb-4">
+                        {integration.description}
+                      </p>
+                    </div>
+                    <div className="mt-auto flex items-bottom justify-between">
+                      <span className="text-sm font-medium">
+                        {integration.company}
+                      </span>
+                      <Button size="sm">Learn More</Button>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </ScrollArea>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 

@@ -24,44 +24,6 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { Menu, Search } from "lucide-react";
 
-const components: { title: string; href: string; description: string }[] = [
-  {
-    title: "Alert Dialog",
-    href: "/docs/primitives/alert-dialog",
-    description:
-      "A modal dialog that interrupts the user with important content and expects a response.",
-  },
-  {
-    title: "Hover Card",
-    href: "/docs/primitives/hover-card",
-    description:
-      "For sighted users to preview content available behind a link.",
-  },
-  {
-    title: "Progress",
-    href: "/docs/primitives/progress",
-    description:
-      "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
-  },
-  {
-    title: "Scroll-area",
-    href: "/docs/primitives/scroll-area",
-    description: "Visually or semantically separates content.",
-  },
-  {
-    title: "Tabs",
-    href: "/docs/primitives/tabs",
-    description:
-      "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-  },
-  {
-    title: "Tooltip",
-    href: "/docs/primitives/tooltip",
-    description:
-      "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
-  },
-];
-
 export function TopNav() {
   const { theme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = React.useState(false);
@@ -81,15 +43,15 @@ export function TopNav() {
 
   const navItems = [
     { href: "/features", label: "Features" },
-    { href: "/tools-and-apps", label: "Apps and Tools" },
+    { href: "/apps-and-tools", label: "Apps and Tools" },
     { href: "/docs", label: "Documentation" },
   ];
 
   return (
-    <div className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-b">
+    <div className="sticky top-0 z-10 bg-background border-b">
       <div className="max-w-7xl mx-auto">
         {/* Desktop Navigation */}
-        <div className="hidden md:grid md:grid-cols-[33%_33%_33%] items-center p-4">
+        <div className="hidden md:grid md:grid-cols-[33%_33%_33%] items-center pl-4 py-4">
         <div className="flex items-center">
           <Link href="/">
             <Image

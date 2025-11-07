@@ -10,7 +10,7 @@ export default function DocsLayout({
         display: "grid",
         gridTemplateColumns: "2fr 4fr 8fr",
         width: "100%",
-        height: "calc(100vh - 65px)",
+        height: "calc(100vh - 73px)",
       }}
     >
       <LeftNav />
