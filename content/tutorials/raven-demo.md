@@ -37,26 +37,26 @@ This will also clone and initialize all of the submodules that this project depe
 
 Spin up your favourite terminal and follow these steps:
 
-```shell
-  git submodule update --init --recursive
-  mkdir build
-  cd build
-  cmake ..
-  cmake --build . -j
-  ./raven ../example.otio
+```bash
+git submodule update --init --recursive
+mkdir build
+cd build
+cmake ..
+cmake --build . -j
+./raven ../example.otio
 ```
 
 ## Building (WASM via Emscripten)
 
 You will need to install the [Emscripten toolchain](https://emscripten.org) first.
 
-```shell
-  git submodule update --init --recursive
-  mkdir build-web
-  cd build-web
-  emcmake cmake ..
-  cmake --build .
-  emrun ./raven.html
+```bash
+git submodule update --init --recursive
+mkdir build-web
+cd build-web
+emcmake cmake ..
+cmake --build .
+emrun ./raven.html
 ```
 
 See also: `serve.py` as an alternative to `emrun`, and as
@@ -76,9 +76,9 @@ Note: The WASM build of raven is missing some features - see the Help Wanted sec
 If you have trouble building, these hints might help...
 
 You might need to init/update submodules:
-```
-% git submodule init
-% git submodule update
+```bash
+git submodule init
+git submodule update
 ```
 
 You might be missing some dependencies (see above).

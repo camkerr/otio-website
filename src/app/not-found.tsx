@@ -1,32 +1,40 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { FileQuestion, Home, ArrowLeft, Book } from "lucide-react";
+import { WifiOff, Home, Book } from "lucide-react";
 
 export default function NotFound() {
   return (
     <div className="flex items-center justify-center w-full flex-1 bg-linear-to-b from-background to-muted/20">
       <div className="max-w-2xl mx-auto px-6 py-16 text-center space-y-8">
-        {/* 404 Icon with animation */}
-        <div className="flex justify-center">
+        {/* Media Offline Icon with animation */}
+        {/* <div className="flex justify-center">
           <div className="relative">
             <div className="absolute inset-0 bg-primary/10 blur-3xl rounded-full animate-pulse" />
-            <FileQuestion className="relative w-24 h-24 text-muted-foreground/40 animate-bounce" />
+            <WifiOff className="relative w-24 h-24 text-muted-foreground/40 animate-bounce" />
           </div>
-        </div>
+        </div> */}
 
         {/* Main heading */}
-        <div className="space-y-2">
-          <h1 className="text-8xl font-bold text-primary/20">404</h1>
-          <h2 className="text-3xl font-semibold text-foreground">
-            Page Not Found
-          </h2>
-        </div>
+        {/* <div className="space-y-2 text-center pb-8">
+          <h1 className="text-8xl font-bold text-primary/20">404</h1> */}
+          {/* <h2 className="text-3xl font-semibold text-foreground">
+            Media Offline
+          </h2> */}
+        {/* </div> */}
 
         {/* Description */}
-        <p className="text-lg text-muted-foreground max-w-md mx-auto">
-          Oops! The timeline you're looking for seems to have been edited out.
-          Let's get you back on track.
-        </p>
+        <div className="text-lg text-muted-foreground max-w-md ml-0 space-y-1 pb-8 text-left">
+          <p>Media offline</p>
+          <p>メディアオフライン</p>
+          <p>Média hors ligne</p>
+          <p>Offline-Medien</p>
+          <p>脱机媒体文件</p>
+          <p>Medios sin conexión</p>
+          <p>Oggetto multimediale non in linea</p>
+          <p>미디어 오프라인</p>
+          <p>Медиаданные в автономном режиме</p>
+          <p>Mídia offline</p>
+        </div>
 
         {/* Action buttons */}
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
