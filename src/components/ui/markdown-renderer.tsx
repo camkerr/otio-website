@@ -58,10 +58,6 @@ export function MarkdownRenderer({ content, openLightbox, className = "" }: Mark
             rehypeAutolinkHeadings,
             {
               behavior: 'wrap',
-              // content: {
-              //   type: 'text',
-              //   value: ' #',
-              // },
               properties: {
                 className: 'anchor-link opacity-0 group-hover:opacity-100 transition-opacity ml-2 text-muted-foreground/60 hover:text-muted-foreground no-underline hover:underline',
                 ariaLabel: 'Link to this section',
