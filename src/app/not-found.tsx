@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { WifiOff, Home, Book } from "lucide-react";
+import { Home, Book } from "lucide-react";
 import { NavWidthSetter } from "@/components/layout/nav-width-setter";
 
 export default function NotFound() {

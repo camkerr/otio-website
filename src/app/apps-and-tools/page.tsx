@@ -6,7 +6,7 @@ import { Dialog, DialogContent, DialogHeader } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Film, Eye, FolderKanban, PlayCircle } from "lucide-react";
-import { Integration, MediaItem } from "@/types/integrations";
+import { Integration } from "@/types/integrations";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { PageHeader } from "@/components/layout/page-header";
 import { EditInGithub } from "@/components/edit-in-github";
