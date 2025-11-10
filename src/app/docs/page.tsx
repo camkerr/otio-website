@@ -1,6 +1,26 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { generateDocsManifest } from "@/lib/docs-manifest";
 import { BookOpen, Code, PlayCircle, Lightbulb } from "lucide-react";
+import { getFullUrl } from "@/lib/site-config";
+
+export const metadata: Metadata = {
+  title: "Documentation | OpenTimelineIO",
+  description:
+    "OpenTimelineIO documentation. Learn how to use OTIO with tutorials, API reference, and real-world use cases.",
+  openGraph: {
+    title: "Documentation | OpenTimelineIO",
+    description: "Complete documentation for OpenTimelineIO with tutorials and API reference.",
+    type: "website",
+    url: getFullUrl("/docs"),
+    siteName: "OpenTimelineIO",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Documentation | OpenTimelineIO",
+    description: "Complete documentation for OpenTimelineIO with tutorials and API reference.",
+  },
+};
 
 export default async function DocsPage() {
   let manifest;

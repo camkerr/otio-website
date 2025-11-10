@@ -3,6 +3,7 @@ import { getDocContent, getEditUrl, getDocMetadata, transformImagePaths } from '
 import { generateDocsManifest, findDocBySlug, getPreviousNextDocs } from '@/lib/docs-manifest';
 import { convertRstToMarkdown, extractTitle } from '@/lib/rst-converter';
 import { extractH1Title } from '@/lib/markdown-utils';
+import { getFullUrl } from '@/lib/site-config';
 import { Document } from '@/components/docs/document';
 
 interface DocPageProps {
@@ -35,19 +36,43 @@ export async function generateMetadata({ params }: DocPageProps) {
     if (!doc) {
       return {
         title: 'Documentation Not Found',
+        description: 'The documentation page you are looking for could not be found.',
       };
     }
     
     const rawContent = await getDocContent(doc.githubPath);
     const title = extractTitle(rawContent);
+    const description = `OpenTimelineIO documentation: ${title}`;
     
     return {
       title: `${title} | OpenTimelineIO Documentation`,
-      description: `OpenTimelineIO documentation: ${title}`,
+      description: description,
+      openGraph: {
+        title: title,
+        description: description,
+        type: "article" as const,
+        url: getFullUrl(`/docs/${slugPath}`),
+        siteName: "OpenTimelineIO",
+        images: [
+          {
+            url: `/api/og?title=${encodeURIComponent(title)}&description=${encodeURIComponent("OpenTimelineIO Documentation")}`,
+            width: 1200,
+            height: 630,
+            alt: title,
+          },
+        ],
+      },
+      twitter: {
+        card: "summary_large_image",
+        title: title,
+        description: description,
+        images: [`/api/og?title=${encodeURIComponent(title)}&description=${encodeURIComponent("OpenTimelineIO Documentation")}`],
+      },
     };
   } catch (error) {
     return {
       title: 'Documentation | OpenTimelineIO',
+      description: 'OpenTimelineIO documentation',
     };
   }
 }

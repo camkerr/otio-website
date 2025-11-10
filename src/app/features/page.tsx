@@ -1,9 +1,28 @@
+import type { Metadata } from "next";
 import path from "path";
 import fs from "fs";
 import Papa from "papaparse";
 import { EditInGithub } from "@/components/edit-in-github";
 import FeatureMatrixDataGrid from "@/components/data-grid/feature-matrix";
 import { PageHeader } from "@/components/layout/page-header";
+import { getSiteUrl, getFullUrl } from "@/lib/site-config";
+
+export const metadata: Metadata = {
+  title: "Timeline Format Support | OpenTimelineIO",
+  description: "Compare timeline format features supported by OpenTimelineIO. View detailed compatibility matrix for different formats.",
+  openGraph: {
+    title: "Timeline Format Support | OpenTimelineIO",
+    description: "Compare timeline format features and compatibility with OpenTimelineIO.",
+    type: "website",
+    url: getFullUrl("/features"),
+    siteName: "OpenTimelineIO",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Timeline Format Support | OpenTimelineIO",
+    description: "Compare timeline format features supported by OpenTimelineIO.",
+  },
+};
 
 async function getCsvData() {
   const filePath = path.join(

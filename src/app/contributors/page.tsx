@@ -1,14 +1,28 @@
+import type { Metadata } from "next";
 import { getContributors, getRepoStats } from "@/lib/github-contributors";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
 import Image from "next/image";
 import Link from "next/link";
 import { Users, Star, GitFork, Eye } from "lucide-react";
+import { getFullUrl } from "@/lib/site-config";
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "Contributors | OpenTimelineIO",
   description:
-    "Meet the amazing contributors who have helped build OpenTimelineIO",
+    "Meet the amazing contributors who have helped build and maintain OpenTimelineIO. Join the community and contribute!",
+  openGraph: {
+    title: "Contributors | OpenTimelineIO",
+    description: "Meet the amazing contributors who have helped build OpenTimelineIO.",
+    type: "website",
+    url: getFullUrl("/contributors"),
+    siteName: "OpenTimelineIO",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contributors | OpenTimelineIO",
+    description: "Meet the amazing contributors who have helped build OpenTimelineIO.",
+  },
 };
 
 export default async function ContributorsPage() {

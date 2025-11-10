@@ -1,4 +1,6 @@
+import type { Metadata } from "next";
 import { MarkdownTutorial } from "@/components/docs/tutorial";
+import { getFullUrl } from "@/lib/site-config";
 import { promises as fs } from "fs";
 import path from "path";
 
@@ -7,6 +9,24 @@ async function getMarkdownContent() {
   const markdown = await fs.readFile(filePath, "utf8");
   return markdown;
 }
+
+export const metadata: Metadata = {
+  title: "Tutorials | OpenTimelineIO",
+  description:
+    "Learn how to use OpenTimelineIO through practical tutorials and interactive examples.",
+  openGraph: {
+    title: "Tutorials | OpenTimelineIO",
+    description: "Learn how to use OpenTimelineIO through practical tutorials and examples.",
+    type: "website",
+    url: getFullUrl("/docs/tutorials"),
+    siteName: "OpenTimelineIO",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Tutorials | OpenTimelineIO",
+    description: "Learn how to use OpenTimelineIO through practical tutorials and examples.",
+  },
+};
 
 export default async function RavenDemo() {
   const markdown = await getMarkdownContent();
