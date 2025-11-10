@@ -12,7 +12,7 @@ import { Play, Pause, FastForward, Rewind, Monitor, Eye, ZoomIn, ZoomOut } from 
 import { ContentRenderer } from "@/components/nle/content-renderer";
 import { Sequence } from "@/components/nle/sequence";
 import { SequenceSelector } from "@/components/nle/sequence-selector";
-import { parseMarkdownToClips } from "@/lib/markdown-parser";
+import { parseMarkdownToClips } from "@/components/nle/utils/markdown-parser";
 import { msToFrames, percentageToMs } from "@/lib/time-utils";
 import "@/styles/nle.css";
 

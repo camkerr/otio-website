@@ -1,9 +1,9 @@
 "use client";
 
-import "@/styles/nle.css";
-import { TrackItem } from "@/lib/markdown-parser";
+import { TrackItem } from "@/components/nle/utils/markdown-parser";
 import { msToPercentage } from "@/lib/time-utils";
 import { useMemo, memo } from "react";
+import "@/styles/nle.css";
 
 // Track configuration: h1=0, h2=1, h3=2, img=3, p=4
 const TRACK_CONFIG = [
@@ -74,13 +74,13 @@ interface SequenceProps {
 // Memoize entire Sequence component
 export const Sequence = memo(({ clips, totalDurationMs, zoomLevel }: SequenceProps) => {
   // Calculate timeline width:
-  // 1. Base width fits all content with 10% padding on the right (200px per second * 1.1)
+  // 1. Base width fits all content with 10% padding on the right (50px per second * 1.1)
   // 2. This becomes the "natural fit" baseline, which is 100% zoom (zoomLevel = 1)
   // 3. Zooming in/out scales relative to this baseline
   const minTimelineWidth = useMemo(() => {
     // Calculate base width that fits all content with 10% right padding
     // This padded width is what we consider "100%" zoom
-    const baseWidth = Math.max(2000, (totalDurationMs / 1000) * 200 * 1.1);
+    const baseWidth = Math.max(2000, (totalDurationMs / 1000) * 50 * 1.1);
     return baseWidth * zoomLevel;
   }, [totalDurationMs, zoomLevel]);
 
