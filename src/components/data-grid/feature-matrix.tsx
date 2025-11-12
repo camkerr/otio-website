@@ -2,10 +2,10 @@
 
 import { useMemo, useState, useEffect, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { DataGrid, DataGridContainer } from '@/components/ui/data-grid';
-import { DataGridTable } from '@/components/ui/data-grid-table';
+import { DataGrid, DataGridContainer } from '@/components/data-grid/data-grid';
+import { DataGridTable } from '@/components/data-grid/data-grid-table';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
-import { GitHubPreview } from '@/components/ui/github-preview';
+import { GitHubPreview } from '@/components/github/github-preview';
 import {
   ColumnDef,
   getCoreRowModel,

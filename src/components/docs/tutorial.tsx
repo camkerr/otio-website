@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
-import { Lightbox, type LightboxImage } from "@/components/ui/lightbox";
+import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
+import { Lightbox, type LightboxImage } from "@/components/media/lightbox";
 
 export interface MarkdownTutorialProps {
   markdown: string;

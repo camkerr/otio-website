@@ -1,6 +1,6 @@
 import { ReactNode } from 'react';
 import { Button } from '@/components/ui/button';
-import { useDataGrid } from '@/components/ui/data-grid';
+import { useDataGrid } from '@/components/data-grid/data-grid';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';

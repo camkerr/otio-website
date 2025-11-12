@@ -9,7 +9,7 @@ import { Search, Eye, FolderKanban, PlayCircle, Edit2, Monitor, Wrench, FileJson
 import { Integration } from "@/types/integrations";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { PageHeader } from "@/components/layout/page-header";
-import { EditInGithub } from "@/components/edit-in-github";
+import { EditInGithub } from "@/components/github/edit-in-github";
 import { getIntegrations, getAllCategories } from "@/lib/integrations";
 
 export default function AppsAndToolsPage() {

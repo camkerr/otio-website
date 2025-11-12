@@ -1,7 +1,7 @@
 import { HTMLAttributes, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { useDataGrid } from '@/components/ui/data-grid';
+import { useDataGrid } from '@/components/data-grid/data-grid';
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,

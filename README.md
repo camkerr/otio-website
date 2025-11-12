@@ -124,6 +124,7 @@ Displays all applications and tools that support OpenTimelineIO. Features includ
 **Key Files:**
 - `src/app/apps-and-tools/page.tsx` - Client component with filtering
 - `src/lib/integrations.ts` - Integration data utilities
+- `src/components/github/edit-in-github.tsx` - GitHub edit button component
 - `content/integrations/integrations.json` - Integration definitions
 
 ---
@@ -203,8 +204,8 @@ Displays all OTIO releases with:
 **Key Files:**
 - `src/app/releases/page.tsx` - Server component
 - `src/lib/github-releases.ts` - GitHub API integration
-- `src/components/releases/releases-client.tsx` - Client-side rendering
-- `src/components/releases/release-notes-renderer.tsx` - Markdown rendering with GitHub link detection
+- `src/components/github/releases-client.tsx` - Client-side rendering
+- `src/components/github/release-notes-renderer.tsx` - Markdown rendering with GitHub link detection
 
 ---
 
@@ -301,9 +302,9 @@ The feature is used throughout the site:
 
 **Key Files:**
 - `src/app/api/github-preview/route.ts` - Next.js API route that fetches from GitHub API
-- `src/components/ui/github-preview.tsx` - React component with Popover and theming
+- `src/components/github/github-preview.tsx` - React component with Popover and theming
 - `src/components/data-grid/feature-matrix.tsx` - Integration in the feature matrix table
-- `src/components/releases/release-notes-renderer.tsx` - Integration in release notes
+- `src/components/github/release-notes-renderer.tsx` - Integration in release notes
 
 **Performance Optimizations:**
 - In-memory cache with 1-hour TTL
@@ -367,18 +368,25 @@ This feature significantly enhances the documentation experience by providing in
 │   │   ├── docs/              # Dynamic documentation
 │   │   ├── features/          # Feature matrix
 │   │   ├── releases/          # Release notes
-│   │   └── api/               # API routes
+│   │   └── api/               # API routes (GitHub preview, OG images, etc.)
 │   ├── components/            # React components
-│   │   ├── nle/              # Timeline editor
-│   │   ├── docs/             # Documentation components
-│   │   ├── releases/         # Release components
-│   │   ├── data-grid/        # Feature matrix table
-│   │   └── ui/               # Reusable UI components
+│   │   ├── nle/              # Timeline editor components
+│   │   ├── docs/             # Documentation navigation & rendering
+│   │   ├── github/           # GitHub integration components
+│   │   │   ├── edit-in-github.tsx
+│   │   │   ├── github-preview.tsx
+│   │   │   ├── release-notes-renderer.tsx
+│   │   │   └── releases-client.tsx
+│   │   ├── markdown/         # Markdown rendering utilities
+│   │   ├── data-grid/        # Feature matrix table components
+│   │   ├── media/            # Media components (lightbox, etc.)
+│   │   ├── layout/           # Layout components (nav, header, etc.)
+│   │   └── ui/               # Reusable UI primitives (buttons, cards, etc.)
 │   ├── lib/                   # Utilities and data fetching
 │   │   ├── github-*.ts       # GitHub API integrations
 │   │   ├── integrations.ts   # Integration utilities
 │   │   ├── markdown-utils.ts # Markdown processing
-│   │   └── rst-converter.ts  # RST to Markdown
+│   │   └── rst-converter.ts  # RST to Markdown conversion
 │   └── types/                 # TypeScript definitions
 ├── content/                   # Static content
 │   ├── integrations/         # Apps & tools data

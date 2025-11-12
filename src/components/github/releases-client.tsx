@@ -7,7 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Calendar, Tag, User, Download, FileArchive, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ReleaseNotesRenderer } from "@/components/releases/release-notes-renderer";
+import { ReleaseNotesRenderer } from "@/components/github/release-notes-renderer";
 import { GitHubRelease, parseContributorsFromBody } from "@/lib/github-releases";
 
 function formatDate(dateString: string) {

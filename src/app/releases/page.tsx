@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getReleases } from "@/lib/github-releases";
 import { PageHeader } from "@/components/layout/page-header";
-import { ReleasesClient } from "@/components/releases/releases-client";
+import { ReleasesClient } from "@/components/github/releases-client";
 import { getFullUrl } from "@/lib/site-config";
 
 export const metadata: Metadata = {

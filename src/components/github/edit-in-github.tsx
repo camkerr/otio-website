@@ -1,6 +1,6 @@
 "use client"
 
-import { ArrowRight, Edit } from "lucide-react"
+import { Edit } from "lucide-react"
 import Link from "next/link"
 
 interface EditInGithubProps {

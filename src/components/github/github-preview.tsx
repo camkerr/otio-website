@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, type ReactNode } from "react";
 import { useTheme } from "next-themes";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
+import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
 import { ExternalLink, GitMerge, GitPullRequest, AlertCircle, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import path from "path";
 import fs from "fs";
 import Papa from "papaparse";
-import { EditInGithub } from "@/components/edit-in-github";
+import { EditInGithub } from "@/components/github/edit-in-github";
 import FeatureMatrixDataGrid from "@/components/data-grid/feature-matrix";
 import { PageHeader } from "@/components/layout/page-header";
 import { getSiteUrl, getFullUrl } from "@/lib/site-config";

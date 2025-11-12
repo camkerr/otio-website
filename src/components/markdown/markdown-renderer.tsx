@@ -13,7 +13,7 @@ import { oneLight, oneDark } from "react-syntax-highlighter/dist/esm/styles/pris
 import { useTheme } from "next-themes";
 import { getProxiedImageUrl } from "@/lib/utils";
 import { rehypeSlugCustom } from "@/lib/rehype-slug-custom";
-import { type LightboxImage } from "@/components/ui/lightbox";
+import { type LightboxImage } from "@/components/media/lightbox";
 import { formatMarkdown } from "@/lib/markdown-utils";
 import { Info, Lightbulb, AlertCircle, AlertTriangle, OctagonAlert, Copy, Check } from "lucide-react";
 

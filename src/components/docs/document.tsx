@@ -1,11 +1,11 @@
 "use client";
 
-import { MarkdownRenderer } from "@/components/ui/markdown-renderer";
-import { Lightbox, type LightboxImage } from "@/components/ui/lightbox";
+import { MarkdownRenderer } from "@/components/markdown/markdown-renderer";
+import { Lightbox, type LightboxImage } from "@/components/media/lightbox";
 import { type DocMetadata } from "@/lib/github-docs";
 import { type DocItem } from "@/lib/docs-manifest";
 import { formatDistanceToNow } from "date-fns";
-import { EditInGithub } from "@/components/edit-in-github";
+import { EditInGithub } from "@/components/github/edit-in-github";
 import { DocNavigation } from "@/components/docs/doc-navigation";
 import { TableOfContents } from "@/components/docs/table-of-contents";
 import { extractHeadings } from "@/lib/toc-extractor";
