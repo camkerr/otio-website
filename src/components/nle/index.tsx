@@ -23,6 +23,19 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const [isScrolling, setIsScrolling] = useState(false);
   const [ffwState, setFfwState] = useState(false);
   const [rewindState, setRewindState] = useState(false);
+  
+  // Refs to track current state for keyboard handler (avoids stale closures)
+  const ffwStateRef = useRef(ffwState);
+  const rewindStateRef = useRef(rewindState);
+  
+  // Keep refs in sync with state
+  useEffect(() => {
+    ffwStateRef.current = ffwState;
+  }, [ffwState]);
+  
+  useEffect(() => {
+    rewindStateRef.current = rewindState;
+  }, [rewindState]);
   const [ffwSpeedLevel, setFfwSpeedLevel] = useState(0);
   const [rewindSpeedLevel, setRewindSpeedLevel] = useState(0);
   const [currentKeyCode, setCurrentKeyCode] = useState("");
@@ -32,6 +45,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const [timelineWidth, setTimelineWidth] = useState(2000); // Timeline content width
   const [timelineScrollLeft, setTimelineScrollLeft] = useState(0); // Track horizontal scroll position
   const [shouldAutoScroll, setShouldAutoScroll] = useState(false); // Trigger auto-scroll after position updates
+  const [containerWidth, setContainerWidth] = useState(0); // Track the viewport width of timeline container
   const timelineTicksRef = useRef<HTMLDivElement>(null);
 
   // Parse markdown and generate clips
@@ -47,6 +61,39 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const timelineDuration = totalDuration / 1000; // seconds
   const timelineDurationFrames = msToFrames(totalDuration);
   const percentagePerSecond = timelineDuration > 0 ? 1 / timelineDuration : 0;
+
+  // Calculate the base timeline width (at 100% zoom) - must match Sequence component
+  const baseTimelineWidth = useMemo(() => {
+    return Math.max(2000, (totalDuration / 1000) * 50 * 1.1);
+  }, [totalDuration]);
+
+  // Calculate the actual timeline content width based on zoom level
+  // This is used for TimelineTicks to ensure immediate updates when zooming
+  const calculatedTimelineWidth = useMemo(() => {
+    return baseTimelineWidth * zoomLevel;
+  }, [baseTimelineWidth, zoomLevel]);
+
+  // Calculate minimum zoom level that fills the container exactly
+  const minZoomLevel = useMemo(() => {
+    if (containerWidth <= 0 || baseTimelineWidth <= 0) return 0.25; // fallback
+    return containerWidth / baseTimelineWidth;
+  }, [containerWidth, baseTimelineWidth]);
+
+  // Constrained zoom setter that respects the calculated minimum
+  const setConstrainedZoom = useCallback((updater: number | ((prev: number) => number)) => {
+    setZoomLevel((prev) => {
+      const newValue = typeof updater === 'function' ? updater(prev) : updater;
+      // Clamp between minZoomLevel and 4 (400%)
+      return Math.max(minZoomLevel, Math.min(4, newValue));
+    });
+  }, [minZoomLevel]);
+
+  // Adjust zoom level if it falls below the new minimum (e.g., on window resize)
+  useEffect(() => {
+    if (zoomLevel < minZoomLevel) {
+      setZoomLevel(minZoomLevel);
+    }
+  }, [minZoomLevel, zoomLevel]);
 
   const verticalSectionRef = useRef<HTMLDivElement>(null);
   const playButtonRef = useRef<HTMLButtonElement>(null);
@@ -170,16 +217,18 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
     }
   }, [scrollPercentage, zoomLevel]);
 
-  // ResizeObserver - only set up once, not on every scroll
+  // ResizeObserver - track both scroll width (content) and client width (viewport)
   useEffect(() => {
     const updateTimelineDimensions = () => {
       if (timelineWrapperRef.current) {
         const width = timelineWrapperRef.current.scrollWidth;
+        const viewportWidth = timelineWrapperRef.current.clientWidth;
         setTimelineWidth(width);
+        setContainerWidth(viewportWidth);
         
-        // Calculate playhead height: ticks (32px) + tracks (5 × 32px = 160px) = 192px
+        // Calculate playhead height: ticks (32px) + tracks (7 × 32px = 224px) = 256px
         const ticksHeight = 32;
-        const tracksHeight = 5 * 32;
+        const tracksHeight = 7 * 32;
         const totalHeight = ticksHeight + tracksHeight;
         setTimelineHeight(totalHeight);
       }
@@ -189,6 +238,9 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
     if (timelineWrapperRef.current) {
       resizeObserver.observe(timelineWrapperRef.current);
     }
+
+    // Also run once immediately to get initial dimensions
+    updateTimelineDimensions();
 
     return () => {
       resizeObserver.disconnect();
@@ -245,15 +297,17 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
     }
   }, [shouldAutoScroll, playheadPosition, scrollPlayheadIntoView]);
 
-  // Get track header width from CSS variable
-  const trackHeaderWidth = useMemo(() => {
-    if (typeof window !== 'undefined') {
-      const width = getComputedStyle(document.documentElement)
-        .getPropertyValue('--track-header-width')
-        .trim();
-      return parseInt(width) || 180;
+  // Get track header width from CSS variable (use state to avoid hydration mismatch)
+  const [trackHeaderWidth, setTrackHeaderWidth] = useState(120);
+  
+  useEffect(() => {
+    const width = getComputedStyle(document.documentElement)
+      .getPropertyValue('--track-header-width')
+      .trim();
+    const parsedWidth = parseInt(width) || 120;
+    if (parsedWidth !== trackHeaderWidth) {
+      setTrackHeaderWidth(parsedWidth);
     }
-    return 180;
   }, []);
 
   const handlePlayheadDrag = useCallback((e: any, data: { x: number }) => {
@@ -321,10 +375,10 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
           e.preventDefault();
           if (e.code === "Equal") {
             // Zoom in
-            setZoomLevel((prev) => Math.min(4, prev + 0.25));
+            setConstrainedZoom((prev) => prev + 0.25);
           } else if (e.code === "Minus") {
             // Zoom out
-            setZoomLevel((prev) => Math.max(0.25, prev - 0.25));
+            setConstrainedZoom((prev) => prev - 0.25);
           }
         }
         return; // Don't process any other shortcuts when Cmd/Ctrl is pressed
@@ -349,15 +403,19 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
 
       switch (e.code) {
         case "KeyK":
-        case "Space":
-          if (ffwState || rewindState) {
+        case "Space": {
+          e.preventDefault();
+          // Use refs to get current state (avoids stale closure issues)
+          if (ffwStateRef.current || rewindStateRef.current) {
+            // Return to standard playback speed and stop
             scrollPlayheadIntoView();
-            setIsPlaying(true);
+            setIsPlaying(false);
             setFfwState(false);
             setRewindState(false);
             setFfwSpeedLevel(0);
             setRewindSpeedLevel(0);
           } else {
+            // Normal toggle play/pause
             setIsPlaying((prev) => {
               if (!prev) {
                 // About to start playing, ensure playhead is visible
@@ -370,12 +428,13 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
             playButtonRef.current.blur();
           }
           break;
+        }
         case "KeyL":
           scrollPlayheadIntoView();
           setIsPlaying(false);
           setRewindState(false);
           setRewindSpeedLevel(0);
-          if (ffwState) {
+          if (ffwStateRef.current) {
             setFfwSpeedLevel((prev) => Math.min(prev + 1, 4));
           } else {
             setFfwState(true);
@@ -387,7 +446,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
           setIsPlaying(false);
           setFfwState(false);
           setFfwSpeedLevel(0);
-          if (rewindState) {
+          if (rewindStateRef.current) {
             setRewindSpeedLevel((prev) => Math.min(prev + 1, 4));
           } else {
             setRewindState(true);
@@ -451,7 +510,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [ffwState, rewindState, timelineDurationFrames, scrollPlayheadIntoView]);
+  }, [timelineDurationFrames, scrollPlayheadIntoView, setConstrainedZoom]);
 
   // Update playback animation with proper delta time for smooth scrolling
   useEffect(() => {
@@ -500,9 +559,12 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
 
         // Stop playing if we hit the bounds
         if (newPercentage >= 1 || newPercentage <= 0) {
-          setIsPlaying(false);
-          setFfwState(false);
-          setRewindState(false);
+          // Schedule state updates for the next batch to avoid infinite loop
+          Promise.resolve().then(() => {
+            setIsPlaying(false);
+            setFfwState(false);
+            setRewindState(false);
+          });
         }
 
         return newPercentage;
@@ -541,7 +603,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
       <ScrollContext.Provider value={scrollPercentage}>
         <div className="uiContainer">
           <div ref={verticalSectionRef} className="programMonitor">
-            <div className="programMonitorHeader">
+            {/* <div className="programMonitorHeader">
               <SequenceSelector
                 sequences={sequences}
                 activeSequenceId={"introduction"}
@@ -549,14 +611,13 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                   throw new Error("Function not implemented.");
                 }}
               />
-            </div>
+            </div> */}
             <ContentRenderer 
               markdown={markdown} 
               sections={sections}
               currentTimeMs={percentageToMs(scrollPercentage, totalDuration)}
               syncWithPlayhead={false}
             />
-            {/* <BodyContent /> */}
           </div>
           <KeyboardShortcutDisplay
             keyCode={currentKeyCode}
@@ -658,42 +719,40 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 <FastForward />
               </Button>
             </div>
-            <div className="flex justify-end items-center">
+            <div className="transportControlsRight">
+              <div className="zoomControls">
+                <span className="text-xs text-muted-foreground mr-2">Zoom:</span>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => setConstrainedZoom((prev) => prev - 0.25)}
+                  disabled={zoomLevel <= minZoomLevel}
+                  title="Zoom Out (Cmd/Ctrl + -)"
+                >
+                  <ZoomOut size={14} />
+                </Button>
+                <button
+                  className="text-xs mx-2 min-w-12 text-center hover:underline cursor-pointer"
+                  onClick={() => setConstrainedZoom(1)}
+                  title="Reset Zoom (100%)"
+                >
+                  {Math.round(zoomLevel * 100)}%
+                </button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => setConstrainedZoom((prev) => prev + 0.25)}
+                  disabled={zoomLevel >= 4}
+                  title="Zoom In (Cmd/Ctrl + +)"
+                >
+                  <ZoomIn size={14} />
+                </Button>
+              </div>
               <div className="font-mono text-sm bg-muted px-3 py-1 rounded inline-block">
                 {getTimelineDurationTimecode()}
               </div>
-            </div>
-          </div>
-          <div className="timelineControlsBar">
-            <div className="zoomControls">
-              <span className="text-xs text-muted-foreground mr-2">Zoom:</span>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-7 w-7"
-                onClick={() => setZoomLevel((prev) => Math.max(0.25, prev - 0.25))}
-                disabled={zoomLevel <= 0.25}
-                title="Zoom Out (Cmd/Ctrl + -)"
-              >
-                <ZoomOut size={14} />
-              </Button>
-              <button
-                className="text-xs mx-2 min-w-12 text-center hover:underline cursor-pointer"
-                onClick={() => setZoomLevel(1)}
-                title="Reset Zoom (100%)"
-              >
-                {Math.round(zoomLevel * 100)}%
-              </button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-7 w-7"
-                onClick={() => setZoomLevel((prev) => Math.min(4, prev + 0.25))}
-                disabled={zoomLevel >= 4}
-                title="Zoom In (Cmd/Ctrl + +)"
-              >
-                <ZoomIn size={14} />
-              </Button>
             </div>
           </div>
           <div ref={timelineContainerRef} className="timelineWrapperContainer">
@@ -724,7 +783,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 <TimelineTicks 
                   totalDurationMs={totalDuration} 
                   zoomLevel={zoomLevel}
-                  timelineWidth={timelineWidth}
+                  timelineWidth={calculatedTimelineWidth}
                   onSeek={handleSeek}
                 />
               </div>
@@ -736,7 +795,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
               <div className="track-headers-fixed">
                 <div className="track-header">
                   <div className="track-label" data-track="h1">{"<h1>"}</div>
-                  <div className="track-name">Header 1</div>
                   <div className="track-controls">
                     <button>
                       <Monitor size={16} />
@@ -748,7 +806,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 </div>
                 <div className="track-header">
                   <div className="track-label" data-track="h2">{"<h2>"}</div>
-                  <div className="track-name">Header 2</div>
                   <div className="track-controls">
                     <button>
                       <Monitor size={16} />
@@ -760,7 +817,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 </div>
                 <div className="track-header">
                   <div className="track-label" data-track="h3">{"<h3>"}</div>
-                  <div className="track-name">Header 3</div>
                   <div className="track-controls">
                     <button>
                       <Monitor size={16} />
@@ -772,7 +828,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 </div>
                 <div className="track-header">
                   <div className="track-label" data-track="img">{"<img>"}</div>
-                  <div className="track-name">Image</div>
                   <div className="track-controls">
                     <button>
                       <Monitor size={16} />
@@ -784,7 +839,28 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 </div>
                 <div className="track-header">
                   <div className="track-label" data-track="p">{"<p>"}</div>
-                  <div className="track-name">Paragraph</div>
+                  <div className="track-controls">
+                    <button>
+                      <Monitor size={16} />
+                    </button>
+                    <button>
+                      <Eye size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div className="track-header">
+                  <div className="track-label" data-track="ul">{"<ul>"}</div>
+                  <div className="track-controls">
+                    <button>
+                      <Monitor size={16} />
+                    </button>
+                    <button>
+                      <Eye size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div className="track-header">
+                  <div className="track-label" data-track="embed">{"<vid>"}</div>
                   <div className="track-controls">
                     <button>
                       <Monitor size={16} />
@@ -835,7 +911,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                   left: `${trackHeaderWidth - timelineScrollLeft}px`, // Offset for track headers and account for scroll
                   top: 0, // Start at the top of ticks
                   height: "100%",
-                  zIndex: 1000,
+                  zIndex: 1200,
                   cursor: "ew-resize",
                   pointerEvents: "auto",
                 }}

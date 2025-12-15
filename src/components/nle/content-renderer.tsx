@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, memo } from "react";
+import { useState, useMemo, memo } from "react";
 import ReactMarkdown from "react-markdown";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { vscDarkPlus } from "react-syntax-highlighter/dist/esm/styles/prism";
@@ -63,9 +63,35 @@ export const ContentRenderer = memo(function ContentRenderer({
     return opacities;
   }, [sections, roundedTimeMs, syncWithPlayhead]);
 
-  // Filter out HTML comment separators from markdown
-  const filterCommentSeparators = (md: string) => {
-    return md
+  // Strip frontmatter and filter out HTML comment separators from markdown
+  const cleanMarkdownContent = (md: string) => {
+    let content = md;
+    
+    // Strip YAML frontmatter if present
+    if (content.trimStart().startsWith("---")) {
+      const lines = content.split("\n");
+      let inFrontmatter = false;
+      let frontmatterEndIndex = -1;
+      
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i].trim();
+        if (line === "---") {
+          if (!inFrontmatter) {
+            inFrontmatter = true;
+          } else {
+            frontmatterEndIndex = i;
+            break;
+          }
+        }
+      }
+      
+      if (frontmatterEndIndex > 0) {
+        content = lines.slice(frontmatterEndIndex + 1).join("\n");
+      }
+    }
+    
+    // Filter out HTML comment separators
+    return content
       .split('\n')
       .filter(line => !line.trim().match(/^<!--\s*-->$/))
       .join('\n');
@@ -125,6 +151,33 @@ export const ContentRenderer = memo(function ContentRenderer({
                       className="my-4 max-w-full"
                     />
                   );
+                } else if (element.type === "embed" && element.embedUrl) {
+                  return (
+                    <div key={elemIndex} className="my-4 aspect-video max-w-2xl">
+                      <iframe
+                        src={element.embedUrl}
+                        title={element.content || "Embedded video"}
+                        className="w-full h-full rounded-lg"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  );
+                } else if (element.type === "ul" && element.listItems) {
+                  return (
+                    <ul key={elemIndex} className="list-disc pl-5 mb-4">
+                      {element.listItems.map((item, itemIndex) => (
+                        <ReactMarkdown
+                          key={itemIndex}
+                          components={{
+                            p: ({ children }) => <li className="mb-2">{children}</li>,
+                          }}
+                        >
+                          {item}
+                        </ReactMarkdown>
+                      ))}
+                    </ul>
+                  );
                 } else if (element.type.startsWith("h")) {
                   const level = parseInt(element.type[1]);
                   const HeadingTag = `h${level}` as keyof JSX.IntrinsicElements;
@@ -156,8 +209,14 @@ export const ContentRenderer = memo(function ContentRenderer({
     );
   }
 
-  // Default rendering without sync - filter out comment separators
-  const cleanMarkdown = filterCommentSeparators(markdown);
+  // Helper to extract YouTube video ID
+  const extractYouTubeVideoId = (url: string): string | null => {
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
+  };
+
+  // Default rendering without sync - clean markdown content
+  const cleanMarkdown = cleanMarkdownContent(markdown);
   
   return (
     <div className="contentRenderer">
@@ -175,7 +234,32 @@ export const ContentRenderer = memo(function ContentRenderer({
           h4: ({ ...props }) => (
             <h4 className="text-lg font-semibold mt-4 mb-2" {...props} />
           ),
-          p: ({ ...props }) => <p className="mb-4" {...props} />,
+          p: ({ node, children, ...props }) => {
+            // Check if paragraph contains only a YouTube link using the rehype AST node
+            if (node && node.children && node.children.length === 1) {
+              const child = node.children[0] as any;
+              // In rehype AST, links have tagName: 'a' and properties.href
+              if (child.tagName === 'a' && child.properties?.href) {
+                const videoId = extractYouTubeVideoId(child.properties.href);
+                if (videoId) {
+                  // Extract link text for title
+                  const linkText = child.children?.[0]?.value || "YouTube Video";
+                  return (
+                    <div className="my-4 aspect-video max-w-2xl">
+                      <iframe
+                        src={`https://www.youtube.com/embed/${videoId}`}
+                        title={linkText}
+                        className="w-full h-full rounded-lg"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  );
+                }
+              }
+            }
+            return <p className="mb-4" {...props}>{children}</p>;
+          },
           ul: ({ ...props }) => (
             <ul className="list-disc pl-5 mb-4" {...props} />
           ),
@@ -186,6 +270,10 @@ export const ContentRenderer = memo(function ContentRenderer({
             <section className="my-12" {...props} />
           ),
           li: ({ ...props }) => <li className="mb-2" {...props} />,
+          a: ({ href, children, ...props }) => {
+            // Regular link - YouTube links are handled at the paragraph level
+            return <a href={href} className="text-primary underline hover:no-underline" {...props}>{children}</a>;
+          },
           code: ({ className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || "");
             return match ? (

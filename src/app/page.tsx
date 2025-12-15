@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-// import { useRemark } from "@/lib/hooks";
 import { EditorialInterfaceComponent } from "@/components/nle/index";
 import { NavWidthSetter } from "@/components/layout/nav-width-setter";
 import { getSiteUrl } from "@/lib/site-config";
@@ -31,7 +30,6 @@ export const metadata: Metadata = {
 
 export default async function NonLinearEditor() {
   const markdown = await getMarkdownContent();
-  // const [] = useRemark();
 
   return (
     <NavWidthSetter width="full">
