@@ -28,21 +28,23 @@ const ClipRenderer = memo(({ item, totalDurationMs, timelineWidth }: ClipRendere
   const left = startPercentage * timelineWidth;
   const width = (endPercentage - startPercentage) * timelineWidth;
 
-  // Different colors for different clip types with glass effect
+  // Professional NLE-style appearance
+  // Light mode: Saturated gradients, distinct borders, slight transparency
+  // Dark mode: Deep semi-transparent colors with distinct borders
   const getClipColor = () => {
     switch (item.type) {
       case "h1":
-        return "border-blue-500/60 bg-blue-500/20";
+        return "bg-gradient-to-b from-blue-200/90 to-blue-300/90 border-blue-400/80 text-blue-900 dark:from-blue-600/40 dark:to-blue-600/20 dark:border-blue-400/60 dark:text-blue-50";
       case "h2":
-        return "border-green-500/40 bg-green-500/15";
+        return "bg-gradient-to-b from-teal-200/90 to-teal-300/90 border-teal-400/80 text-teal-900 dark:from-teal-600/40 dark:to-teal-600/20 dark:border-teal-400/60 dark:text-teal-50";
       case "h3":
-        return "border-purple-500/60 bg-purple-500/20";
+        return "bg-gradient-to-b from-violet-200/90 to-violet-300/90 border-violet-400/80 text-violet-900 dark:from-violet-600/40 dark:to-violet-600/20 dark:border-violet-400/60 dark:text-violet-50";
       case "img":
-        return "border-orange-500/60 bg-orange-500/20";
+        return "bg-gradient-to-b from-rose-200/90 to-rose-300/90 border-rose-400/80 text-rose-900 dark:from-rose-600/40 dark:to-rose-600/20 dark:border-rose-400/60 dark:text-rose-50";
       case "p":
-        return "border-gray-500/60 bg-gray-500/20";
+        return "bg-gradient-to-b from-slate-200/90 to-slate-300/90 border-slate-400/80 text-slate-900 dark:from-slate-600/40 dark:to-slate-600/20 dark:border-slate-400/60 dark:text-slate-200";
       default:
-        return "border-blue-500/60 bg-blue-500/20";
+        return "bg-gradient-to-b from-gray-200/90 to-gray-300/90 border-gray-400/80 text-gray-900 dark:from-gray-600/40 dark:to-gray-600/20 dark:border-gray-400/60 dark:text-gray-50";
     }
   };
 
@@ -50,15 +52,13 @@ const ClipRenderer = memo(({ item, totalDurationMs, timelineWidth }: ClipRendere
     <div
       style={{
         left: `${left}px`,
-        width: `${Math.max(20, width - 2)}px`, // Subtract small margin for visual separation
+        width: `${Math.max(20, width - 1)}px`, // Reduced gap between clips
         minWidth: "20px",
-        backdropFilter: "blur(8px)",
-        WebkitBackdropFilter: "blur(8px)",
       }}
-      className={`clip border-2 ${getClipColor()} rounded pl-1 pr-1 text-xs overflow-hidden shadow-sm flex items-center`}
+      className={`clip border ${getClipColor()} rounded-md px-2 py-0.5 text-xs font-medium overflow-hidden shadow hover:brightness-95 dark:hover:brightness-110 transition-all cursor-pointer flex items-center select-none`}
       title={`${item.name} (${item.start}ms - ${item.end}ms)`}
     >
-      <div className="truncate">{item.name}</div>
+      <div className="truncate drop-shadow-sm">{item.name}</div>
     </div>
   );
 });

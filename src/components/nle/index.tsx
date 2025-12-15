@@ -32,6 +32,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const [timelineWidth, setTimelineWidth] = useState(2000); // Timeline content width
   const [timelineScrollLeft, setTimelineScrollLeft] = useState(0); // Track horizontal scroll position
   const [shouldAutoScroll, setShouldAutoScroll] = useState(false); // Trigger auto-scroll after position updates
+  const [containerWidth, setContainerWidth] = useState(0); // Track the viewport width of timeline container
   const timelineTicksRef = useRef<HTMLDivElement>(null);
 
   // Parse markdown and generate clips
@@ -47,6 +48,39 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const timelineDuration = totalDuration / 1000; // seconds
   const timelineDurationFrames = msToFrames(totalDuration);
   const percentagePerSecond = timelineDuration > 0 ? 1 / timelineDuration : 0;
+
+  // Calculate the base timeline width (at 100% zoom) - must match Sequence component
+  const baseTimelineWidth = useMemo(() => {
+    return Math.max(2000, (totalDuration / 1000) * 50 * 1.1);
+  }, [totalDuration]);
+
+  // Calculate the actual timeline content width based on zoom level
+  // This is used for TimelineTicks to ensure immediate updates when zooming
+  const calculatedTimelineWidth = useMemo(() => {
+    return baseTimelineWidth * zoomLevel;
+  }, [baseTimelineWidth, zoomLevel]);
+
+  // Calculate minimum zoom level that fills the container exactly
+  const minZoomLevel = useMemo(() => {
+    if (containerWidth <= 0 || baseTimelineWidth <= 0) return 0.25; // fallback
+    return containerWidth / baseTimelineWidth;
+  }, [containerWidth, baseTimelineWidth]);
+
+  // Constrained zoom setter that respects the calculated minimum
+  const setConstrainedZoom = useCallback((updater: number | ((prev: number) => number)) => {
+    setZoomLevel((prev) => {
+      const newValue = typeof updater === 'function' ? updater(prev) : updater;
+      // Clamp between minZoomLevel and 4 (400%)
+      return Math.max(minZoomLevel, Math.min(4, newValue));
+    });
+  }, [minZoomLevel]);
+
+  // Adjust zoom level if it falls below the new minimum (e.g., on window resize)
+  useEffect(() => {
+    if (zoomLevel < minZoomLevel) {
+      setZoomLevel(minZoomLevel);
+    }
+  }, [minZoomLevel, zoomLevel]);
 
   const verticalSectionRef = useRef<HTMLDivElement>(null);
   const playButtonRef = useRef<HTMLButtonElement>(null);
@@ -170,12 +204,14 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
     }
   }, [scrollPercentage, zoomLevel]);
 
-  // ResizeObserver - only set up once, not on every scroll
+  // ResizeObserver - track both scroll width (content) and client width (viewport)
   useEffect(() => {
     const updateTimelineDimensions = () => {
       if (timelineWrapperRef.current) {
         const width = timelineWrapperRef.current.scrollWidth;
+        const viewportWidth = timelineWrapperRef.current.clientWidth;
         setTimelineWidth(width);
+        setContainerWidth(viewportWidth);
         
         // Calculate playhead height: ticks (32px) + tracks (5 × 32px = 160px) = 192px
         const ticksHeight = 32;
@@ -189,6 +225,9 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
     if (timelineWrapperRef.current) {
       resizeObserver.observe(timelineWrapperRef.current);
     }
+
+    // Also run once immediately to get initial dimensions
+    updateTimelineDimensions();
 
     return () => {
       resizeObserver.disconnect();
@@ -321,10 +360,10 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
           e.preventDefault();
           if (e.code === "Equal") {
             // Zoom in
-            setZoomLevel((prev) => Math.min(4, prev + 0.25));
+            setConstrainedZoom((prev) => prev + 0.25);
           } else if (e.code === "Minus") {
             // Zoom out
-            setZoomLevel((prev) => Math.max(0.25, prev - 0.25));
+            setConstrainedZoom((prev) => prev - 0.25);
           }
         }
         return; // Don't process any other shortcuts when Cmd/Ctrl is pressed
@@ -451,7 +490,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [ffwState, rewindState, timelineDurationFrames, scrollPlayheadIntoView]);
+  }, [ffwState, rewindState, timelineDurationFrames, scrollPlayheadIntoView, setConstrainedZoom]);
 
   // Update playback animation with proper delta time for smooth scrolling
   useEffect(() => {
@@ -671,15 +710,15 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 variant="outline"
                 size="icon"
                 className="h-7 w-7"
-                onClick={() => setZoomLevel((prev) => Math.max(0.25, prev - 0.25))}
-                disabled={zoomLevel <= 0.25}
+                onClick={() => setConstrainedZoom((prev) => prev - 0.25)}
+                disabled={zoomLevel <= minZoomLevel}
                 title="Zoom Out (Cmd/Ctrl + -)"
               >
                 <ZoomOut size={14} />
               </Button>
               <button
                 className="text-xs mx-2 min-w-12 text-center hover:underline cursor-pointer"
-                onClick={() => setZoomLevel(1)}
+                onClick={() => setConstrainedZoom(1)}
                 title="Reset Zoom (100%)"
               >
                 {Math.round(zoomLevel * 100)}%
@@ -688,7 +727,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 variant="outline"
                 size="icon"
                 className="h-7 w-7"
-                onClick={() => setZoomLevel((prev) => Math.min(4, prev + 0.25))}
+                onClick={() => setConstrainedZoom((prev) => prev + 0.25)}
                 disabled={zoomLevel >= 4}
                 title="Zoom In (Cmd/Ctrl + +)"
               >
@@ -724,7 +763,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 <TimelineTicks 
                   totalDurationMs={totalDuration} 
                   zoomLevel={zoomLevel}
-                  timelineWidth={timelineWidth}
+                  timelineWidth={calculatedTimelineWidth}
                   onSeek={handleSeek}
                 />
               </div>

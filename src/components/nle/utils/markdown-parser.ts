@@ -6,11 +6,13 @@ import { Root, Content, Heading, Paragraph, Image, Text } from "mdast";
  * Element extracted from markdown AST
  */
 export interface ParsedElement {
-  type: "h1" | "h2" | "h3" | "p" | "img";
+  type: "h1" | "h2" | "h3" | "p" | "img" | "embed";
   content: string;
   node: Content;
   imageUrl?: string;
   alt?: string;
+  embedUrl?: string;
+  embedType?: "youtube";
 }
 
 /**
@@ -30,22 +32,25 @@ export interface TrackItem {
   id: string;
   content: string;
   name: string;
-  track: number; // 0 = h1, 1 = h2, 2 = h3, 3 = img, 4 = p
-  type: "h1" | "h2" | "h3" | "img" | "p";
+  track: number; // 0 = h1, 1 = h2, 2 = h3, 3 = img, 4 = p, 5 = embed
+  type: "h1" | "h2" | "h3" | "img" | "p" | "embed";
   start: number; // milliseconds
   end: number; // milliseconds
   node?: Content; // AST node reference
   imageUrl?: string;
   alt?: string;
+  embedUrl?: string;
+  embedType?: "youtube";
 }
 
-// Track mapping: h1=0, h2=1, h3=2, img=3, p=4
+// Track mapping: h1=0, h2=1, h3=2, img=3, p=4, embed=5
 const TRACK_MAP: Record<string, number> = {
   h1: 0,
   h2: 1,
   h3: 2,
   img: 3,
   p: 4,
+  embed: 5,
 };
 
 /**
@@ -84,6 +89,53 @@ function extractText(node: Content): string {
 }
 
 /**
+ * Extract YouTube video ID from various YouTube URL formats
+ */
+function extractYouTubeVideoId(url: string): string | null {
+  // Match various YouTube URL patterns:
+  // - https://www.youtube.com/watch?v=VIDEO_ID
+  // - https://youtube.com/watch?v=VIDEO_ID
+  // - https://youtu.be/VIDEO_ID
+  // - https://www.youtube.com/embed/VIDEO_ID
+  const patterns = [
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match) {
+      return match[1];
+    }
+  }
+  return null;
+}
+
+/**
+ * Check if a paragraph node contains only a YouTube link
+ */
+function extractYouTubeEmbed(node: Content): ParsedElement | null {
+  if (node.type !== "paragraph") return null;
+  
+  const paragraph = node as Paragraph;
+  // Check if paragraph has a single link child (or link with text)
+  if (paragraph.children.length === 1 && paragraph.children[0].type === "link") {
+    const link = paragraph.children[0] as any;
+    const videoId = extractYouTubeVideoId(link.url);
+    if (videoId) {
+      const linkText = extractText(link);
+      return {
+        type: "embed",
+        content: linkText || "YouTube Video",
+        node,
+        embedUrl: `https://www.youtube.com/embed/${videoId}`,
+        embedType: "youtube",
+      };
+    }
+  }
+  return null;
+}
+
+/**
  * Parse markdown AST node to ParsedElement
  */
 function parseNode(node: Content): ParsedElement | null {
@@ -99,6 +151,12 @@ function parseNode(node: Content): ParsedElement | null {
       };
     }
   } else if (node.type === "paragraph") {
+    // Check if this paragraph contains a YouTube embed
+    const youtubeEmbed = extractYouTubeEmbed(node);
+    if (youtubeEmbed) {
+      return youtubeEmbed;
+    }
+    // Otherwise treat as regular paragraph
     const text = extractText(node);
     return {
       type: "p",
