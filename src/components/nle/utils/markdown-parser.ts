@@ -1,18 +1,19 @@
 import { unified } from "unified";
 import remarkParse from "remark-parse";
-import { Root, Content, Heading, Paragraph, Image, Text } from "mdast";
+import { Root, Content, Heading, Paragraph, Image, Text, List } from "mdast";
 
 /**
  * Element extracted from markdown AST
  */
 export interface ParsedElement {
-  type: "h1" | "h2" | "h3" | "p" | "img" | "embed";
+  type: "h1" | "h2" | "h3" | "p" | "img" | "embed" | "ul";
   content: string;
   node: Content;
   imageUrl?: string;
   alt?: string;
   embedUrl?: string;
   embedType?: "youtube";
+  listItems?: string[];
 }
 
 /**
@@ -32,8 +33,8 @@ export interface TrackItem {
   id: string;
   content: string;
   name: string;
-  track: number; // 0 = h1, 1 = h2, 2 = h3, 3 = img, 4 = p, 5 = embed
-  type: "h1" | "h2" | "h3" | "img" | "p" | "embed";
+  track: number; // 0 = h1, 1 = h2, 2 = h3, 3 = img, 4 = p, 5 = embed, 6 = ul
+  type: "h1" | "h2" | "h3" | "img" | "p" | "embed" | "ul";
   start: number; // milliseconds
   end: number; // milliseconds
   node?: Content; // AST node reference
@@ -41,16 +42,18 @@ export interface TrackItem {
   alt?: string;
   embedUrl?: string;
   embedType?: "youtube";
+  listItems?: string[];
 }
 
-// Track mapping: h1=0, h2=1, h3=2, img=3, p=4, embed=5
+// Track mapping: h1=0, h2=1, h3=2, img=3, p=4, embed=5, ul=6
 const TRACK_MAP: Record<string, number> = {
   h1: 0,
   h2: 1,
   h3: 2,
   img: 3,
   p: 4,
-  embed: 5,
+  ul: 5,
+  embed: 6,
 };
 
 /**
@@ -172,6 +175,23 @@ function parseNode(node: Content): ParsedElement | null {
       imageUrl: image.url,
       alt: image.alt || "",
     };
+  } else if (node.type === "list") {
+    const list = node as List;
+    // Extract text from each list item
+    const listItems = list.children.map((item) => {
+      // List items contain paragraphs or other content
+      return item.children
+        .map((child) => extractText(child as Content))
+        .join("")
+        .trim();
+    });
+    const content = listItems.join(" • ");
+    return {
+      type: "ul",
+      content,
+      node,
+      listItems,
+    };
   }
   return null;
 }
@@ -194,6 +214,11 @@ function calculateSectionDuration(section: Section): number {
     } else if (element.type === "h1" || element.type === "h2" || element.type === "h3") {
       // Headers within sections (subheadings) also contribute
       totalWords += countWords(element.content);
+    } else if (element.type === "ul" && element.listItems) {
+      // Count words in all list items
+      for (const item of element.listItems) {
+        totalWords += countWords(item);
+      }
     }
     // Images get a minimum duration
   }
@@ -204,8 +229,46 @@ function calculateSectionDuration(section: Section): number {
   const readingTime = calculateReadingTime(totalWords);
   // Images add extra time (3 seconds per image)
   const imageTime = section.elements.filter((e) => e.type === "img").length * 3000;
+  // Embeds add extra time (10 seconds per embed for video preview)
+  const embedTime = section.elements.filter((e) => e.type === "embed").length * 10000;
 
-  return Math.max(minDuration, readingTime + imageTime);
+  return Math.max(minDuration, readingTime + imageTime + embedTime);
+}
+
+/**
+ * Strip YAML frontmatter from markdown content
+ * Frontmatter is delimited by --- at the start of the file
+ */
+function stripFrontmatter(markdown: string): string {
+  // Check if markdown starts with frontmatter delimiter
+  if (!markdown.trimStart().startsWith("---")) {
+    return markdown;
+  }
+  
+  // Find the closing delimiter
+  const lines = markdown.split("\n");
+  let inFrontmatter = false;
+  let frontmatterEndIndex = -1;
+  
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line === "---") {
+      if (!inFrontmatter) {
+        inFrontmatter = true;
+      } else {
+        // Found closing delimiter
+        frontmatterEndIndex = i;
+        break;
+      }
+    }
+  }
+  
+  if (frontmatterEndIndex > 0) {
+    // Return markdown without frontmatter
+    return lines.slice(frontmatterEndIndex + 1).join("\n");
+  }
+  
+  return markdown;
 }
 
 /**
@@ -225,8 +288,11 @@ function isCommentSeparator(node: Content): boolean {
  * Parse markdown string into sections based on HTML comment separators
  */
 export function parseMarkdownToSections(markdown: string): Section[] {
+  // Strip frontmatter before parsing
+  const cleanMarkdown = stripFrontmatter(markdown);
+  
   const processor = unified().use(remarkParse);
-  const ast = processor.parse(markdown) as Root;
+  const ast = processor.parse(cleanMarkdown) as Root;
 
   const sections: Section[] = [];
   let currentSection: Section | null = null;
@@ -340,6 +406,10 @@ export function generateClipsFromSections(sections: Section[]): TrackItem[] {
           name:
             element.type === "img"
               ? element.alt || "Image"
+              : element.type === "embed"
+              ? element.content || "Embed"
+              : element.type === "ul"
+              ? `List (${element.listItems?.length || 0} items)`
               : element.content.substring(0, 30) + (element.content.length > 30 ? "..." : ""),
           track,
           type: element.type,
@@ -348,6 +418,9 @@ export function generateClipsFromSections(sections: Section[]): TrackItem[] {
           node: element.node,
           imageUrl: element.imageUrl,
           alt: element.alt,
+          embedUrl: element.embedUrl,
+          embedType: element.embedType,
+          listItems: element.listItems,
         });
       }
     }

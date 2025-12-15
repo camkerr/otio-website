@@ -1,3 +1,7 @@
+---
+timeline_name: introduction.otio
+framerate: 24
+---
 # OpenTimelineIO
 
 ## Bridging Editorial Workflows Across Platforms
@@ -8,9 +12,7 @@
 ### What is OpenTimelineIO?
 OpenTimelineIO (OTIO) is an open-source tool built for managing and exchanging editorial timeline data across a variety of editing tools and media formats, enabling seamless data interchange in film, animation, and VFX production.
 
-##
-Intro Video
-https://www.youtube.com/watch?v=6vTmNz8igbE
+[Intro Video](https://www.youtube.com/watch?v=nb6MELswKKk)
 
 <!-- -->
 

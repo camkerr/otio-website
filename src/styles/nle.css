@@ -52,12 +52,18 @@
   grid-template-columns: 1fr auto 1fr;
   height: 40px;
   align-items: center;
-  justify-content: space-between;
   padding: 0px 8px;
   border: 2px solid hsl(var(--border));
   border-top-width: 1px;
   margin: 0px 0;
   background-color: hsl(var(--background));
+}
+
+.transportControlsRight {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 16px;
 }
 
 .playbackControlsButtonWrapper {
@@ -75,22 +81,16 @@
   border: none !important;
 }
 
-.timelineControlsBar {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  padding: 8px 16px;
-  border: 2px solid hsl(var(--border));
-  border-top-width: 1px;
-  border-bottom-width: 1px;
-  background-color: hsl(var(--background));
-  width: calc(100vw - 32px);
-}
-
 .zoomControls {
   display: flex;
   align-items: center;
   gap: 4px;
+}
+
+@media (max-width: 768px) {
+  .zoomControls {
+    display: none;
+  }
 }
 
 .timelineWrapperContainer {
@@ -269,11 +269,11 @@
 .track-label[data-track="p"] {
   background: var(--track-label-p);
 }
-
-.track-name {
-  font-size: 0.8em;
-  color: hsl(var(--muted-foreground));
-  flex-grow: 1;
+.track-label[data-track="ul"] {
+  background: var(--track-label-ul);
+}
+.track-label[data-track="embed"] {
+  background: var(--track-label-embed);
 }
 
 .track-controls {

@@ -23,6 +23,19 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
   const [isScrolling, setIsScrolling] = useState(false);
   const [ffwState, setFfwState] = useState(false);
   const [rewindState, setRewindState] = useState(false);
+  
+  // Refs to track current state for keyboard handler (avoids stale closures)
+  const ffwStateRef = useRef(ffwState);
+  const rewindStateRef = useRef(rewindState);
+  
+  // Keep refs in sync with state
+  useEffect(() => {
+    ffwStateRef.current = ffwState;
+  }, [ffwState]);
+  
+  useEffect(() => {
+    rewindStateRef.current = rewindState;
+  }, [rewindState]);
   const [ffwSpeedLevel, setFfwSpeedLevel] = useState(0);
   const [rewindSpeedLevel, setRewindSpeedLevel] = useState(0);
   const [currentKeyCode, setCurrentKeyCode] = useState("");
@@ -213,9 +226,9 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
         setTimelineWidth(width);
         setContainerWidth(viewportWidth);
         
-        // Calculate playhead height: ticks (32px) + tracks (5 × 32px = 160px) = 192px
+        // Calculate playhead height: ticks (32px) + tracks (7 × 32px = 224px) = 256px
         const ticksHeight = 32;
-        const tracksHeight = 5 * 32;
+        const tracksHeight = 7 * 32;
         const totalHeight = ticksHeight + tracksHeight;
         setTimelineHeight(totalHeight);
       }
@@ -290,9 +303,9 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
       const width = getComputedStyle(document.documentElement)
         .getPropertyValue('--track-header-width')
         .trim();
-      return parseInt(width) || 180;
+      return parseInt(width) || 120;
     }
-    return 180;
+    return 120;
   }, []);
 
   const handlePlayheadDrag = useCallback((e: any, data: { x: number }) => {
@@ -388,15 +401,19 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
 
       switch (e.code) {
         case "KeyK":
-        case "Space":
-          if (ffwState || rewindState) {
+        case "Space": {
+          e.preventDefault();
+          // Use refs to get current state (avoids stale closure issues)
+          if (ffwStateRef.current || rewindStateRef.current) {
+            // Return to standard playback speed and stop
             scrollPlayheadIntoView();
-            setIsPlaying(true);
+            setIsPlaying(false);
             setFfwState(false);
             setRewindState(false);
             setFfwSpeedLevel(0);
             setRewindSpeedLevel(0);
           } else {
+            // Normal toggle play/pause
             setIsPlaying((prev) => {
               if (!prev) {
                 // About to start playing, ensure playhead is visible
@@ -409,12 +426,13 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
             playButtonRef.current.blur();
           }
           break;
+        }
         case "KeyL":
           scrollPlayheadIntoView();
           setIsPlaying(false);
           setRewindState(false);
           setRewindSpeedLevel(0);
-          if (ffwState) {
+          if (ffwStateRef.current) {
             setFfwSpeedLevel((prev) => Math.min(prev + 1, 4));
           } else {
             setFfwState(true);
@@ -426,7 +444,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
           setIsPlaying(false);
           setFfwState(false);
           setFfwSpeedLevel(0);
-          if (rewindState) {
+          if (rewindStateRef.current) {
             setRewindSpeedLevel((prev) => Math.min(prev + 1, 4));
           } else {
             setRewindState(true);
@@ -490,7 +508,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [ffwState, rewindState, timelineDurationFrames, scrollPlayheadIntoView, setConstrainedZoom]);
+  }, [timelineDurationFrames, scrollPlayheadIntoView, setConstrainedZoom]);
 
   // Update playback animation with proper delta time for smooth scrolling
   useEffect(() => {
@@ -539,9 +557,12 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
 
         // Stop playing if we hit the bounds
         if (newPercentage >= 1 || newPercentage <= 0) {
-          setIsPlaying(false);
-          setFfwState(false);
-          setRewindState(false);
+          // Schedule state updates for the next batch to avoid infinite loop
+          Promise.resolve().then(() => {
+            setIsPlaying(false);
+            setFfwState(false);
+            setRewindState(false);
+          });
         }
 
         return newPercentage;
@@ -580,7 +601,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
       <ScrollContext.Provider value={scrollPercentage}>
         <div className="uiContainer">
           <div ref={verticalSectionRef} className="programMonitor">
-            <div className="programMonitorHeader">
+            {/* <div className="programMonitorHeader">
               <SequenceSelector
                 sequences={sequences}
                 activeSequenceId={"introduction"}
@@ -588,14 +609,13 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                   throw new Error("Function not implemented.");
                 }}
               />
-            </div>
+            </div> */}
             <ContentRenderer 
               markdown={markdown} 
               sections={sections}
               currentTimeMs={percentageToMs(scrollPercentage, totalDuration)}
               syncWithPlayhead={false}
             />
-            {/* <BodyContent /> */}
           </div>
           <KeyboardShortcutDisplay
             keyCode={currentKeyCode}
@@ -697,42 +717,40 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 <FastForward />
               </Button>
             </div>
-            <div className="flex justify-end items-center">
+            <div className="transportControlsRight">
+              <div className="zoomControls">
+                <span className="text-xs text-muted-foreground mr-2">Zoom:</span>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => setConstrainedZoom((prev) => prev - 0.25)}
+                  disabled={zoomLevel <= minZoomLevel}
+                  title="Zoom Out (Cmd/Ctrl + -)"
+                >
+                  <ZoomOut size={14} />
+                </Button>
+                <button
+                  className="text-xs mx-2 min-w-12 text-center hover:underline cursor-pointer"
+                  onClick={() => setConstrainedZoom(1)}
+                  title="Reset Zoom (100%)"
+                >
+                  {Math.round(zoomLevel * 100)}%
+                </button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-7 w-7"
+                  onClick={() => setConstrainedZoom((prev) => prev + 0.25)}
+                  disabled={zoomLevel >= 4}
+                  title="Zoom In (Cmd/Ctrl + +)"
+                >
+                  <ZoomIn size={14} />
+                </Button>
+              </div>
               <div className="font-mono text-sm bg-muted px-3 py-1 rounded inline-block">
                 {getTimelineDurationTimecode()}
               </div>
-            </div>
-          </div>
-          <div className="timelineControlsBar">
-            <div className="zoomControls">
-              <span className="text-xs text-muted-foreground mr-2">Zoom:</span>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-7 w-7"
-                onClick={() => setConstrainedZoom((prev) => prev - 0.25)}
-                disabled={zoomLevel <= minZoomLevel}
-                title="Zoom Out (Cmd/Ctrl + -)"
-              >
-                <ZoomOut size={14} />
-              </Button>
-              <button
-                className="text-xs mx-2 min-w-12 text-center hover:underline cursor-pointer"
-                onClick={() => setConstrainedZoom(1)}
-                title="Reset Zoom (100%)"
-              >
-                {Math.round(zoomLevel * 100)}%
-              </button>
-              <Button
-                variant="outline"
-                size="icon"
-                className="h-7 w-7"
-                onClick={() => setConstrainedZoom((prev) => prev + 0.25)}
-                disabled={zoomLevel >= 4}
-                title="Zoom In (Cmd/Ctrl + +)"
-              >
-                <ZoomIn size={14} />
-              </Button>
             </div>
           </div>
           <div ref={timelineContainerRef} className="timelineWrapperContainer">
@@ -775,7 +793,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
               <div className="track-headers-fixed">
                 <div className="track-header">
                   <div className="track-label" data-track="h1">{"<h1>"}</div>
-                  <div className="track-name">Header 1</div>
                   <div className="track-controls">
                     <button>
                       <Monitor size={16} />
@@ -787,7 +804,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 </div>
                 <div className="track-header">
                   <div className="track-label" data-track="h2">{"<h2>"}</div>
-                  <div className="track-name">Header 2</div>
                   <div className="track-controls">
                     <button>
                       <Monitor size={16} />
@@ -799,7 +815,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 </div>
                 <div className="track-header">
                   <div className="track-label" data-track="h3">{"<h3>"}</div>
-                  <div className="track-name">Header 3</div>
                   <div className="track-controls">
                     <button>
                       <Monitor size={16} />
@@ -811,7 +826,6 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 </div>
                 <div className="track-header">
                   <div className="track-label" data-track="img">{"<img>"}</div>
-                  <div className="track-name">Image</div>
                   <div className="track-controls">
                     <button>
                       <Monitor size={16} />
@@ -823,7 +837,28 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                 </div>
                 <div className="track-header">
                   <div className="track-label" data-track="p">{"<p>"}</div>
-                  <div className="track-name">Paragraph</div>
+                  <div className="track-controls">
+                    <button>
+                      <Monitor size={16} />
+                    </button>
+                    <button>
+                      <Eye size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div className="track-header">
+                  <div className="track-label" data-track="ul">{"<ul>"}</div>
+                  <div className="track-controls">
+                    <button>
+                      <Monitor size={16} />
+                    </button>
+                    <button>
+                      <Eye size={16} />
+                    </button>
+                  </div>
+                </div>
+                <div className="track-header">
+                  <div className="track-label" data-track="embed">{"<vid>"}</div>
                   <div className="track-controls">
                     <button>
                       <Monitor size={16} />
@@ -874,7 +909,7 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
                   left: `${trackHeaderWidth - timelineScrollLeft}px`, // Offset for track headers and account for scroll
                   top: 0, // Start at the top of ticks
                   height: "100%",
-                  zIndex: 1000,
+                  zIndex: 1200,
                   cursor: "ew-resize",
                   pointerEvents: "auto",
                 }}

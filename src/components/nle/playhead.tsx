@@ -17,7 +17,7 @@ const Playhead = React.memo(({ height = 2000 }: PlayheadProps) => {
         top: 0,
         bottom: 0,
         width: "2px",
-        zIndex: 1000,
+        zIndex: 1200,
       }}
     >
       <svg width="37" height={height} xmlns="http://www.w3.org/2000/svg" style={{ pointerEvents: 'none', filter: 'drop-shadow(0px 0px 2px rgba(255, 255, 255, 0.25)) drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.4))' }}>
