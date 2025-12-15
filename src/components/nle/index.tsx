@@ -297,15 +297,17 @@ const EditorialInterfaceComponent = ({ markdown }: { markdown: string }) => {
     }
   }, [shouldAutoScroll, playheadPosition, scrollPlayheadIntoView]);
 
-  // Get track header width from CSS variable
-  const trackHeaderWidth = useMemo(() => {
-    if (typeof window !== 'undefined') {
-      const width = getComputedStyle(document.documentElement)
-        .getPropertyValue('--track-header-width')
-        .trim();
-      return parseInt(width) || 120;
+  // Get track header width from CSS variable (use state to avoid hydration mismatch)
+  const [trackHeaderWidth, setTrackHeaderWidth] = useState(120);
+  
+  useEffect(() => {
+    const width = getComputedStyle(document.documentElement)
+      .getPropertyValue('--track-header-width')
+      .trim();
+    const parsedWidth = parseInt(width) || 120;
+    if (parsedWidth !== trackHeaderWidth) {
+      setTrackHeaderWidth(parsedWidth);
     }
-    return 120;
   }, []);
 
   const handlePlayheadDrag = useCallback((e: any, data: { x: number }) => {

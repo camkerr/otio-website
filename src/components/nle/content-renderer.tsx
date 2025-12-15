@@ -235,11 +235,12 @@ export const ContentRenderer = memo(function ContentRenderer({
             <h4 className="text-lg font-semibold mt-4 mb-2" {...props} />
           ),
           p: ({ node, children, ...props }) => {
-            // Check if paragraph contains only a YouTube link using the AST node
+            // Check if paragraph contains only a YouTube link using the rehype AST node
             if (node && node.children && node.children.length === 1) {
               const child = node.children[0] as any;
-              if (child.type === 'link' && child.url) {
-                const videoId = extractYouTubeVideoId(child.url);
+              // In rehype AST, links have tagName: 'a' and properties.href
+              if (child.tagName === 'a' && child.properties?.href) {
+                const videoId = extractYouTubeVideoId(child.properties.href);
                 if (videoId) {
                   // Extract link text for title
                   const linkText = child.children?.[0]?.value || "YouTube Video";
@@ -270,25 +271,8 @@ export const ContentRenderer = memo(function ContentRenderer({
           ),
           li: ({ ...props }) => <li className="mb-2" {...props} />,
           a: ({ href, children, ...props }) => {
-            // Check if this is a YouTube link
-            if (href) {
-              const videoId = extractYouTubeVideoId(href);
-              if (videoId) {
-                return (
-                  <div className="my-4 aspect-video max-w-2xl">
-                    <iframe
-                      src={`https://www.youtube.com/embed/${videoId}`}
-                      title={String(children) || "YouTube Video"}
-                      className="w-full h-full rounded-lg"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                );
-              }
-            }
-            // Regular link
-            return <a href={href} {...props}>{children}</a>;
+            // Regular link - YouTube links are handled at the paragraph level
+            return <a href={href} className="text-primary underline hover:no-underline" {...props}>{children}</a>;
           },
           code: ({ className, children, ...props }) => {
             const match = /language-(\w+)/.exec(className || "");
