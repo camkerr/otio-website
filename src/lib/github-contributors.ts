@@ -71,7 +71,9 @@ async function fetchAllContributors(): Promise<GitHubContributor[]> {
       break;
     }
     
-    allContributors.push(...contributors);
+    // Filter to only include contributors with type "User"
+    const userContributors = contributors.filter(contributor => contributor.type === 'User');
+    allContributors.push(...userContributors);
     
     // If we got fewer than the per_page limit, we've reached the end
     if (contributors.length < perPage) {
