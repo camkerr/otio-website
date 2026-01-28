@@ -221,12 +221,29 @@
     "name": "Nuke Studio",
     "description": "Multi-shot management, editorial and compositing tool",
     "company": "The Foundry",
-    "logo": "https://logo.clearbit.com/foundry.com",
+    "logo": "/integrations/nuke_studio_logo.png",
     "categories": [
       "Editor",
       "Compositor"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/nuke_studio_screenshot_1.png",
+        "isHero": true
+      },
+      {
+        "type": "image",
+        "url": "/integrations/nuke_studio_screenshot_2.png",
+        "isHero": false
+      },
+      {
+        "type": "video",
+        "url": "/integrations/nuke_studio_otio_import_v001.mov",
+        "isHero": false,
+        "thumbnail": "/integrations/nuke_studio_video_thumbnail_1.png"
+      }
+    ],
     "url": "https://www.foundry.com/products/nuke-family/nuke-studio"
   },
   {
