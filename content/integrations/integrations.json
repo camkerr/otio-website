@@ -31,11 +31,22 @@
     "name": "AVID Media Composer",
     "description": "Professional non-linear editing system with timeline export (preview)",
     "company": "AVID",
-    "logo": "https://logo.clearbit.com/avid.com",
+    "logo": "/integrations/avid-media-composer/avid_media_composer_logo.png",
     "categories": [
       "Editor"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/avid-media-composer/avid_media_composer_screenshot_1.png",
+        "isHero": true
+      },
+      {
+        "type": "image",
+        "url": "/integrations/avid-media-composer/avid_media_composer_screenshot_2.png",
+        "isHero": false
+      }
+    ],
     "url": "https://www.avid.com/media-composer"
   },
   {
@@ -221,12 +232,23 @@
     "name": "Nuke Studio",
     "description": "Multi-shot management, editorial and compositing tool",
     "company": "The Foundry",
-    "logo": "https://logo.clearbit.com/foundry.com",
+    "logo": "/integrations/nuke-studio/nuke_studio_logo.png",
     "categories": [
       "Editor",
       "Compositor"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/nuke-studio/nuke_studio_screenshot_1.png",
+        "isHero": true
+      },
+      {
+        "type": "image",
+        "url": "/integrations/nuke-studio/nuke_studio_screenshot_2.png",
+        "isHero": false
+      }
+    ],
     "url": "https://www.foundry.com/products/nuke-family/nuke-studio"
   },
   {
