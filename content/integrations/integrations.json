@@ -5,11 +5,27 @@
     "name": "Adobe Premiere Pro",
     "description": "Industry-leading non-linear video editor with timeline import/export (beta)",
     "company": "Adobe",
-    "logo": "/integrations/adobe_logo.png",
+    "logo": "/integrations/adobe-premiere-pro/adobe_premiere_logo.png",
     "categories": [
       "Editor"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/adobe-premiere-pro/adobe_premiere_screenshot_1.png",
+        "isHero": true
+      },
+      {
+        "type": "image",
+        "url": "/integrations/adobe-premiere-pro/adobe_premiere_screenshot_2.png",
+        "isHero": false
+      },
+      {
+        "type": "image",
+        "url":"/integrations/adobe-premiere-pro/adobe_premiere_screenshot_3.png",
+        "isHero": false
+      }
+    ],
     "url": "https://www.adobe.com/products/premiere.html"
   },
   {
@@ -98,11 +114,27 @@
     "name": "DaVinci Resolve",
     "description": "Professional color grading and editing software with OTIO and OTIOZ import/export support",
     "company": "Blackmagic Design",
-    "logo": "https://logo.clearbit.com/blackmagicdesign.com",
+    "logo": "/integrations/davinci-resolve/davinci_resolve_logo.png",
     "categories": [
       "Editor"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/davinci-resolve/davinci_resolve_screenshot_1.png",
+        "isHero": true
+      },
+      {
+        "type": "image",
+        "url": "/integrations/davinci-resolve/davinci_resolve_screenshot_2.png",
+        "isHero": false
+      },
+      {
+        "type": "image",
+        "url": "/integrations/davinci-resolve/davinci_resolve_screenshot_3.png",
+        "isHero": false
+      }
+    ],
     "url": "https://www.blackmagicdesign.com/products/davinciresolve"
   },
   {
