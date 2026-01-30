@@ -34,11 +34,17 @@
     "name": "Altera",
     "description": "Metadata Management tool for film and video production (coming soon)",
     "company": "Cine.dev",
-    "logo": "https://logo.clearbit.com/cine.dev",
+    "logo": "/integrations/altera/altera_logo.png",
     "categories": [
       "Management"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/altera/altera_screenshot_1.png",
+        "isHero": true
+      }
+    ],
     "url": "https://cine.dev/"
   },
   {
@@ -170,12 +176,23 @@
     "name": "Hiero",
     "description": "Multi-shot management, conform, editorial, review and distribution workflows tool",
     "company": "The Foundry",
-    "logo": "https://logo.clearbit.com/foundry.com",
+    "logo": "/integrations/hiero/hiero_logo.png",
     "categories": [
       "Management",
       "Review"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/nuke-studio/nuke_studio_screenshot_1.png",
+        "isHero": true
+      },
+      {
+        "type": "image",
+        "url": "/integrations/nuke-studio/nuke_studio_screenshot_2.png",
+        "isHero": false
+      }
+    ],
     "url": "https://www.foundry.com/products/nuke-family/hiero"
   },
   {
