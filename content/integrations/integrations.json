@@ -77,11 +77,17 @@
     "name": "Blender VSE IO",
     "description": "Blender Video Sequence Editor add-on for importing and exporting various editorial interchange formats",
     "company": "Superprod",
-    "logo": "https://logo.clearbit.com/superprod.fr",
+    "logo": "/integrations/blender-vse-io/blender_vs_io_logo.png",
     "categories": [
       "Plugin"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/blender-vse-io/blender_vs_io_screenshot_1.jpg",
+        "isHero": true
+      }
+    ],
     "url": "https://gitlab.com/superprod/stax_suite/vse_io"
   },
   {
