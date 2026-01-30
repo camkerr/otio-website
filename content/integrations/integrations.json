@@ -155,11 +155,17 @@
     "name": "EditReader",
     "description": "Animatic and animation production timeline manager that tracks timeline changes. Supports OTIO input and output",
     "company": "EditReader",
-    "logo": "https://logo.clearbit.com/editreader.co.uk",
+    "logo": "/integrations/editreader/editreader_logo.jpg",
     "categories": [
       "Management"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/editreader/editreader_screenshot_1.jpg",
+        "isHero": true
+      }
+    ],
     "url": "http://www.editreader.co.uk/"
   },
   {
@@ -168,12 +174,23 @@
     "name": "ftrack cineSync Play",
     "description": "Frame-accurate playback and review tool",
     "company": "ftrack",
-    "logo": "https://logo.clearbit.com/ftrack.com",
+    "logo": "/integrations/ftrack-cinesync-play/cinesync_play_icon.png",
     "categories": [
       "Player",
       "Review"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/ftrack-cinesync-play/cinesync_play_screenshot_1.png",
+        "isHero": true
+      },
+      {
+        "type": "image",
+        "url": "/integrations/ftrack-cinesync-play/cinesync_play_screenshot_2.png",
+        "isHero": false
+      }
+    ],
     "url": "https://www.ftrack.com/en/cinesync-play"
   },
   {
@@ -190,7 +207,7 @@
     "media": [
       {
         "type": "image",
-        "url": "/integrations/nuke-studio/nuke_studio_screenshot_1.png",
+        "url": "/integrations/hiero/hiero_screenshot_1.png",
         "isHero": true
       },
       {
@@ -220,11 +237,17 @@
     "name": "Kdenlive",
     "description": "KDE Non-Linear Video Editor with OTIO support since version 20.04",
     "company": "KDE",
-    "logo": "https://logo.clearbit.com/kdenlive.org",
+    "logo": "/integrations/kdenlive/kdenlive_logo.png",
     "categories": [
       "Editor"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/kdenlive/kdenlive_screenshot_1.webp",
+        "isHero": true
+      }
+    ],
     "url": "https://kdenlive.org/en/about/"
   },
   {
