@@ -256,11 +256,17 @@
     "name": "Magla",
     "description": "SQL-powered data pipeline for animation and VFX with dynamically generated OTIO timelines",
     "company": "Magnetic Lab",
-    "logo": "",
+    "logo": "/integrations/magla/magla_logo.png",
     "categories": [
       "Pipeline"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/magla/magla_screenshot_1.png",
+        "isHero": true
+      }
+    ],
     "url": "https://github.com/magnetic-lab/magla"
   },
   {
@@ -269,12 +275,23 @@
     "name": "Matchbox",
     "description": "Change Management solution for post production - compares reels and finds every cut change and VFX tweak",
     "company": "The Cargo Cult",
-    "logo": "https://logo.clearbit.com/thecargocult.nz",
+    "logo": "/integrations/matchbox/matchbox_logo.png",
     "categories": [
       "Management",
       "Review"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/matchbox/matchbox_screenshot_1.png",
+        "isHero": true
+      },
+      {
+        "type": "image",
+        "url": "/integrations/matchbox/matchbox_screenshot_2.png",
+        "isHero": false
+      }
+    ],
     "url": "https://www.thecargocult.nz/products/matchbox"
   },
   {
