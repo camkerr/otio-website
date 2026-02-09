@@ -377,12 +377,18 @@
     "name": "OpenRV",
     "description": "Open source digital review tool for film, TV, and games",
     "company": "Academy Software Foundation",
-    "logo": "https://logo.clearbit.com/aswf.io",
+    "logo": "/integrations/openrv/openrv_logo.png",
     "categories": [
       "Player",
       "Review"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/openrv/openrv_screenshot_1.jpg",
+        "isHero": false
+      }
+    ],
     "url": "https://github.com/AcademySoftwareFoundation/OpenRV"
   },
   {
@@ -508,14 +514,14 @@
     "name": "raven",
     "description": "Desktop app for MacOS, Windows, Linux, and web for inspecting OTIO files",
     "company": "OpenTimelineIO",
-    "logo": "/integrations/raven-logo.jpg",
+    "logo": "/integrations/raven/raven-logo.jpg",
     "categories": [
       "Inspector"
     ],
     "media": [
       {
         "type": "image",
-        "url": "/integrations/raven-media-1.png",
+        "url": "/integrations/raven/raven-media-1.png",
         "isHero": true
       }
     ],
@@ -540,12 +546,18 @@
     "name": "RV",
     "description": "Commercial version of OpenRV - digital review tool for film, TV, and games",
     "company": "ShotGrid",
-    "logo": "https://logo.clearbit.com/shotgridsoftware.com",
+    "logo": "/integrations/rv/rv_logo.png",
     "categories": [
       "Player",
       "Review"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/rv/rv_screenshot_1.png",
+        "isHero": true
+      }
+    ],
     "url": "https://www.shotgridsoftware.com/rv/"
   },
   {
