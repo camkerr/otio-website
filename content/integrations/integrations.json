@@ -313,12 +313,18 @@
     "name": "mrViewer",
     "description": "Flipbook, video and audio player with OTIO support",
     "company": "mrViewer",
-    "logo": "https://logo.clearbit.com/sourceforge.net",
+    "logo": "/integrations/mrviewer/mrviewer_logo.png",
     "categories": [
       "Player",
       "Review"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/mrviewer/mrviewer_screenshot_1.png",
+        "isHero": true
+      }
+    ],
     "url": "https://mrviewer.sourceforge.io/"
   },
   {
@@ -352,11 +358,17 @@
     "name": "Olive",
     "description": "Free open-source non-linear video editor with OTIO import and export support",
     "company": "Olive Team",
-    "logo": "https://logo.clearbit.com/olivevideoeditor.org",
+    "logo": "/integrations/olive/olive_logo.png",
     "categories": [
       "Editor"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/olive/olive_screenshot_1.png",
+        "isHero": false
+      }
+    ],
     "url": "https://olivevideoeditor.org/"
   },
   {
