@@ -556,6 +556,11 @@
         "type": "image",
         "url": "/integrations/rv/rv_screenshot_1.png",
         "isHero": true
+      },
+      {
+        "type": "image",
+        "url": "/integrations/rv/rv_screenshot_2.png",
+        "isHero": false
       }
     ],
     "url": "https://www.shotgridsoftware.com/rv/"
@@ -579,11 +584,17 @@
     "name": "Shot Manager",
     "description": "Blender Add-on from Ubisoft for shot management workflows",
     "company": "Ubisoft",
-    "logo": "https://logo.clearbit.com/ubisoft.com",
+    "logo": "/integrations/shotmanager/shotmanager_logo.png",
     "categories": [
       "Plugin"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/shotmanager/shotmanager_screenshot_1.png",
+        "isHero": true
+      }
+    ],
     "url": "https://github.com/ubisoft/shotmanager"
   },
   {
@@ -645,11 +656,17 @@
     "name": "Video Tracks",
     "description": "Blender Add-on from Ubisoft for video track management",
     "company": "Ubisoft",
-    "logo": "https://logo.clearbit.com/ubisoft.com",
+    "logo": "/integrations/videotracks/videotracks_logo.png",
     "categories": [
       "Plugin"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/videotracks/videotracks_screenshot_1.png",
+        "isHero": true
+      }
+    ],
     "url": "https://github.com/ubisoft/videotracks"
   }
 ]
