@@ -616,12 +616,18 @@
     "name": "tlRender",
     "description": "Open source library for building playback and review applications for VFX, film, and animation",
     "company": "Darby Johnson",
-    "logo": "",
+    "logo": "/integrations/tlrender/tlrender_logo.png",
     "categories": [
       "Player",
       "Library"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/tlrender/tlrender_screenshot_1.png",
+        "isHero": true
+      }
+    ],
     "url": "https://github.com/darbyjohnston/tlRender"
   },
   {
@@ -630,11 +636,17 @@
     "name": "toucan",
     "description": "Experimental offline renderer for OTIO sequences",
     "company": "Darby Johnson",
-    "logo": "",
+    "logo": "/integrations/toucan/toucan_logo.png",
     "categories": [
       "Renderer"
     ],
-    "media": [],
+    "media": [
+      {
+        "type": "image",
+        "url": "/integrations/toucan/toucan_screenshot_1.png",
+        "isHero": true
+      }
+    ],
     "url": "https://github.com/darbyjohnston/toucan"
   },
   {
